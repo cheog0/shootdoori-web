@@ -5,9 +5,10 @@ import { theme } from '@/styles/theme';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
+  isLoading?: boolean;
 }
 
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
   const {
     email,
     password,
@@ -22,7 +23,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid) return;
+    if (!isValid || isLoading) return;
     onSubmit(email, password);
   };
 
@@ -42,6 +43,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           onChange={handleEmailChange}
           onBlur={handleEmailBlur}
           hasError={!!emailError}
+          disabled={isLoading}
         />
         {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
 
@@ -52,15 +54,16 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           onChange={handlePasswordChange}
           onBlur={handlePasswordBlur}
           hasError={!!passwordError}
+          disabled={isLoading}
         />
         {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
 
         <LoginButton
           type="submit"
-          disabled={!isValid}
-          style={{ opacity: isValid ? 1 : 0.5 }}
+          disabled={!isValid || isLoading}
+          style={{ opacity: isValid && !isLoading ? 1 : 0.5 }}
         >
-          로그인
+          {isLoading ? '로그인 중...' : '로그인'}
         </LoginButton>
       </Form>
     </LoginContainer>
@@ -115,6 +118,11 @@ const InputField = styled.input<{ hasError?: boolean }>`
     border-bottom-color: ${props =>
       props.hasError ? 'red' : theme.colors.blue700};
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
 
 const LoginButton = styled.button`
@@ -130,14 +138,18 @@ const LoginButton = styled.button`
   margin-top: ${theme.spacing.spacing6};
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: ${theme.colors.kakaoYellowHover};
     transform: translateY(-1px);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     background: ${theme.colors.kakaoYellowActive};
     transform: translateY(0);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
   }
 `;
 

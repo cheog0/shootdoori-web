@@ -1,31 +1,17 @@
 import { Spinner } from '@/components/shared/ui/Spinner';
-import { BASE_URL } from '@/constants/api';
-import { useFetch } from '@/hooks/useFetch';
-import type { ThemeInfo } from '@/types';
+import { useThemeInfoQuery } from '@/hooks/queries';
 import styled from '@emotion/styled';
 import { theme as appTheme } from '@/styles/theme';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isFetchError } from '@/hooks/useFetch';
-import { useAuth } from '@/contexts/AuthContext';
+import { ApiError } from '@/lib/api';
 
 export function ThemeInfoSection({ themeId }: { themeId: number }) {
   const navigate = useNavigate();
-  const { getAuthToken } = useAuth();
-  const token = getAuthToken();
-  const {
-    data: theme,
-    loading,
-    error,
-  } = useFetch<ThemeInfo>({
-    baseUrl: BASE_URL,
-    path: `/api/themes/${themeId}/info`,
-    headers: token ? { Authorization: token } : {},
-    deps: [themeId],
-  });
+  const { data: theme, isLoading: loading, error } = useThemeInfoQuery(themeId);
 
   useEffect(() => {
-    if (isFetchError(error) && error.status === 404) {
+    if (error instanceof ApiError && error.status === 404) {
       navigate('/', { replace: true });
     }
   }, [error, navigate]);

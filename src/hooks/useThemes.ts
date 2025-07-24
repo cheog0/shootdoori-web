@@ -1,16 +1,6 @@
-import { useFetch } from './useFetch';
-import type { GiftTheme } from '@/types';
+import { useThemesQuery } from './queries';
 
 export function useThemes() {
-  const apiUrl = import.meta.env.VITE_API_URL;
-  const {
-    data: themes,
-    loading,
-    error,
-  } = useFetch<GiftTheme[]>({
-    baseUrl: apiUrl,
-    path: '/api/themes',
-    deps: [],
-  });
+  const { data: themes, isLoading: loading, error } = useThemesQuery();
   return { themes: themes || [], loading, error };
 }

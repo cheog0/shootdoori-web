@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
@@ -14,46 +14,27 @@ import { RecipientTable } from '@/components/features/gift-order';
 import { orderSchema } from '@/schemas/giftOrderSchemas';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFetch, isFetchError } from '@/hooks/useFetch';
+import {
+  useProductSummaryQuery,
+  useCreateOrderMutation,
+} from '@/hooks/queries';
 import { Spinner } from '@/components/shared/ui/Spinner';
 
 type OrderForm = z.infer<typeof orderSchema>;
-
-type ProductSummary = {
-  id: number;
-  name: string;
-  brandName?: string;
-  price: number;
-  imageURL: string;
-};
 
 export default function GiftOrderPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { productId } = useParams();
   const modalBodyRef = useRef<HTMLDivElement>(null);
-  const { user, logout, getAuthToken } = useAuth();
+  const { user, logout } = useAuth();
 
   const {
     data: product,
     error,
-    loading,
-  } = useFetch<ProductSummary>({
-    baseUrl: import.meta.env.VITE_API_URL,
-    path: `/api/products/${productId}/summary`,
-    deps: [productId, navigate],
-  });
-
-  const {
-    data: orderResult,
-    error: orderError,
-    refetch: orderRefetch,
-  } = useFetch<any>({
-    baseUrl: import.meta.env.VITE_API_URL,
-    path: '/api/order',
-    method: 'POST',
-    auto: false,
-  });
+    isLoading: loading,
+  } = useProductSummaryQuery(Number(productId));
+  const createOrderMutation = useCreateOrderMutation();
 
   const {
     control,
@@ -82,7 +63,7 @@ export default function GiftOrderPage() {
 
   const [isRecipientModalOpen, setIsRecipientModalOpen] = useState(false);
 
-  const onSubmit = (data: OrderForm) => {
+  const onSubmit = async (data: OrderForm) => {
     if (!user) {
       logout();
       toast.error('로그인이 필요합니다.');
@@ -90,18 +71,9 @@ export default function GiftOrderPage() {
       return;
     }
 
-    const authToken = getAuthToken();
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    if (authToken) {
-      headers.Authorization = authToken;
-    }
-    orderRefetch({
-      headers,
-      body: {
-        productId: product?.id,
+    try {
+      await createOrderMutation.mutateAsync({
+        productId: product!.id,
         ordererName: data.senderName,
         message: data.message,
         messageCardId: String(data.selectedTemplate.id),
@@ -110,40 +82,17 @@ export default function GiftOrderPage() {
           phoneNumber: r.phone,
           quantity: r.quantity,
         })),
-      },
-    });
-  };
+      });
 
-  useEffect(() => {
-    if (orderError) {
-      if (isFetchError(orderError)) {
-        const status = orderError.status;
-
-        if (status === 400) {
-          toast.error('받는 사람이 없습니다');
-        } else if (status === 401) {
-          logout();
-          const currentPath = encodeURIComponent(location.pathname);
-          sessionStorage.setItem('loginError', 'unauthorized');
-          navigate(`/login?redirect=${currentPath}`, { replace: true });
-          return;
-        } else {
-          toast.error(orderError.message);
-        }
-      } else {
-        toast.error(orderError.message);
-      }
-      return;
-    }
-    if (orderResult) {
       const totalQuantity = getValues('recipients').reduce(
         (sum, r) => sum + r.quantity,
         0
       );
+
       alert(
         '주문이 완료되었습니다.' +
           '\n상품명: ' +
-          product?.name +
+          product!.name +
           '\n구매 수량: ' +
           totalQuantity +
           '\n발신자 이름: ' +
@@ -152,8 +101,21 @@ export default function GiftOrderPage() {
           getValues('message')
       );
       navigate('/');
+    } catch (error: any) {
+      const status = error?.status;
+
+      if (status === 400) {
+        toast.error('받는 사람이 없습니다');
+      } else if (status === 401) {
+        logout();
+        const currentPath = encodeURIComponent(location.pathname);
+        sessionStorage.setItem('loginError', 'unauthorized');
+        navigate(`/login?redirect=${currentPath}`, { replace: true });
+      } else {
+        toast.error(error.message || '주문에 실패했습니다.');
+      }
     }
-  }, [orderResult, orderError]);
+  };
 
   const handleBackClick = () => {
     navigate(-1);
@@ -260,22 +222,21 @@ export default function GiftOrderPage() {
           </FormSection>
           <Separator />
 
-          {product && (
-            <ProductSection>
-              <SectionTitle>상품 정보</SectionTitle>
-              <ProductInfo>
-                <ProductImage src={product.imageURL} alt={product.name} />
-                <ProductDetails>
-                  <ProductName>{product.name}</ProductName>
-                  <ProductBrand>
-                    {product.brandName ?? '브랜드 정보 없음'}
-                  </ProductBrand>
-                  <ProductPrice>상품가 {product.price}원</ProductPrice>
-                </ProductDetails>
-              </ProductInfo>
-            </ProductSection>
-          )}
+          <ProductSection>
+            <SectionTitle>상품 정보</SectionTitle>
+            <ProductInfo>
+              <ProductImage src={product.imageURL} alt={product.name} />
+              <ProductDetails>
+                <ProductName>{product.name}</ProductName>
+                <ProductBrand>
+                  {product.brandName ?? '브랜드 정보 없음'}
+                </ProductBrand>
+                <ProductPrice>상품가 {product.price}원</ProductPrice>
+              </ProductDetails>
+            </ProductInfo>
+          </ProductSection>
         </FormContainer>
+
         <RecipientModal
           isOpen={isRecipientModalOpen}
           onClose={() => setIsRecipientModalOpen(false)}
@@ -284,12 +245,14 @@ export default function GiftOrderPage() {
           modalBodyRef={modalBodyRef}
         />
 
-        {product && (
-          <OrderButton onClick={handleSubmit(onSubmit)}>
-            {product.price * calculateTotalQuantity(getValues('recipients'))}원
-            주문하기
-          </OrderButton>
-        )}
+        <OrderButton
+          onClick={handleSubmit(onSubmit)}
+          disabled={createOrderMutation.isPending}
+        >
+          {createOrderMutation.isPending
+            ? '주문 처리 중...'
+            : `${product.price * calculateTotalQuantity(getValues('recipients'))}원 주문하기`}
+        </OrderButton>
       </MobileViewport>
     </AppContainer>
   );
@@ -524,12 +487,17 @@ const OrderButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: ${theme.colors.kakaoYellowHover};
   }
 
-  &:active {
+  &:active:not(:disabled) {
     background: ${theme.colors.kakaoYellowActive};
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   @media (max-width: 768px) {

@@ -1,17 +1,10 @@
-import { useFetch } from './useFetch';
-import type { Product } from '@/types';
+import { useRankingProductsQuery } from './queries';
 
 export function useRankingProducts(targetType: string, rankType: string) {
-  const apiUrl = import.meta.env.VITE_API_URL;
   const {
     data: products,
-    loading,
+    isLoading: loading,
     error,
-  } = useFetch<Product[]>({
-    baseUrl: apiUrl,
-    path: '/api/products/ranking',
-    searchParams: { targetType, rankType },
-    deps: [targetType, rankType],
-  });
+  } = useRankingProductsQuery(targetType, rankType);
   return { products: products || [], loading, error };
 }

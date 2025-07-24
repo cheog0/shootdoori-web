@@ -6,7 +6,7 @@ import { theme } from '@/styles/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useFetch } from '@/hooks/useFetch';
+import { useLoginMutation } from '@/hooks/queries';
 import { useEffect } from 'react';
 
 export default function LoginPage() {
@@ -14,15 +14,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const apiUrl = import.meta.env.VITE_API_URL;
 
-  const { data, error, refetch } = useFetch<any>({
-    baseUrl: apiUrl,
-    path: '/api/login',
-    method: 'POST',
-    auto: false,
-  });
-
+  const loginMutation = useLoginMutation();
   useEffect(() => {
     const loginError = sessionStorage.getItem('loginError');
     if (loginError === 'unauthorized') {
@@ -37,34 +30,29 @@ export default function LoginPage() {
     navigate(from, { replace });
   };
 
-  const handleLogin = (email: string, password: string) => {
-    refetch({
-      headers: { 'Content-Type': 'application/json' },
-      body: { email, password },
-    });
-  };
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const result = await loginMutation.mutateAsync({ email, password });
 
-  useEffect(() => {
-    if (error) {
-      const status = (error as Error & { status?: number }).status;
-      const msg =
-        (status === 400 && error.message === 'Bad Request') ||
-        error.message?.includes('kakao.com') ||
-        error.message?.includes('이메일')
-          ? '@kakao.com 이메일 주소만 가능합니다.'
-          : error.message;
-      toast.error(msg);
-      return;
-    }
-    if (data) {
+      const authToken = result?.authToken;
+      const userEmail = result?.user?.email || email;
+      const userName = result?.user?.name || '사용자';
+
+      if (!authToken) {
+        throw new Error('인증 토큰을 받지 못했습니다.');
+      }
+
       login({
-        authToken: data.authToken ?? data.data?.authToken,
-        email: data.email ?? data.data?.email,
-        name: data.name ?? data.data?.name,
+        authToken,
+        email: userEmail,
+        name: userName,
       });
       handleRedirect(true);
+    } catch (error: any) {
+      const msg = error.message || '로그인에 실패했습니다.';
+      toast.error(msg);
     }
-  }, [data, error]);
+  };
 
   return (
     <AppContainer>
@@ -73,7 +61,7 @@ export default function LoginPage() {
           title="선물하기"
           onBackClick={() => handleRedirect(false)}
         />
-        <LoginForm onSubmit={handleLogin} />
+        <LoginForm onSubmit={handleLogin} isLoading={loginMutation.isPending} />
       </MobileViewport>
     </AppContainer>
   );

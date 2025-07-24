@@ -1,11 +1,9 @@
-import { usePaginationFetch } from '@/hooks/usePaginationFetch';
-import { BASE_URL } from '@/constants/api';
+import { useThemeProductsInfiniteQuery } from '@/hooks/queries';
 import { Spinner } from '@/components/shared/ui/Spinner';
 import { Loader } from '@/components/shared/ui/Loader';
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 import type { Product } from '@/types';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface ThemeProductSectionProps {
   themeId: number;
@@ -18,30 +16,26 @@ export function ThemeProductSection({
   themeId,
   onProductClick,
 }: ThemeProductSectionProps) {
-  const { getAuthToken } = useAuth();
-  const token = getAuthToken();
-
   const {
-    items: products,
-    loading,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
     error,
-    hasMore,
-    loadMore,
-  } = usePaginationFetch<Product>({
-    baseUrl: BASE_URL,
-    path: `/api/themes/${themeId}/products`,
-    headers: token ? { Authorization: token } : undefined,
-    deps: [themeId],
-    limit: LIMIT,
-  });
+  } = useThemeProductsInfiniteQuery(themeId, LIMIT);
+
+  const products = data?.pages.flatMap(page => page.list) ?? [];
 
   const handleIntersect = () => {
-    loadMore();
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
   };
 
-  if (loading && products.length === 0) return <Spinner />;
+  if (isLoading && products.length === 0) return <Spinner />;
   if (error) return <ProductContainer>에러가 발생했습니다.</ProductContainer>;
-  if (!loading && products.length === 0)
+  if (!isLoading && products.length === 0)
     return <ProductContainer>상품이 없습니다.</ProductContainer>;
 
   return (
@@ -62,11 +56,11 @@ export function ThemeProductSection({
       </ProductGrid>
       <Loader
         onView={handleIntersect}
-        enabled={hasMore && !loading}
+        enabled={hasNextPage && !isFetchingNextPage}
         style={{ height: 20 }}
       />
-      {loading && products.length > 0 && <LoadingText>로딩 중...</LoadingText>}
-      {!hasMore && products.length > 0 && (
+      {isFetchingNextPage && <LoadingText>로딩 중...</LoadingText>}
+      {!hasNextPage && products.length > 0 && (
         <EndText>모든 상품을 불러왔어요!</EndText>
       )}
     </ProductContainer>
