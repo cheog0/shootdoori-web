@@ -7,52 +7,67 @@ import {
 import { apiService } from '@/lib/api';
 import type { GiftOrderForm } from '@/types';
 
-export const queryKeys = {
-  themes: ['themes'] as const,
-  themeInfo: (themeId: string | number) => ['themes', themeId, 'info'] as const,
-  themeProducts: (themeId: string | number) =>
-    ['themes', themeId, 'products'] as const,
-  rankingProducts: (targetType: string, rankType: string) =>
-    ['products', 'ranking', targetType, rankType] as const,
-  productSummary: (productId: string | number) =>
-    ['products', productId, 'summary'] as const,
+export const queries = {
+  themes: {
+    key: ['themes'] as const,
+    fn: () => apiService.getThemes(),
+  },
+  themeInfo: {
+    key: (themeId: string | number) => ['themes', themeId, 'info'] as const,
+    fn: (themeId: string | number) => apiService.getThemeInfo(themeId),
+  },
+  themeProducts: {
+    key: (themeId: string | number) => ['themes', themeId, 'products'] as const,
+    fn: (themeId: string | number) => apiService.getThemeProducts(themeId),
+  },
+  rankingProducts: {
+    key: (targetType: string, rankType: string) =>
+      ['products', 'ranking', targetType, rankType] as const,
+    fn: (targetType: string, rankType: string) =>
+      apiService.getRankingProducts(targetType, rankType),
+  },
+  productSummary: {
+    key: (productId: string | number) =>
+      ['products', productId, 'summary'] as const,
+    fn: (productId: string | number) => apiService.getProductSummary(productId),
+  },
 } as const;
 
 export function useThemesQuery() {
   return useQuery({
-    queryKey: queryKeys.themes,
-    queryFn: () => apiService.getThemes(),
+    queryKey: queries.themes.key,
+    queryFn: queries.themes.fn,
   });
 }
 
 export function useThemeInfoQuery(themeId: string | number) {
   return useQuery({
-    queryKey: queryKeys.themeInfo(themeId),
-    queryFn: () => apiService.getThemeInfo(themeId),
+    queryKey: queries.themeInfo.key(themeId),
+    queryFn: () => queries.themeInfo.fn(themeId),
     enabled: !!themeId,
   });
 }
 
 export function useThemeProductsQuery(themeId: string | number) {
   return useQuery({
-    queryKey: queryKeys.themeProducts(themeId),
-    queryFn: () => apiService.getThemeProducts(themeId),
+    queryKey: queries.themeProducts.key(themeId),
+    queryFn: () => queries.themeProducts.fn(themeId),
     enabled: !!themeId,
   });
 }
 
 export function useRankingProductsQuery(targetType: string, rankType: string) {
   return useQuery({
-    queryKey: queryKeys.rankingProducts(targetType, rankType),
-    queryFn: () => apiService.getRankingProducts(targetType, rankType),
+    queryKey: queries.rankingProducts.key(targetType, rankType),
+    queryFn: () => queries.rankingProducts.fn(targetType, rankType),
     enabled: !!targetType && !!rankType,
   });
 }
 
 export function useProductSummaryQuery(productId: string | number) {
   return useQuery({
-    queryKey: queryKeys.productSummary(productId),
-    queryFn: () => apiService.getProductSummary(productId),
+    queryKey: queries.productSummary.key(productId),
+    queryFn: () => queries.productSummary.fn(productId),
     enabled: !!productId,
   });
 }
@@ -62,7 +77,7 @@ export function useThemeProductsInfiniteQuery(
   limit: number = 20
 ) {
   return useInfiniteQuery({
-    queryKey: [...queryKeys.themeProducts(themeId), 'infinite'],
+    queryKey: [...queries.themeProducts.key(themeId), 'infinite'],
     queryFn: ({ pageParam = 0 }) =>
       apiService.getThemeProductsWithPagination(themeId, {
         cursor: pageParam,
@@ -83,10 +98,8 @@ export function useLoginMutation() {
     mutationFn: (credentials: { email: string; password: string }) =>
       apiService.login(credentials),
     onSuccess: data => {
-      // 로그인 성공 시 사용자 정보를 세션에 저장
       sessionStorage.setItem('userInfo', JSON.stringify(data));
 
-      // 캐시 무효화
       queryClient.invalidateQueries();
     },
   });
