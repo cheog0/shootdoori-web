@@ -35,13 +35,15 @@ export interface MessageCardTemplate {
 }
 
 export interface GiftOrderForm {
+  productId: number;
+  ordererName: string;
   message: string;
-  senderName: string;
-  recipientName: string;
-  recipientPhone: string;
-  quantity: number;
-  selectedTemplate: MessageCardTemplate;
-  [key: string]: unknown;
+  messageCardId: string;
+  receivers: Array<{
+    name: string;
+    phoneNumber: string;
+    quantity: number;
+  }>;
 }
 
 export type Recipient = { name: string; phone: string; quantity: number };
