@@ -4,54 +4,32 @@ import {
   useQueryClient,
   useInfiniteQuery,
 } from '@tanstack/react-query';
-import type { GiftOrderForm, ProductWish } from '@/types';
-import type { LoginRequest, LoginResponse } from '@/types/api';
-import * as api from '@/api';
+import { apiService } from '@/lib/api';
+import type { GiftOrderForm } from '@/types';
 
 export const queries = {
   themes: {
     key: ['themes'] as const,
-    fn: () => themesApi.getThemes(),
+    fn: () => apiService.getThemes(),
   },
   themeInfo: {
     key: (themeId: string | number) => ['themes', themeId, 'info'] as const,
-    fn: (themeId: string | number) => themesApi.getThemeInfo(themeId),
+    fn: (themeId: string | number) => apiService.getThemeInfo(themeId),
   },
   themeProducts: {
     key: (themeId: string | number) => ['themes', themeId, 'products'] as const,
-    fn: (themeId: string | number) => themesApi.getThemeProducts(themeId),
+    fn: (themeId: string | number) => apiService.getThemeProducts(themeId),
   },
   rankingProducts: {
     key: (targetType: string, rankType: string) =>
       ['products', 'ranking', targetType, rankType] as const,
     fn: (targetType: string, rankType: string) =>
-      productsApi.getRankingProducts(targetType, rankType),
+      apiService.getRankingProducts(targetType, rankType),
   },
-
-  product: {
-    key: (productId: string | number) => ['products', productId] as const,
-    fn: (productId: string | number) => api.productsApi.getProduct(productId),
-  },
-  productDetail: {
+  productSummary: {
     key: (productId: string | number) =>
-      ['products', productId, 'detail'] as const,
-    fn: (productId: string | number) =>
-      api.productsApi.getProductDetail(productId),
-  },
-  productReviews: {
-    key: (productId: string | number) =>
-      ['products', productId, 'reviews'] as const,
-    fn: (productId: string | number) =>
-      api.productsApi.getProductReviews(productId),
-  },
-  productWish: {
-    key: (productId: string | number) =>
-      ['products', productId, 'wish'] as const,
-    fn: (productId: string | number) =>
-      api.productsApi.getProductWish(productId),
-  },
-  products: {
-    key: ['products'] as const,
+      ['products', productId, 'summary'] as const,
+    fn: (productId: string | number) => apiService.getProductSummary(productId),
   },
 } as const;
 
@@ -110,8 +88,8 @@ export function useProductReviewsQuery(productId: string | number) {
 }
 export function useProductWishQuery(productId: string | number) {
   return useQuery({
-    queryKey: queries.productWish.key(productId),
-    queryFn: () => queries.productWish.fn(productId),
+    queryKey: queries.productSummary.key(productId),
+    queryFn: () => queries.productSummary.fn(productId),
     enabled: !!productId,
   });
 }
