@@ -31,6 +31,9 @@ export const queries = {
       ['products', productId, 'summary'] as const,
     fn: (productId: string | number) => apiService.getProductSummary(productId),
   },
+  products: {
+    key: ['products'] as const,
+  },
 } as const;
 
 export function useThemesQuery() {
@@ -105,35 +108,13 @@ export function useLoginMutation() {
   });
 }
 
-export function useCreateGiftOrderMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (orderData: GiftOrderForm) =>
-      apiService.createGiftOrder(orderData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['themes'] });
-    },
-  });
-}
-
 export function useCreateOrderMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (orderData: {
-      productId: number;
-      ordererName: string;
-      message: string;
-      messageCardId: string;
-      receivers: Array<{
-        name: string;
-        phoneNumber: string;
-        quantity: number;
-      }>;
-    }) => apiService.createOrder(orderData),
+    mutationFn: (orderData: GiftOrderForm) => apiService.createOrder(orderData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: queries.products.key });
     },
   });
 }
