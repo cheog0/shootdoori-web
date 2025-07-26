@@ -10,8 +10,7 @@ import {
 import { Spinner } from '@/components/shared/ui';
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
-import { useThemes } from '@/hooks/useThemes';
-import { useRankingProducts } from '@/hooks/useRankingProducts';
+import { useThemesQuery, useRankingProductsQuery } from '@/hooks/queries';
 import type { GiftTheme } from '@/types';
 
 const DEFAULT_TARGET = 'ALL';
@@ -19,26 +18,19 @@ const DEFAULT_RANK = 'MANY_WISH';
 const THEME_PATH = '/themes/:themeId';
 
 function ThemesSection() {
-  const { themes, loading, error } = useThemes();
+  const { data: themes, isLoading: loading, error } = useThemesQuery();
   const navigate = useNavigate();
+
   if (loading) return <Spinner />;
   if (error) return null;
-  if (themes.length === 0) return null;
+  if (!themes || themes.length === 0) return null;
+
   const handleThemeClick = (theme: GiftTheme) => {
     navigate(generatePath(THEME_PATH, { themeId: String(theme.themeId) }));
   };
+
   return <GiftThemeGrid themes={themes} onThemeClick={handleThemeClick} />;
 }
-
-const RankingLoadingContainer = styled.div`
-  min-height: 800px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: ${theme.colors.default};
-  border-radius: 16px;
-  margin: 0 0 24px 0;
-`;
 
 function RankingSection({
   targetType,
@@ -49,19 +41,25 @@ function RankingSection({
   rankType: string;
   onFilterChange: (nextTarget: string, nextRank: string) => void;
 }) {
-  const { products, loading, error } = useRankingProducts(targetType, rankType);
+  const {
+    data: products,
+    isLoading: loading,
+    error,
+  } = useRankingProductsQuery(targetType, rankType);
 
-  if (loading)
+  if (loading) {
     return (
       <RankingLoadingContainer>
         <Spinner />
       </RankingLoadingContainer>
     );
+  }
+
   if (error) return null;
 
   return (
     <RealTimeRanking
-      products={products}
+      products={products || []}
       ProductCardComponent={ProductCard}
       targetType={targetType}
       rankType={rankType}
@@ -128,4 +126,14 @@ const MobileViewport = styled.div`
     max-width: 100%;
     box-shadow: none;
   }
+`;
+
+const RankingLoadingContainer = styled.div`
+  min-height: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${theme.colors.default};
+  border-radius: 16px;
+  margin: 0 0 24px 0;
 `;
