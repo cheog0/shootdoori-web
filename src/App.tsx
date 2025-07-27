@@ -9,6 +9,7 @@ import { ProtectedRoute } from '@/components/shared/ui';
 import { ROUTES } from '@/constants/routes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ProductDetailPage from './pages/ProductDetailPage';
 
 function App() {
   return (
@@ -30,6 +31,14 @@ function App() {
           element={
             <ProtectedRoute>
               <GiftOrderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.PRODUCT}
+          element={
+            <ProtectedRoute>
+              <ProductDetailPage />
             </ProtectedRoute>
           }
         />
