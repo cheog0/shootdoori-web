@@ -12,7 +12,6 @@ export function useLoginForm() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordTouched, setPasswordTouched] = useState(false);
 
-  // 이메일 유효성 검사
   const validateEmailField = (value: string) => {
     if (!value) return 'ID를 입력해주세요.';
     const result = emailSchema.safeParse(value);
@@ -20,14 +19,12 @@ export function useLoginForm() {
     return '';
   };
 
-  // 비밀번호 유효성 검사
   const validatePasswordField = (value: string) => {
     if (!value) return 'PW를 입력해주세요.';
     if (value.length < 8) return 'PW는 최소 8글자 이상이어야 합니다.';
     return '';
   };
 
-  // onBlur 핸들러
   const handleEmailBlur = () => {
     setEmailTouched(true);
     setEmailError(validateEmailField(email));
@@ -37,7 +34,6 @@ export function useLoginForm() {
     setPasswordError(validatePasswordField(password));
   };
 
-  // onChange 핸들러
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     if (emailTouched) {
@@ -51,7 +47,6 @@ export function useLoginForm() {
     }
   };
 
-  // 버튼 활성화 조건
   const isValid =
     validateEmailField(email) === '' && validatePasswordField(password) === '';
 
