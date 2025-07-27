@@ -15,7 +15,6 @@ import { orderSchema } from '@/schemas/giftOrderSchemas';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProductQuery, useCreateOrderMutation } from '@/hooks/queries';
-import { Spinner } from '@/components/shared/ui/Spinner';
 
 type OrderForm = z.infer<typeof orderSchema>;
 
@@ -26,11 +25,9 @@ export default function GiftOrderPage() {
   const modalBodyRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
 
-  const {
-    data: product,
-    error,
-    isLoading: loading,
-  } = useProductQuery(Number(productId));
+  const { data: product, isLoading: productLoading } = useProductQuery(
+    Number(productId)
+  );
   const createOrderMutation = useCreateOrderMutation();
 
   const {
@@ -123,9 +120,13 @@ export default function GiftOrderPage() {
     setValue('selectedTemplate', template);
   };
 
-  if (loading) return <Spinner />;
-  if (error) return <div>상품 정보를 불러올 수 없습니다.</div>;
-  if (!product) return <div>상품이 없습니다.</div>;
+  if (productLoading) {
+    return null;
+  }
+
+  if (!product) {
+    throw new Error('상품 정보를 찾을 수 없습니다.');
+  }
 
   const openModal = () => {
     setIsRecipientModalOpen(true);
