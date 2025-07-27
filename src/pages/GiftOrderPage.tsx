@@ -14,10 +14,7 @@ import { RecipientTable } from '@/components/features/gift-order';
 import { orderSchema } from '@/schemas/giftOrderSchemas';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  useProductSummaryQuery,
-  useCreateOrderMutation,
-} from '@/hooks/queries';
+import { useProductQuery, useCreateOrderMutation } from '@/hooks/queries';
 import { Spinner } from '@/components/shared/ui/Spinner';
 
 type OrderForm = z.infer<typeof orderSchema>;
@@ -33,7 +30,7 @@ export default function GiftOrderPage() {
     data: product,
     error,
     isLoading: loading,
-  } = useProductSummaryQuery(Number(productId));
+  } = useProductQuery(Number(productId));
   const createOrderMutation = useCreateOrderMutation();
 
   const {
@@ -229,9 +226,11 @@ export default function GiftOrderPage() {
               <ProductDetails>
                 <ProductName>{product.name}</ProductName>
                 <ProductBrand>
-                  {product.brandName ?? '브랜드 정보 없음'}
+                  {product.brandInfo?.name ?? '브랜드 정보 없음'}
                 </ProductBrand>
-                <ProductPrice>상품가 {product.price}원</ProductPrice>
+                <ProductPrice>
+                  상품가 {product.price.sellingPrice}원
+                </ProductPrice>
               </ProductDetails>
             </ProductInfo>
           </ProductSection>
@@ -251,7 +250,7 @@ export default function GiftOrderPage() {
         >
           {createOrderMutation.isPending
             ? '주문 처리 중...'
-            : `${product.price * calculateTotalQuantity(getValues('recipients'))}원 주문하기`}
+            : `${product.price.sellingPrice * calculateTotalQuantity(getValues('recipients'))}원 주문하기`}
         </OrderButton>
       </MobileViewport>
     </AppContainer>
