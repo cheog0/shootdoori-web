@@ -1,5 +1,4 @@
 import { useThemeProductsInfiniteQuery } from '@/hooks/queries';
-import { Spinner } from '@/components/shared/ui/Spinner';
 import { Loader } from '@/components/shared/ui/Loader';
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
@@ -16,14 +15,8 @@ export function ThemeProductSection({
   themeId,
   onProductClick,
 }: ThemeProductSectionProps) {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error,
-  } = useThemeProductsInfiniteQuery(themeId, LIMIT);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useThemeProductsInfiniteQuery(themeId, LIMIT);
 
   const products = data?.pages.flatMap(page => page.list) ?? [];
 
@@ -33,10 +26,9 @@ export function ThemeProductSection({
     }
   };
 
-  if (isLoading && products.length === 0) return <Spinner />;
-  if (error) return <ProductContainer>에러가 발생했습니다.</ProductContainer>;
-  if (!isLoading && products.length === 0)
+  if (!isLoading && products.length === 0) {
     return <ProductContainer>상품이 없습니다.</ProductContainer>;
+  }
 
   return (
     <ProductContainer>

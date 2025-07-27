@@ -1,24 +1,17 @@
-import { Spinner } from '@/components/shared/ui/Spinner';
 import { useThemeInfoQuery } from '@/hooks/queries';
 import styled from '@emotion/styled';
 import { theme as appTheme } from '@/styles/theme';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ApiError } from '@/lib/apiClient';
 
 export function ThemeInfoSection({ themeId }: { themeId: number }) {
-  const navigate = useNavigate();
-  const { data: theme, isLoading: loading, error } = useThemeInfoQuery(themeId);
+  const { data: theme } = useThemeInfoQuery(themeId);
 
-  useEffect(() => {
-    if (error instanceof ApiError && error.status === 404) {
-      navigate('/', { replace: true });
-    }
-  }, [error, navigate]);
-
-  if (loading) return <Spinner />;
-  if (error) return <InfoContainer>에러가 발생했습니다.</InfoContainer>;
-  if (!theme) return <InfoContainer>데이터 없음</InfoContainer>;
+  if (!theme) {
+    return (
+      <InfoContainer>
+        <InfoTitle>테마 정보를 찾을 수 없습니다.</InfoTitle>
+      </InfoContainer>
+    );
+  }
 
   return (
     <InfoContainer style={{ background: theme.backgroundColor }}>
