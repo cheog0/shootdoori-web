@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useLoginMutation } from '@/hooks/queries';
+import type { LoginRequest } from '@/types/api';
 import { useEffect } from 'react';
 
 export default function LoginPage() {
@@ -32,7 +33,8 @@ export default function LoginPage() {
 
   const handleLogin = async (email: string, password: string) => {
     try {
-      const result = await loginMutation.mutateAsync({ email, password });
+      const credentials: LoginRequest = { email, password };
+      const result = await loginMutation.mutateAsync(credentials);
 
       const authToken = result?.authToken;
       const userEmail = result?.user?.email || email;
