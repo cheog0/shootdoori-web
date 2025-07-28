@@ -219,6 +219,10 @@ export function useToggleWishMutation() {
         );
       }
     },
-    onSettled: () => {},
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queries.productWish.key(variables.productId),
+      });
+    },
   });
 }
