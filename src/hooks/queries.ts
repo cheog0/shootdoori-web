@@ -5,27 +5,31 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query';
 import type { GiftOrderForm, ProductWish } from '@/types';
-import type { LoginRequest, LoginResponse } from '@/types/api';
+import type {
+  LoginRequest,
+  LoginResponse,
+  ThemeProductsResponse,
+} from '@/types/api';
 import * as api from '@/api';
 
 export const queries = {
   themes: {
     key: ['themes'] as const,
-    fn: () => themesApi.getThemes(),
+    fn: () => api.themesApi.getThemes(),
   },
   themeInfo: {
     key: (themeId: string | number) => ['themes', themeId, 'info'] as const,
-    fn: (themeId: string | number) => themesApi.getThemeInfo(themeId),
+    fn: (themeId: string | number) => api.themesApi.getThemeInfo(themeId),
   },
   themeProducts: {
     key: (themeId: string | number) => ['themes', themeId, 'products'] as const,
-    fn: (themeId: string | number) => themesApi.getThemeProducts(themeId),
+    fn: (themeId: string | number) => api.themesApi.getThemeProducts(themeId),
   },
   rankingProducts: {
     key: (targetType: string, rankType: string) =>
       ['products', 'ranking', targetType, rankType] as const,
     fn: (targetType: string, rankType: string) =>
-      productsApi.getRankingProducts(targetType, rankType),
+      api.productsApi.getRankingProducts(targetType, rankType),
   },
 
   product: {
@@ -123,11 +127,14 @@ export function useThemeProductsInfiniteQuery(
   return useInfiniteQuery({
     queryKey: [...queries.themeProducts.key(themeId), 'infinite'],
     queryFn: ({ pageParam = 0 }) =>
-      themesApi.getThemeProductsWithPagination(themeId, {
+      api.themesApi.getThemeProductsWithPagination(themeId, {
         cursor: pageParam,
         limit,
       }),
-    getNextPageParam: (lastPage: any, allPages) => {
+    getNextPageParam: (
+      lastPage: ThemeProductsResponse,
+      allPages: ThemeProductsResponse[]
+    ) => {
       const currentCursor = allPages.length * limit;
       return lastPage.hasMoreList ? currentCursor : undefined;
     },
@@ -157,7 +164,6 @@ export function useLoginMutation() {
     },
     onSuccess: data => {
       sessionStorage.setItem('userInfo', JSON.stringify(data));
-
       queryClient.invalidateQueries();
     },
   });
@@ -167,7 +173,8 @@ export function useCreateOrderMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (orderData: GiftOrderForm) => ordersApi.createOrder(orderData),
+    mutationFn: (orderData: GiftOrderForm) =>
+      api.ordersApi.createOrder(orderData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queries.products.key });
     },
