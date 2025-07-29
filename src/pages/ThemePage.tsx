@@ -16,7 +16,7 @@ export default function ThemePage() {
   };
 
   const handleProductClick = (product: Product) => {
-    navigate(`/order/${product.id}`);
+    navigate(`/product/${product.id}`, { state: { product } });
   };
 
   return (

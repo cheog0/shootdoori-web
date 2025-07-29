@@ -85,11 +85,42 @@ const HomeButton = styled.button`
   }
 `;
 
-export default function NotFoundPage() {
+const RetryButton = styled.button`
+  width: 100%;
+  padding: ${theme.spacing.spacing4};
+  background: ${theme.colors.default};
+  border: 1px solid ${theme.colors.gray300};
+  border-radius: 8px;
+  font-size: ${theme.typography.body1Bold.fontSize};
+  font-weight: ${theme.typography.body1Bold.fontWeight};
+  color: ${theme.colors.textDefault};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${theme.colors.gray100};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    background: ${theme.colors.gray200};
+    transform: translateY(0);
+  }
+`;
+
+interface NotFoundPageProps {
+  onRetry?: () => void;
+}
+
+export default function NotFoundPage({ onRetry }: NotFoundPageProps) {
   const navigate = useNavigate();
 
   const handleGoHome = () => {
     navigate('/', { replace: true });
+  };
+
+  const handleRetry = () => {
+    onRetry?.();
   };
 
   return (
@@ -110,6 +141,9 @@ export default function NotFoundPage() {
 
           <ButtonContainer>
             <HomeButton onClick={handleGoHome}>홈으로</HomeButton>
+            {onRetry && (
+              <RetryButton onClick={handleRetry}>다시 시도</RetryButton>
+            )}
           </ButtonContainer>
         </NotFoundContainer>
       </MobileViewport>

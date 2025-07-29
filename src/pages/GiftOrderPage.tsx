@@ -14,11 +14,7 @@ import { RecipientTable } from '@/components/features/gift-order';
 import { orderSchema } from '@/schemas/giftOrderSchemas';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  useProductSummaryQuery,
-  useCreateOrderMutation,
-} from '@/hooks/queries';
-import { Spinner } from '@/components/shared/ui/Spinner';
+import { useProductQuery, useCreateOrderMutation } from '@/hooks/queries';
 
 type OrderForm = z.infer<typeof orderSchema>;
 
@@ -29,12 +25,8 @@ export default function GiftOrderPage() {
   const modalBodyRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
 
-  const {
-    data: product,
-    error,
-    isLoading: loading,
-  } = useProductSummaryQuery(Number(productId));
-  const createOrderMutation = useCreateOrderMutation();
+  const { data: product } = useProductQuery(Number(productId));
+  const { mutateAsync, isPending } = useCreateOrderMutation();
 
   const {
     control,
@@ -64,6 +56,8 @@ export default function GiftOrderPage() {
   const [isRecipientModalOpen, setIsRecipientModalOpen] = useState(false);
 
   const onSubmit = async (data: OrderForm) => {
+    if (isPending) return;
+
     if (!user) {
       logout();
       toast.error('로그인이 필요합니다.');
@@ -72,7 +66,7 @@ export default function GiftOrderPage() {
     }
 
     try {
-      await createOrderMutation.mutateAsync({
+      await mutateAsync({
         productId: product!.id,
         ordererName: data.senderName,
         message: data.message,
@@ -126,9 +120,15 @@ export default function GiftOrderPage() {
     setValue('selectedTemplate', template);
   };
 
-  if (loading) return <Spinner />;
-  if (error) return <div>상품 정보를 불러올 수 없습니다.</div>;
-  if (!product) return <div>상품이 없습니다.</div>;
+  if (!product) {
+    return (
+      <AppContainer>
+        <MobileViewport>
+          <NavigationHeader title="선물하기" onBackClick={handleBackClick} />
+        </MobileViewport>
+      </AppContainer>
+    );
+  }
 
   const openModal = () => {
     setIsRecipientModalOpen(true);
@@ -229,9 +229,11 @@ export default function GiftOrderPage() {
               <ProductDetails>
                 <ProductName>{product.name}</ProductName>
                 <ProductBrand>
-                  {product.brandName ?? '브랜드 정보 없음'}
+                  {product.brandInfo?.name ?? '브랜드 정보 없음'}
                 </ProductBrand>
-                <ProductPrice>상품가 {product.price}원</ProductPrice>
+                <ProductPrice>
+                  상품가 {product.price.sellingPrice}원
+                </ProductPrice>
               </ProductDetails>
             </ProductInfo>
           </ProductSection>
@@ -245,13 +247,10 @@ export default function GiftOrderPage() {
           modalBodyRef={modalBodyRef}
         />
 
-        <OrderButton
-          onClick={handleSubmit(onSubmit)}
-          disabled={createOrderMutation.isPending}
-        >
-          {createOrderMutation.isPending
+        <OrderButton onClick={handleSubmit(onSubmit)} disabled={isPending}>
+          {isPending
             ? '주문 처리 중...'
-            : `${product.price * calculateTotalQuantity(getValues('recipients'))}원 주문하기`}
+            : `${product.price.sellingPrice * calculateTotalQuantity(getValues('recipients'))}원 주문하기`}
         </OrderButton>
       </MobileViewport>
     </AppContainer>

@@ -70,7 +70,6 @@ const RecipientModal: React.FC<RecipientModalProps> = ({
     onSave(data.recipients);
   });
 
-  // 모달이 열릴 때마다 초기값으로 리셋
   React.useEffect(() => {
     if (isOpen) {
       reset({ recipients: initialRecipients });

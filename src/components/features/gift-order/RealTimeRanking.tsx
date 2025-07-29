@@ -60,7 +60,7 @@ export function RealTimeRanking({
   };
 
   const handleProductClick = (product: Product) => {
-    navigate(`/order/${product.id}`);
+    navigate(`/product/${product.id}`);
   };
 
   return (
