@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useLoginMutation } from '@/hooks/queries';
 import type { LoginRequest } from '@/types/api';
 import { useEffect } from 'react';
+import { useErrorStore } from '@/stores/errorStore';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -17,13 +18,14 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
 
   const loginMutation = useLoginMutation();
+  const { errorMessage, clearError } = useErrorStore();
+
   useEffect(() => {
-    const loginError = sessionStorage.getItem('loginError');
-    if (loginError === 'unauthorized') {
-      toast.error('로그인이 필요합니다');
-      sessionStorage.removeItem('loginError');
+    if (errorMessage) {
+      toast.error(errorMessage);
+      clearError();
     }
-  }, []);
+  }, [errorMessage, clearError]);
 
   const handleRedirect = (replace: boolean = true) => {
     const redirect = searchParams.get('redirect');
@@ -50,8 +52,8 @@ export default function LoginPage() {
         name: userName,
       });
       handleRedirect(true);
-    } catch (error: any) {
-      const msg = error.message || '로그인에 실패했습니다.';
+    } catch (error: unknown) {
+      const msg = (error as Error)?.message || '로그인에 실패했습니다.';
       toast.error(msg);
     }
   };
