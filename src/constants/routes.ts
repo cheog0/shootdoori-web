@@ -7,4 +7,5 @@ export const ROUTES = {
   ORDER_PAGE: '/order/:productId',
   NOT_FOUND: '*',
   PRODUCT: '/product/:productId',
+  TEAM_GUIDE: '/team-guide',
 } as const;
