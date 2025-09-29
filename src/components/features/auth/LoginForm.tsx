@@ -1,14 +1,14 @@
-import type React from 'react';
-import { useLoginForm } from '@/hooks/useLoginForm';
+import { useState } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '@/styles/theme';
+import { theme } from '@/theme';
+import { useLoginMutation } from '@/hooks/queries';
+import { useLoginForm } from '@/hooks/useLoginForm';
 
 interface LoginFormProps {
-  onSubmit: (email: string, password: string) => void;
-  isLoading?: boolean;
+  onLoginSuccess?: () => void;
 }
 
-export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const {
     email,
     password,
@@ -20,140 +20,288 @@ export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
     handlePasswordBlur,
     isValid,
   } = useLoginForm();
+  const loginMutation = useLoginMutation();
+  const [passwordErrorCustom, setPasswordErrorCustom] = useState<string>('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isValid || isLoading) return;
-    onSubmit(email, password);
+  const handleSubmit = async () => {
+    if (!isValid) return;
+
+    setPasswordErrorCustom('');
+    // 검증 없이 바로 로그인 성공 처리
+    onLoginSuccess?.();
+  };
+
+  const handlePasswordChangeInternal = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    handlePasswordChange(e);
+    setPasswordErrorCustom('');
   };
 
   return (
     <LoginContainer>
-      <LogoContainer>
-        <KakaoLogo viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="m3.0743 10.4403.655.4728-1.6101 2.0192 1.8647 2.2373-.646.5004-2.201-2.6924zm-2.2376 5.102h-.8367v-7.0302l.8367-.182zm20.944-4.3837c-.4364 0-.7715.1637-1.0049.4912-.2338.3274-.3505.8064-.3505 1.437 0 .6247.1167 1.096.3505 1.4143.2334.3183.5685.4775 1.0049.4775.4423 0 .7804-.1593 1.0143-.4775.2332-.3182.35-.7896.35-1.4142 0-.6307-.1168-1.1097-.35-1.4371-.234-.3275-.572-.4912-1.0143-.4912m0-.673c.691 0 1.234.2245 1.6277.673.3944.4488.5916 1.0915.5916 1.9283 0 .8244-.1955 1.4583-.5868 1.901-.3909.4422-.9356.6637-1.6325.6637-.691 0-1.234-.2215-1.6277-.6638-.3944-.4426-.5916-1.0765-.5916-1.901 0-.8367.1984-1.4794.5957-1.9282.3973-.4485.9385-.673 1.6236-.673m-5.534 4.4658a1.496 1.496 0 0 0 .3576-.0456 2.8804 2.8804 0 0 0 .3713-.1181 2.0066 2.0066 0 0 0 .3488-.1774 2.0778 2.0778 0 0 0 .2895-.2229v-1.1641h-.8693c-.441 0-.7626.0758-.9645.2274-.2025.1516-.3031.391-.3031.7185 0 .5214.2563.7822.7697.7822m-1.5704-.7458c0-.5032.1682-.887.5045-1.1504.337-.2638.826-.396 1.4691-.396h.964v-.3182c0-.77-.3393-1.155-1.0185-1.155-.2184 0-.447.0304-.6869.091-.2398.0608-.4594.1365-.659.2274l-.2457-.5913c.2487-.1394.517-.2469.8047-.323.2878-.0754.5685-.1136.8414-.1136 1.176 0 1.7646.6276 1.7646 1.8826v3.1833h-.6188l-.1-.5457c-.2488.2001-.5134.3547-.796.464-.2817.1092-.55.1637-.8046.1637-.4429 0-.7899-.1258-1.0416-.3775-.2515-.2517-.3772-.5987-.3772-1.0413m-1.6508-3.7653.655.4728-1.6095 2.0192 1.864 2.2373-.6454.5004-2.201-2.6924zm-2.237 5.102h-.8367v-7.0302l.8368-.182zm-4.4936-.5909c.1148 0 .2339-.0151.3576-.0456a2.8794 2.8794 0 0 0 .3713-.1181 1.9842 1.9842 0 0 0 .3488-.1774 2.0477 2.0477 0 0 0 .29-.2229v-1.1641h-.8698c-.4404 0-.762.0758-.9645.2274-.202.1516-.3031.391-.3031.7185 0 .5214.2563.7822.7697.7822m-1.5704-.7458c0-.5032.1682-.887.5052-1.1504.3363-.2638.826-.396 1.4684-.396h.9646v-.3182c0-.77-.3399-1.155-1.019-1.155-.218 0-.4471.0304-.6863.091-.2398.0608-.4595.1365-.6597.2274l-.2457-.5913c.2487-.1394.517-.2469.8053-.323.2878-.0754.5684-.1136.8408-.1136 1.1766 0 1.7646.6276 1.7646 1.8826v3.1833h-.6182l-.1001-.5457c-.2487.2001-.514.3547-.7958.464-.282.1092-.5501.1637-.8053.1637-.4423 0-.7893-.1258-1.041-.3775-.2516-.2517-.3778-.5987-.3778-1.0413z" />
-        </KakaoLogo>
-      </LogoContainer>
+      <HeaderContainer>
+        <LogoText>ShootDoori</LogoText>
+        <Tagline>대학교 축구 연결 서비스</Tagline>
+      </HeaderContainer>
 
-      <Form onSubmit={handleSubmit}>
-        <InputField
-          type="email"
-          placeholder="이메일"
-          value={email}
-          onChange={handleEmailChange}
-          onBlur={handleEmailBlur}
-          hasError={!!emailError}
-          disabled={isLoading}
-        />
+      <FormContainer>
+        <InputGroup>
+          <IconWrapper>
+            <SchoolIcon />
+          </IconWrapper>
+          <InputField
+            type="email"
+            placeholder="이메일을 입력하세요"
+            value={email}
+            onChange={handleEmailChange}
+            onBlur={handleEmailBlur}
+            hasError={!!emailError}
+            disabled={loginMutation.isPending}
+          />
+        </InputGroup>
         {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
 
-        <InputField
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={handlePasswordChange}
-          onBlur={handlePasswordBlur}
-          hasError={!!passwordError}
-          disabled={isLoading}
-        />
-        {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
+        <InputGroup>
+          <IconWrapper>
+            <LockIcon />
+          </IconWrapper>
+          <InputField
+            type="password"
+            placeholder="비밀번호를 입력하세요"
+            value={password}
+            onChange={handlePasswordChangeInternal}
+            onBlur={handlePasswordBlur}
+            hasError={!!passwordError || !!passwordErrorCustom}
+            disabled={loginMutation.isPending}
+          />
+        </InputGroup>
+        {(passwordError || passwordErrorCustom) && (
+          <ErrorMessage>{passwordError || passwordErrorCustom}</ErrorMessage>
+        )}
+
+        <ForgotPasswordLink href="/forgot-password">
+          비밀번호를 잊으셨나요?
+        </ForgotPasswordLink>
 
         <LoginButton
-          type="submit"
-          disabled={!isValid || isLoading}
-          style={{ opacity: isValid && !isLoading ? 1 : 0.5 }}
+          onClick={handleSubmit}
+          disabled={loginMutation.isPending}
+          isLoading={loginMutation.isPending}
         >
-          {isLoading ? '로그인 중...' : '로그인'}
+          {loginMutation.isPending ? '로그인 중...' : '로그인'}
         </LoginButton>
-      </Form>
+
+        <SignupSection>
+          <SignupRow>
+            <SignupText>계정이 없으신가요?</SignupText>
+            <SignupLink href="/register">회원가입</SignupLink>
+          </SignupRow>
+        </SignupSection>
+      </FormContainer>
     </LoginContainer>
   );
 }
 
 const LoginContainer = styled.div`
+  width: 100%;
+  padding: 0 ${theme.spacing.spacing8}px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 60px);
-  padding: ${theme.spacing.spacing8} ${theme.spacing.spacing6};
+  height: 100vh;
+  box-sizing: border-box;
+  padding-top: calc(50vh - 100px);
 `;
 
-const LogoContainer = styled.div`
-  margin-bottom: ${theme.spacing.spacing12};
+const HeaderContainer = styled.div`
+  text-align: center;
+  margin-bottom: ${theme.spacing.spacing8}px;
 `;
 
-const KakaoLogo = styled.svg`
-  width: ${theme.logo.width}px;
-  height: ${theme.logo.height}px;
-  font-size: ${theme.typography.body1Bold.fontSize};
-  fill: ${theme.colors.textDefault};
+const LogoText = styled.h1`
+  font-size: ${theme.spacing.spacing12}px;
+  font-weight: 700;
+  color: #779966;
+  margin: 0 0 ${theme.spacing.spacing2}px 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.5px;
 `;
 
-const Form = styled.form`
+const Tagline = styled.p`
+  font-size: ${theme.spacing.spacing6}px;
+  color: #808080;
+  text-align: center;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+`;
+
+const FormContainer = styled.div`
   width: 100%;
   max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing.spacing1};
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid ${theme.colors.border.input};
+  padding: ${theme.spacing.spacing2}px 0;
+  margin-bottom: ${theme.spacing.spacing3}px;
+  height: ${theme.spacing.spacing14}px;
+`;
+
+const IconWrapper = styled.div`
+  margin-right: ${theme.spacing.spacing2}px;
+  width: ${theme.spacing.spacing6}px;
+  height: ${theme.spacing.spacing6}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const InputField = styled.input<{ hasError?: boolean }>`
-  width: 100%;
-  padding: ${theme.spacing.spacing2} 0;
+  flex: 1;
+  font-size: ${theme.typography.text.body.fontSize}px;
+  color: ${theme.colors.text.main};
   border: none;
-  border-bottom: 1px solid
-    ${props => (props.hasError ? 'red' : theme.colors.borderDefault)};
-  background: transparent;
-  font-size: ${theme.typography.title2Regular.fontSize};
-  color: ${theme.colors.textDefault};
   outline: none;
-  transition: border-color 0.2s ease;
+  background: transparent;
+  padding: 0;
+  height: ${theme.spacing.spacing6}px;
 
   &::placeholder {
-    color: ${theme.colors.textPlaceholder};
-  }
-
-  &:focus {
-    border-bottom-color: ${props =>
-      props.hasError ? 'red' : theme.colors.blue700};
+    color: ${theme.colors.text.sub};
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  ${props =>
+    props.hasError &&
+    `
+    color: ${theme.colors.error};
+  `}
 `;
 
-const LoginButton = styled.button`
-  width: 100%;
-  padding: ${theme.spacing.spacing4};
-  background: ${theme.colors.kakaoYellow};
+const ForgotPasswordLink = styled.a`
+  align-self: flex-end;
+  margin-bottom: ${theme.spacing.spacing4}px;
+  color: ${theme.colors.text.sub};
+  font-size: ${theme.typography.text.bodySmall.fontSize}px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const LoginButton = styled.button<{ isLoading?: boolean }>`
+  background-color: ${theme.colors.success};
+  border-radius: ${theme.spacing.spacing13}px;
+  padding: ${theme.spacing.spacing5}px ${theme.spacing.spacing18}px;
   border: none;
-  border-radius: 8px;
-  font-size: ${theme.typography.body1Bold.fontSize};
-  font-weight: ${theme.typography.body1Bold.fontWeight};
-  color: ${theme.colors.kakaoBrown};
+  align-self: center;
+  opacity: 0.9;
   cursor: pointer;
-  margin-top: ${theme.spacing.spacing6};
   transition: all 0.2s ease;
+  color: ${theme.colors.white};
+  font-size: ${theme.typography.text.button.fontSize}px;
+  font-weight: ${theme.typography.text.button.fontWeight};
+
+  ${props =>
+    props.disabled &&
+    `
+    background-color: ${theme.colors.gray[400]};
+    cursor: not-allowed;
+  `}
 
   &:hover:not(:disabled) {
-    background: ${theme.colors.kakaoYellowHover};
-    transform: translateY(-1px);
+    opacity: 1;
   }
 
   &:active:not(:disabled) {
-    background: ${theme.colors.kakaoYellowActive};
-    transform: translateY(0);
+    transform: translateY(1px);
   }
+`;
 
-  &:disabled {
-    cursor: not-allowed;
+const SignupSection = styled.div`
+  margin-top: ${theme.spacing.spacing5}px;
+  text-align: center;
+  padding: 0 ${theme.spacing.spacing5}px;
+`;
+
+const SignupRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: ${theme.spacing.spacing2}px;
+`;
+
+const SignupText = styled.span`
+  color: ${theme.colors.text.sub};
+  font-size: ${theme.typography.text.body.fontSize}px;
+  font-weight: ${theme.typography.fontWeight.regular};
+  line-height: ${theme.typography.text.body.lineHeight};
+`;
+
+const SignupLink = styled.a`
+  color: ${theme.colors.brand.main};
+  font-size: ${theme.typography.text.body.fontSize}px;
+  font-weight: ${theme.typography.fontWeight.semibold};
+  text-decoration: underline;
+  line-height: ${theme.typography.text.body.lineHeight};
+
+  &:hover {
+    text-decoration: none;
   }
 `;
 
 const ErrorMessage = styled.div`
-  color: red;
-  font-size: 0.7em;
+  font-size: ${theme.typography.text.caption.fontSize}px;
+  color: ${theme.colors.error};
+  margin-left: ${theme.spacing.spacing1}px;
+  margin-bottom: ${theme.spacing.spacing2}px;
 `;
+
+// 아이콘 SVG 컴포넌트들
+const SchoolIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#779966"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+  </svg>
+);
+
+const LockIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#779966"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <circle cx="12" cy="16" r="1" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
