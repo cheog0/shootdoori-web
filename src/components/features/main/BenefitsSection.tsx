@@ -10,13 +10,12 @@ interface BenefitsSectionProps {
 export default memo(function BenefitsSection({ teamId }: BenefitsSectionProps) {
   const navigate = useNavigate();
 
+  // teamId 사용 로직 (향후 팀별 맞춤 서비스 제공 예정)
+  console.log('Current team ID:', teamId);
+
   const handleServicePress = (serviceId: string) => {
     if (serviceId === 'team') {
-      if (teamId) {
-        navigate(`/teams/${teamId}`);
-      } else {
-        navigate(ROUTES.HOME);
-      }
+      navigate('/team-guide');
       return;
     }
 
