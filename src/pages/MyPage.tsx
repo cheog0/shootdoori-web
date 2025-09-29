@@ -23,7 +23,27 @@ export default function MyPage() {
           <h3>마이 페이지</h3>
           <p>{emailId}님 안녕하세요!</p>
           <p>이메일 주소는 {user?.email}입니다.</p>
-          <GrayButton onClick={handleLogout}>로그아웃</GrayButton>
+          <GrayButton onClick={handleLogout}>
+            <LogoutIcon>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 512 512"
+                fill="currentColor"
+              >
+                <path d="M304 336v40a40 40 0 01-40 40H105a40 40 0 01-40-40V136a40 40 0 0140-40h159c22.09 0 48 17.91 48 40v40" />
+                <path
+                  d="M368 336l80-80-80-80M176 256h256"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="32"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </LogoutIcon>
+            로그아웃
+          </GrayButton>
         </ContentContainer>
       </MobileViewport>
     </AppContainer>
@@ -72,10 +92,19 @@ const GrayButton = styled.button`
   cursor: pointer;
   margin-top: 16px;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   &:hover {
     background: ${theme.colors.gray400};
   }
   &:active {
     background: ${theme.colors.gray500};
   }
+`;
+
+const LogoutIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;

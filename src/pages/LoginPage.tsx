@@ -1,13 +1,10 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { NavigationHeader } from '@/components/shared/layout';
 import { LoginForm } from '@/components/features/auth';
-import { theme } from '@/styles/theme';
+import { theme } from '@/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useLoginMutation } from '@/hooks/queries';
-import type { LoginRequest } from '@/types/api';
 import { useEffect } from 'react';
 import { useErrorStore } from '@/stores/errorStore';
 
@@ -16,8 +13,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-
-  const loginMutation = useLoginMutation();
   const { errorMessage, clearError } = useErrorStore();
 
   useEffect(() => {
@@ -33,50 +28,38 @@ export default function LoginPage() {
     navigate(from, { replace });
   };
 
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      const credentials: LoginRequest = { email, password };
-      const result = await loginMutation.mutateAsync(credentials);
+  const handleLoginSuccess = () => {
+    // LoginForm에서 성공 시 호출됨
+    handleRedirect(true);
+  };
 
-      const authToken = result?.authToken;
-      const userEmail = result?.user?.email || email;
-      const userName = result?.user?.name || '사용자';
-
-      if (!authToken) {
-        throw new Error('인증 토큰을 받지 못했습니다.');
-      }
-
-      login({
-        authToken,
-        email: userEmail,
-        name: userName,
-      });
-      handleRedirect(true);
-    } catch (error: unknown) {
-      const msg = (error as Error)?.message || '로그인에 실패했습니다.';
-      toast.error(msg);
-    }
+  const handleTempLogin = () => {
+    login({
+      authToken: 'temp-token',
+      email: 'temp@example.com',
+      name: '임시사용자',
+    });
+    navigate('/', { replace: true });
   };
 
   return (
     <AppContainer>
       <MobileViewport>
-        <NavigationHeader
-          title="선물하기"
-          onBackClick={() => handleRedirect(false)}
-        />
-        <LoginForm onSubmit={handleLogin} isLoading={loginMutation.isPending} />
+        <TempLoginButton onClick={handleTempLogin}>임시 로그인</TempLoginButton>
+
+        <LoginForm onLoginSuccess={handleLoginSuccess} />
       </MobileViewport>
     </AppContainer>
   );
 }
 
 const AppContainer = styled.div`
-  min-height: 100vh;
-  background: ${theme.colors.gray200};
+  height: 100vh;
+  background: ${theme.colors.background.sub};
   display: flex;
   justify-content: center;
-  padding: 0 ${theme.spacing.spacing4};
+  padding: 0 ${theme.spacing.spacing4}px;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     padding: 0;
@@ -86,13 +69,33 @@ const AppContainer = styled.div`
 const MobileViewport = styled.div`
   width: 100%;
   max-width: 720px;
-  min-height: 100vh;
-  background: ${theme.colors.default};
+  height: 100vh;
+  background: ${theme.colors.white};
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   position: relative;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     max-width: 100%;
     box-shadow: none;
+  }
+`;
+
+const TempLoginButton = styled.button`
+  position: absolute;
+  top: ${theme.spacing.spacing4}px;
+  right: ${theme.spacing.spacing4}px;
+  background-color: ${theme.colors.brand.main};
+  border-radius: ${theme.spacing.spacing2}px;
+  padding: ${theme.spacing.spacing2}px ${theme.spacing.spacing3}px;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+  color: ${theme.colors.white};
+  font-size: ${theme.typography.fontSize.font2}px;
+  font-weight: ${theme.typography.fontWeight.medium};
+
+  &:hover {
+    opacity: 0.8;
   }
 `;
