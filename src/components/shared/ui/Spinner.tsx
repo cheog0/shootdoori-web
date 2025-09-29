@@ -1,35 +1,23 @@
+import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 
-const SpinnerWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 0 0 0;
-  margin-top: 130px;
-`;
-
-const SpinnerCircle = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 4px solid #000;
-  border-top: 4px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-export function Spinner() {
-  return (
-    <SpinnerWrapper>
-      <SpinnerCircle />
-    </SpinnerWrapper>
-  );
+interface SpinnerProps {
+  size?: number;
 }
+
+export function Spinner({ size = 32 }: SpinnerProps) {
+  return <SpinnerElement size={size} />;
+}
+
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+const SpinnerElement = styled.div<{ size: number }>`
+  width: ${props => props.size}px;
+  height: ${props => props.size}px;
+  border: 3px solid #ddd;
+  border-top: 3px solid #779966;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+`;

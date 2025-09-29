@@ -16,6 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const MainPage = lazy(() => import('@/pages/MainPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const MyPage = lazy(() => import('@/pages/MyPage'));
 const GiftOrderPage = lazy(() => import('@/pages/GiftOrderPage'));
@@ -31,6 +32,10 @@ function AppContent() {
         <Routes>
           <Route path={ROUTES.HOME} element={<MainPage />} />
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route
+            path={ROUTES.FORGOT_PASSWORD}
+            element={<ForgotPasswordPage />}
+          />
           <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
           <Route
             path={ROUTES.MY_PAGE}

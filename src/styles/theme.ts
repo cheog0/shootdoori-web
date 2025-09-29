@@ -82,16 +82,27 @@ interface ThemeColors {
   textSub: string;
   textDisabled: string;
   textPlaceholder: string;
+  textMain: string;
 
   // 테두리 컬러
   borderDefault: string;
   borderDisabled: string;
+  borderInput: string;
 
   // 상태 컬러
   critical: string;
   criticalBackground: string;
   info: string;
   infoBackground: string;
+  success: string;
+  error: string;
+  brand: {
+    main: string;
+  };
+  white: string;
+  grass: {
+    [key: number]: string;
+  };
 }
 
 interface TypographyStyle {
@@ -117,6 +128,25 @@ interface ThemeTypography {
   label1Regular: TypographyStyle;
   label2Bold: TypographyStyle;
   label2Regular: TypographyStyle;
+  text: {
+    auth: {
+      logo: TypographyStyle;
+      tagline: TypographyStyle;
+    };
+    body: TypographyStyle;
+    bodySmall: TypographyStyle;
+    button: TypographyStyle;
+    caption: TypographyStyle;
+  };
+  fontSize: {
+    xs: string;
+    sm: string;
+    base: string;
+    lg: string;
+    xl: string;
+    '2xl': string;
+    '3xl': string;
+  };
 }
 
 interface ThemeSpacing {
@@ -137,6 +167,9 @@ interface ThemeSpacing {
   spacing14: string;
   spacing15: string;
   spacing16: string;
+  spacing17: string;
+  spacing18: string;
+  spacing20: string;
 }
 
 interface ThemeBreakpoints {
@@ -147,12 +180,20 @@ interface ThemeLogo {
   height: number;
 }
 
+interface ThemeFontWeight {
+  regular: number;
+  medium: number;
+  semibold: number;
+  bold: number;
+}
+
 export interface Theme {
   colors: ThemeColors;
   typography: ThemeTypography;
   spacing: ThemeSpacing;
   breakpoints: ThemeBreakpoints;
   logo: ThemeLogo;
+  fontWeight: ThemeFontWeight;
 }
 
 export const theme: Theme = {
@@ -240,16 +281,27 @@ export const theme: Theme = {
     textSub: '#b0b3ba',
     textDisabled: '#dcdee3',
     textPlaceholder: '#b0b3ba',
+    textMain: '#2a3038',
 
     // 테두리 컬러
     borderDefault: '#dcdee3',
     borderDisabled: '#eeeff1',
+    borderInput: '#dcdee3',
 
     // 상태 컬러
     critical: '#fa342c',
     criticalBackground: '#fdf0f0',
     info: '#217cf9',
     infoBackground: '#eff6ff',
+    success: '#22c55e',
+    error: '#fa342c',
+    brand: {
+      main: '#217cf9',
+    },
+    white: '#ffffff',
+    grass: {
+      500: '#22c55e',
+    },
   },
 
   typography: {
@@ -340,6 +392,49 @@ export const theme: Theme = {
       fontWeight: 400,
       lineHeight: '1rem',
     },
+    text: {
+      auth: {
+        logo: {
+          fontSize: '32px',
+          fontWeight: 700,
+          lineHeight: '1.4',
+        },
+        tagline: {
+          fontSize: '16px',
+          fontWeight: 400,
+          lineHeight: '1.5',
+        },
+      },
+      body: {
+        fontSize: '16px',
+        fontWeight: 400,
+        lineHeight: '1.5',
+      },
+      bodySmall: {
+        fontSize: '14px',
+        fontWeight: 400,
+        lineHeight: '1.4',
+      },
+      button: {
+        fontSize: '16px',
+        fontWeight: 600,
+        lineHeight: '1.2',
+      },
+      caption: {
+        fontSize: '12px',
+        fontWeight: 400,
+        lineHeight: '1.2',
+      },
+    },
+    fontSize: {
+      xs: '12px',
+      sm: '14px',
+      base: '16px',
+      lg: '18px',
+      xl: '20px',
+      '2xl': '24px',
+      '3xl': '32px',
+    },
   },
 
   spacing: {
@@ -360,6 +455,9 @@ export const theme: Theme = {
     spacing14: '56px',
     spacing15: '60px',
     spacing16: '64px',
+    spacing17: '68px',
+    spacing18: '72px',
+    spacing20: '80px',
   },
 
   breakpoints: {
@@ -368,5 +466,11 @@ export const theme: Theme = {
   logo: {
     width: 220,
     height: 100,
+  },
+  fontWeight: {
+    regular: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
   },
 };
