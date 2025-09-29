@@ -22,6 +22,7 @@ const MyPage = lazy(() => import('@/pages/MyPage'));
 const GiftOrderPage = lazy(() => import('@/pages/GiftOrderPage'));
 const ThemePage = lazy(() => import('@/pages/ThemePage'));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'));
+const TeamGuidePage = lazy(() => import('@/pages/TeamGuidePage'));
 
 function AppContent() {
   const location = useLocation();
@@ -36,6 +37,7 @@ function AppContent() {
             path={ROUTES.FORGOT_PASSWORD}
             element={<ForgotPasswordPage />}
           />
+          <Route path={ROUTES.TEAM_GUIDE} element={<TeamGuidePage />} />
           <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
           <Route
             path={ROUTES.MY_PAGE}
