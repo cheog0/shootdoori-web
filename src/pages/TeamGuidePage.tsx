@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from '@emotion/styled';
 import { theme } from '@/theme';
 import Header from '../components/features/team-guide/Header';
