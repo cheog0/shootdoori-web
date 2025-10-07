@@ -484,19 +484,20 @@ export default function SafeMatchPreview({
   }, [extendedMatches, middleOffset]);
 
   const renderPreviewCard = (match: MatchWaitingResponseDto, index: number) => (
-    <Card key={`${match.id}-${index}`} onClick={() => onMatchPress?.(match.id)}>
+    <Card key={`${match.waitingId}-${index}`} onClick={() => onMatchPress?.(match.waitingId)}>
       <div>
-        <Location>{match.location}</Location>
-        <Time>{match.time}</Time>
+        <Location>{match.preferredVenueId}</Location>
+        <Time>{match.preferredTimeStart} - {match.preferredTimeEnd}</Time>
       </div>
       <MetaRow>
-        <SmallBadge bgColor={badgeBg(match.level).backgroundColor}>
-          <SmallBadgeText textColor={badgeTextColor(match.level).color}>
-            {match.level}
+        <SmallBadge bgColor={badgeBg(match.skillLevelMin).backgroundColor}>
+          <SmallBadgeText textColor={badgeTextColor(match.skillLevelMin).color}>
+            {match.skillLevelMin}
           </SmallBadgeText>
         </SmallBadge>
         <PlayerCountSmall>
-          {match.currentPlayers}/{match.totalPlayers}
+          {/* 실제 API에서 제공하는 플레이어 수 정보가 없으므로 임시로 표시 */}
+          0/22
         </PlayerCountSmall>
       </MetaRow>
     </Card>
@@ -506,21 +507,22 @@ export default function SafeMatchPreview({
     <FullItem
       onClick={() => {
         setModalVisible(false);
-        onMatchPress?.(item.id);
+        onMatchPress?.(item.waitingId);
       }}
     >
       <FullItemLeft>
-        <Location>{item.location}</Location>
-        <Time>{item.time}</Time>
+        <Location>{item.preferredVenueId}</Location>
+        <Time>{item.preferredTimeStart} - {item.preferredTimeEnd}</Time>
       </FullItemLeft>
       <FullItemRight>
-        <SmallBadge bgColor={badgeBg(item.level).backgroundColor}>
-          <SmallBadgeText textColor={badgeTextColor(item.level).color}>
-            {item.level}
+        <SmallBadge bgColor={badgeBg(item.skillLevelMin).backgroundColor}>
+          <SmallBadgeText textColor={badgeTextColor(item.skillLevelMin).color}>
+            {item.skillLevelMin}
           </SmallBadgeText>
         </SmallBadge>
         <PlayerCountSmall>
-          {item.currentPlayers}/{item.totalPlayers}
+          {/* 실제 API에서 제공하는 플레이어 수 정보가 없으므로 임시로 표시 */}
+          0/22
         </PlayerCountSmall>
       </FullItemRight>
     </FullItem>
@@ -576,7 +578,7 @@ export default function SafeMatchPreview({
               </ModalHeader>
               <MatchListContent>
                 {matches.map((item, index) => (
-                  <div key={item.id}>
+                  <div key={item.waitingId}>
                     {renderFullItem(item)}
                     {index < matches.length - 1 && <Separator />}
                   </div>
