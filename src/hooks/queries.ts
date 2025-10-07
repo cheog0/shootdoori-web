@@ -1,343 +1,451 @@
-import {
-  useSuspenseQuery,
-  useSuspenseQueries,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-  useQuery,
-} from '@tanstack/react-query';
-import type {
-  GiftOrderForm,
-  ProductWish,
-  Product,
-  ProductDetail,
-  ProductReview,
-} from '@/types';
+import { useQuery, useMutation, useInfiniteQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+
+import * as api from '@/api';
+import { ROUTES } from '@/constants/routes';
+import { useAuth } from '@/contexts/auth_context';
+import { queryClient } from '@/lib/query_client';
+import type { CreateTeamRequest } from '@/types/team';
 import type {
   LoginRequest,
-  LoginResponse,
-  ThemeProductsResponse,
-} from '@/types/api';
-import * as api from '@/api';
-import { useNavigate } from 'react-router-dom';
-import { useGlobalErrorHandler } from './useGlobalErrorHandler';
+  RegisterRequest,
+  RegisterResponse,
+  VerifyEmailRequest,
+} from '@/types/auth';
+import type { UpdateProfileRequest } from '@/types/profile';
 
 export const queries = {
-  themes: {
-    key: ['themes'] as const,
-    fn: () => api.themesApi.getThemes(),
+  login: {
+    key: ['login'] as const,
+    fn: (loginData: LoginRequest) => api.authApi.login(loginData),
   },
-  themeInfo: {
-    key: (themeId: string | number) => ['themes', themeId, 'info'] as const,
-    fn: (themeId: string | number) => api.themesApi.getThemeInfo(themeId),
+  register: {
+    key: ['register'] as const,
+    fn: (registerData: RegisterRequest) => api.authApi.register(registerData),
   },
-  themeProducts: {
-    key: (themeId: string | number) => ['themes', themeId, 'products'] as const,
-    fn: (themeId: string | number) => api.themesApi.getThemeProducts(themeId),
+  sendVerification: {
+    key: ['sendVerification'] as const,
+    fn: (email: string) => api.authApi.sendVerification(email),
   },
-  rankingProducts: {
-    key: (targetType: string, rankType: string) =>
-      ['products', 'ranking', targetType, rankType] as const,
-    fn: (targetType: string, rankType: string) =>
-      api.productsApi.getRankingProducts(targetType, rankType),
+  verifyEmail: {
+    key: ['verifyEmail'] as const,
+    fn: (verifyEmailCode: VerifyEmailRequest) =>
+      api.authApi.verifyEmail(verifyEmailCode),
   },
-
-  product: {
-    key: (productId: string | number) => ['products', productId] as const,
-    fn: (productId: string | number) => api.productsApi.getProduct(productId),
+  userProfile: {
+    key: ['user', 'profile'] as const,
+    fn: () => api.profileApi.getProfile(),
   },
-  productDetail: {
-    key: (productId: string | number) =>
-      ['products', productId, 'detail'] as const,
-    fn: (productId: string | number) =>
-      api.productsApi.getProductDetail(productId),
+  user: {
+    key: ['user'] as const,
   },
-  productReviews: {
-    key: (productId: string | number) =>
-      ['products', productId, 'reviews'] as const,
-    fn: (productId: string | number) =>
-      api.productsApi.getProductReviews(productId),
+  recommendedMatch: {
+    key: ['recommendedMatch'] as const,
+    fn: () => api.recommendedMatchApi.getRecommendedMatch(),
   },
-  productWish: {
-    key: (productId: string | number) =>
-      ['products', productId, 'wish'] as const,
-    fn: (productId: string | number) =>
-      api.productsApi.getProductWish(productId),
+  universityTeamList: {
+    key: ['university'] as const,
+    fn: () => api.universityListApi.getUniversities(),
   },
-  products: {
-    key: ['products'] as const,
+  teamsByUniversity: {
+    key: ['teams', 'university'] as const,
+    fn: (university: string, page: number = 0, size: number = 10) =>
+      api.teamListApi.getTeamsByUniversity(university, page, size),
+  },
+  team: {
+    key: (teamId: string | number) => ['teams', teamId] as const,
+    fn: (teamId: string | number) => api.myTeamApi.getTeamById(teamId),
+  },
+  teamMembers: {
+    key: (teamId: string | number, page: number = 0, size: number = 10) =>
+      ['teamMembers', teamId, page, size] as const,
+    fn: (teamId: string | number, page: number = 0, size: number = 10) =>
+      api.teamMemberApi.getTeamMembers(teamId, page, size),
+  },
+  teamMember: {
+    key: (teamId: string | number, userId: string | number) =>
+      ['teamMember', teamId, userId] as const,
+    fn: (teamId: string | number, userId: string | number) =>
+      api.teamMemberApi.getTeamMember(teamId, userId),
+  },
+  teamJoinRequests: {
+    key: (teamId: string | number) => ['teamJoinRequests', teamId] as const,
+    fn: (teamId: string | number) =>
+      api.teamJoinRequestApi.getTeamJoinRequests(teamId),
+  },
+  teamMatches: {
+    key: (teamId: string | number) => ['teamMatches', teamId] as const,
+    fn: (teamId: string | number) => api.teamMatchApi.getTeamMatches(teamId),
+  },
+  teamRecentMatches: {
+    key: (status?: string) => ['teamRecentMatches', status] as const,
+    fn: (status?: string) => api.teamMatchApi.getTeamRecentMatches(status),
+  },
+  teamJoinWaitingList: {
+    key: (
+      teamId: string | number,
+      status: string = 'PENDING',
+      page: number = 0,
+      size: number = 10
+    ) => ['teamJoinWaitingList', teamId, status, page, size] as const,
+    fn: (
+      teamId: string | number,
+      status: string = 'PENDING',
+      page: number = 0,
+      size: number = 10
+    ) =>
+      api.teamJoinRequestApi.getTeamJoinWaitingList(teamId, status, page, size),
+  },
+  teamMatchRequests: {
+    key: ['teamMatchRequests'] as const,
+    fn: async () => {
+      const response = await api.teamMatchApi.getTeamMatchRequests();
+      return response.content;
+    },
   },
 } as const;
 
-export function useThemesQuery() {
+export function useUserProfile() {
+  const { token } = useAuth();
+
   return useQuery({
-    queryKey: queries.themes.key,
-    queryFn: queries.themes.fn,
+    queryKey: queries.userProfile.key,
+    // TODO: 백엔드 API 연동 시 활성화
+    // queryFn: queries.userProfile.fn,
+    queryFn: async () => {
+      // 임시 Mock 사용자 프로필 데이터
+      return {
+        id: 1,
+        name: '테스트 사용자',
+        email: 'test@example.com',
+        universityEmail: 'test@university.ac.kr',
+        skillLevel: '아마추어',
+        position: '공격수',
+        university: '테스트대학교',
+        department: '컴퓨터공학과',
+        studentYear: '25',
+        kakaoTalkId: 'testuser',
+        bio: '테스트용 사용자입니다.',
+        teamId: 1,
+        teamName: '테스트팀',
+        teamRole: 'LEADER',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    },
+    enabled: !!token,
   });
 }
 
-export function useSuspenseThemesQuery() {
-  return useSuspenseQuery({
-    queryKey: queries.themes.key,
-    queryFn: queries.themes.fn,
-  });
-}
+export function useTeamMatchRequests() {
+  const { token } = useAuth();
 
-export function useThemeInfoQuery(themeId: string | number) {
   return useQuery({
-    queryKey: queries.themeInfo.key(themeId),
-    queryFn: () => queries.themeInfo.fn(themeId),
-    enabled: !!themeId,
+    queryKey: queries.teamMatchRequests.key,
+    queryFn: queries.teamMatchRequests.fn,
+    enabled: !!token,
   });
 }
 
-export function useSuspenseThemeInfoQuery(themeId: string | number) {
-  return useSuspenseQuery({
-    queryKey: queries.themeInfo.key(themeId),
-    queryFn: () => queries.themeInfo.fn(themeId),
-  });
-}
-
-export function useThemeProductsQuery(themeId: string | number) {
+export function useRecommendedMatch() {
   return useQuery({
-    queryKey: queries.themeProducts.key(themeId),
-    queryFn: () => queries.themeProducts.fn(themeId),
-    enabled: !!themeId,
+    queryKey: queries.recommendedMatch.key,
+    queryFn: queries.recommendedMatch.fn,
   });
 }
 
-export function useSuspenseThemeProductsQuery(themeId: string | number) {
-  return useSuspenseQuery({
-    queryKey: queries.themeProducts.key(themeId),
-    queryFn: () => queries.themeProducts.fn(themeId),
-  });
-}
-
-export function useRankingProductsQuery(targetType: string, rankType: string) {
+export function useUniversityTeamList() {
   return useQuery({
-    queryKey: queries.rankingProducts.key(targetType, rankType),
-    queryFn: () => queries.rankingProducts.fn(targetType, rankType),
-    enabled: !!targetType && !!rankType,
+    queryKey: queries.universityTeamList.key,
+    queryFn: queries.universityTeamList.fn,
   });
 }
 
-export function useSuspenseRankingProductsQuery(
-  targetType: string,
-  rankType: string
+export function useTeamsByUniversity(
+  university: string,
+  page: number = 0,
+  size: number = 10
 ) {
-  return useSuspenseQuery({
-    queryKey: queries.rankingProducts.key(targetType, rankType),
-    queryFn: () => queries.rankingProducts.fn(targetType, rankType),
-  });
-}
-
-export function useProductQuery(productId: string | number) {
   return useQuery({
-    queryKey: queries.product.key(productId),
-    queryFn: () => queries.product.fn(productId),
-    enabled: !!productId,
+    queryKey: queries.teamsByUniversity.key,
+    queryFn: () => queries.teamsByUniversity.fn(university, page, size),
+    enabled: !!university,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }
 
-export function useSuspenseProductQuery(productId: string | number) {
-  return useSuspenseQuery({
-    queryKey: queries.product.key(productId),
-    queryFn: () => queries.product.fn(productId),
-  });
-}
-
-export function useSuspenseProductDetailQuery(productId: string | number) {
-  return useSuspenseQuery({
-    queryKey: queries.productDetail.key(productId),
-    queryFn: () => queries.productDetail.fn(productId),
-  });
-}
-export function useSuspenseProductReviewsQuery(productId: string | number) {
-  return useSuspenseQuery({
-    queryKey: queries.productReviews.key(productId),
-    queryFn: () => queries.productReviews.fn(productId),
-  });
-}
-export function useSuspenseProductWishQuery(productId: string | number) {
-  return useSuspenseQuery({
-    queryKey: queries.productWish.key(productId),
-    queryFn: () => queries.productWish.fn(productId),
-  });
-}
-
-export function useProductPageDataQuery(productId: string | number): {
-  product: Product | null;
-  productDetail: ProductDetail | null;
-  reviewData: ProductReview | null;
-  wishData: ProductWish | null;
-} {
-  const results = useSuspenseQueries({
-    queries: [
-      {
-        queryKey: queries.product.key(productId),
-        queryFn: () => queries.product.fn(productId),
-      },
-      {
-        queryKey: queries.productDetail.key(productId),
-        queryFn: () => queries.productDetail.fn(productId),
-      },
-      {
-        queryKey: queries.productReviews.key(productId),
-        queryFn: () => queries.productReviews.fn(productId),
-      },
-      {
-        queryKey: queries.productWish.key(productId),
-        queryFn: () => queries.productWish.fn(productId),
-      },
-    ] as const,
-  });
-
-  const product = results[0].data;
-  const productDetail = results[1].data;
-  const reviewData = results[2].data;
-  const wishData = results[3].data;
-
-  return { product, productDetail, reviewData, wishData };
-}
-
-export function useThemeProductsInfiniteQuery(
-  themeId: string | number,
-  limit: number = 20
+export function useTeamsByUniversityInfinite(
+  university: string,
+  size: number = 10
 ) {
   return useInfiniteQuery({
-    queryKey: [...queries.themeProducts.key(themeId), 'infinite'],
-    queryFn: ({ pageParam = 0 }) =>
-      api.themesApi.getThemeProductsWithPagination(themeId, {
-        cursor: pageParam,
-        limit,
-      }),
-    getNextPageParam: (
-      lastPage: ThemeProductsResponse,
-      allPages: ThemeProductsResponse[]
-    ) => {
-      const currentCursor = allPages.length * limit;
-      return lastPage.hasMoreList ? currentCursor : undefined;
+    queryKey: queries.teamsByUniversity.key,
+    queryFn: ({ pageParam }) =>
+      queries.teamsByUniversity.fn(university, pageParam, size),
+    getNextPageParam: lastPage => {
+      if (lastPage.content.length < size) return undefined;
+      return lastPage.pageable.pageNumber + 1;
     },
     initialPageParam: 0,
+    enabled: !!university,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  });
+}
+
+export function useTeam(teamId: string | number) {
+  return useQuery({
+    queryKey: queries.team.key(teamId),
+    queryFn: () => queries.team.fn(teamId),
+    enabled: !!teamId,
+  });
+}
+
+export function useTeamMembers(
+  teamId: string | number,
+  page: number = 0,
+  size: number = 10
+) {
+  return useQuery({
+    queryKey: queries.teamMembers.key(teamId, page, size),
+    queryFn: () => queries.teamMembers.fn(teamId, page, size),
+    enabled: !!teamId,
+  });
+}
+
+export function useTeamMember(
+  teamId: string | number,
+  userId: string | number
+) {
+  return useQuery({
+    queryKey: queries.teamMember.key(teamId, userId),
+    queryFn: () => queries.teamMember.fn(teamId, userId),
+    enabled: !!teamId && !!userId,
+  });
+}
+
+export function useTeamJoinRequests(teamId: string | number) {
+  return useQuery({
+    queryKey: queries.teamJoinRequests.key(teamId),
+    queryFn: () => queries.teamJoinRequests.fn(teamId),
+    enabled: !!teamId,
+  });
+}
+
+export function useTeamMatches(teamId: string | number) {
+  return useQuery({
+    queryKey: queries.teamMatches.key(teamId),
+    queryFn: () => queries.teamMatches.fn(teamId),
+    enabled: !!teamId,
+  });
+}
+
+export function useTeamRecentMatches(status?: string) {
+  return useQuery({
+    queryKey: queries.teamRecentMatches.key(status),
+    queryFn: () => queries.teamRecentMatches.fn(status),
+    enabled: true,
+  });
+}
+
+export function useTeamJoinWaitingList(
+  teamId: string | number,
+  status: string = 'PENDING',
+  page: number = 0,
+  size: number = 10
+) {
+  return useQuery({
+    queryKey: queries.teamJoinWaitingList.key(teamId, status, page, size),
+    queryFn: () => queries.teamJoinWaitingList.fn(teamId, status, page, size),
+    enabled: !!teamId,
+  });
+}
+
+export function useUpdateProfileMutation() {
+  return useMutation({
+    mutationFn: (data: UpdateProfileRequest) =>
+      api.profileApi.updateProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queries.userProfile.key });
+    },
+    onError: (error: unknown) => {
+      console.error('프로필 업데이트 실패:', error);
+    },
+  });
+}
+
+export function useSendVerificationMutation() {
+  return useMutation({
+    mutationFn: (email: string) => api.authApi.sendVerification(email),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queries.userProfile.key });
+    },
+    onError: (error: unknown) => {
+      console.error('인증 이메일 전송 실패:', error);
+    },
+  });
+}
+
+export function useVerifyEmailMutation() {
+  return useMutation({
+    mutationFn: (verifyEmailCode: VerifyEmailRequest) =>
+      api.authApi.verifyEmail(verifyEmailCode),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queries.userProfile.key });
+    },
+  });
+}
+
+export function useLogoutMutation() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: logout,
+    onSuccess: async () => {
+      await queryClient.clear();
+      navigate('/login');
+    },
+    onError: (error: unknown) => {
+      console.error('로그아웃 실패:', error);
+    },
   });
 }
 
 export function useLoginMutation() {
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   return useMutation({
-    mutationFn: async (
-      credentials: LoginRequest
-    ): Promise<{
-      authToken: string;
-      user: { email: string; name: string };
-    }> => {
-      const data: LoginResponse = await api.authApi.login(credentials);
-      const { email, name, authToken } = data;
+    // TODO: 백엔드 API 연동 시 활성화
+    // mutationFn: queries.login.fn,
+    mutationFn: async () => {
+      // 임시 Mock 응답
       return {
-        authToken,
-        user: {
-          email,
-          name,
-        },
+        accessToken: 'mock-access-token-' + Date.now(),
+        refreshToken: 'mock-refresh-token-' + Date.now(),
+        accessTokenExpiresIn: 1800,
+        refreshTokenExpiresIn: 2592000,
       };
     },
-    onSuccess: data => {
-      sessionStorage.setItem('userInfo', JSON.stringify(data));
-      queryClient.invalidateQueries();
+    onSuccess: async () => {
+      console.log('🎉 useLoginMutation onSuccess 실행됨');
+
+      // Auth Context를 통해 토큰 설정
+      console.log('🔐 Auth Context login 함수 호출 중...');
+      await login({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+      console.log('✅ Auth Context login 함수 완료');
+
+      console.log('🧹 Query cache 클리어 중...');
+      await queryClient.clear();
+      console.log('✅ Query cache 클리어 완료');
+
+      console.log('🏠 홈으로 네비게이션 중...');
+      navigate('/');
+      console.log('✅ 네비게이션 완료');
+    },
+    onError: (error: unknown) => {
+      console.error('로그인 실패:', error);
+    },
+  });
+}
+
+export function useRegisterMutation() {
+  const navigate = useNavigate();
+
+  return useMutation({
+    // TODO: 백엔드 API 연동 시 활성화
+    // mutationFn: queries.register.fn,
+    mutationFn: async () => {
+      // 임시 Mock 응답
+      return {
+        accessToken: 'mock-access-token-' + Date.now(),
+        refreshToken: 'mock-refresh-token-' + Date.now(),
+        accessTokenExpiresIn: 1800,
+        refreshTokenExpiresIn: 2592000,
+      };
+    },
+    onSuccess: async (data: RegisterResponse) => {
+      // TODO: 백엔드 API 연동 시 활성화
+      // localStorage.setItem('authToken', data.accessToken);
+      // localStorage.setItem('refreshToken', data.refreshToken);
+
+      // 임시 Mock 데이터 저장
+      localStorage.setItem('authToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+
+      await queryClient.clear();
+      navigate('/');
+    },
+    onError: (error: unknown) => {
+      console.error('회원가입 실패:', error);
+    },
+  });
+}
+
+export function useCreateTeamMutation() {
+  return useMutation({
+    mutationFn: (data: CreateTeamRequest) => api.createTeam(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queries.userProfile.key });
+    },
+    onError: (error: unknown) => {
+      console.error('팀 생성 실패:', error);
+    },
+  });
+}
+
+export function useJoinTeamMutation() {
+  return useMutation({
+    mutationFn: (teamId: string | number) =>
+      api.joinTeamApi.joinTeam(Number(teamId)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queries.userProfile.key });
+    },
+    onError: (error: unknown) => {
+      console.error('팀 가입 실패:', error);
+    },
+  });
+}
+
+export function useTeamExitMutation() {
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: (teamId: string | number) => api.teamExitApi.exitTeam(teamId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      queryClient.invalidateQueries({ queryKey: queries.userProfile.key });
+      navigate(ROUTES.TEAM_GUIDE);
+    },
+    onError: (error: unknown) => {
+      console.error('팀 나가기 실패:', error);
     },
   });
 }
 
 export function useCreateOrderMutation() {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { handleError } = useGlobalErrorHandler();
-
   return useMutation({
-    mutationFn: (orderData: GiftOrderForm) =>
-      api.ordersApi.createOrder(orderData),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queries.products.key });
-
-      const totalQuantity = variables.receivers.reduce(
-        (sum, r) => sum + r.quantity,
-        0
-      );
-
-      alert(
-        '주문이 완료되었습니다.' +
-          '\n상품명: ' +
-          variables.productId +
-          '\n구매 수량: ' +
-          totalQuantity +
-          '\n발신자 이름: ' +
-          variables.ordererName +
-          '\n메시지: ' +
-          variables.message
-      );
-
-      navigate('/');
+    mutationFn: () => Promise.resolve({ success: true }),
+    onSuccess: () => {
+      console.log('주문 생성 성공');
     },
-    onError: (error: unknown) => {
-      handleError(error, {
-        400: '받는 사람이 없습니다',
-      });
-    },
-    onSettled: () => {},
   });
 }
 
-export function useToggleWishMutation() {
-  const queryClient = useQueryClient();
-  const { handleError } = useGlobalErrorHandler();
-
-  return useMutation({
-    mutationFn: async ({
-      productId,
-      isWished,
-    }: {
-      productId: number;
-      isWished: boolean;
-    }) => {
-      console.log(`${productId}, isWished: ${isWished}`);
-      return { success: true };
-    },
-    onMutate: async ({ productId, isWished }) => {
-      await queryClient.cancelQueries({
-        queryKey: queries.productWish.key(productId),
-      });
-
-      const previousWish = queryClient.getQueryData(
-        queries.productWish.key(productId)
-      ) as ProductWish | undefined;
-
-      queryClient.setQueryData(
-        queries.productWish.key(productId),
-        (old: ProductWish | undefined) => {
-          if (!old) return { wishCount: 0, isWished: false };
-          const newData = {
-            ...old,
-            isWished: !isWished,
-            wishCount: isWished ? old.wishCount - 1 : old.wishCount + 1,
-          };
-          return newData;
-        }
-      );
-
-      return { previousWish };
-    },
-    onError: (error, mutationVariables, context) => {
-      handleError(error);
-
-      if (context?.previousWish) {
-        const productId = mutationVariables.productId;
-        queryClient.setQueryData(
-          queries.productWish.key(productId),
-          context.previousWish
-        );
-      }
-    },
-    onSettled: () => {},
+export function useProductPageDataQuery(productId: string) {
+  return useQuery({
+    queryKey: ['productPage', productId],
+    queryFn: () =>
+      Promise.resolve({
+        product: { id: productId, name: '임시 상품', price: 10000 },
+        reviews: [],
+      }),
   });
 }

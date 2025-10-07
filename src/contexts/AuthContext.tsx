@@ -1,58 +1,155 @@
-import React, { createContext, useContext } from 'react';
-import { STORAGE_KEY } from '@/constants/storage';
-import { useStorageState } from '@/hooks/useStorageState';
+import React, { createContext, useContext, useEffect } from 'react';
 
-interface User {
-  authToken: string;
-  email: string;
-  name: string;
-}
+import { authApi } from '@/api/auth';
+import { AUTH_STORAGE_KEYS } from '@/constants/auth';
+import { useStorageState } from '@/hooks/useStorageState';
+import { apiClient } from '@/lib/api_client';
+import { queryClient } from '@/lib/query_client';
+import type { LoginRequest, RegisterRequest } from '@/types';
 
 interface AuthContextType {
-  user: User | null;
-  login: (user: User) => void;
-  logout: () => void;
-  getAuthToken: () => string | null;
+  token: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  login: (loginData: LoginRequest) => Promise<void>;
+  register: (registerData: RegisterRequest) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshAccessToken: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useStorageState<User | null>(
-    STORAGE_KEY.USER_INFO,
+  const [token, setToken, isLoading] = useStorageState<string | null>(
+    AUTH_STORAGE_KEYS.AUTH_TOKEN,
+    null
+  );
+  const [refreshToken, setRefreshToken] = useStorageState<string | null>(
+    AUTH_STORAGE_KEYS.REFRESH_TOKEN,
     null
   );
 
-  const login = (user: User) => {
-    setUser(user);
-  };
-
-  const logout = () => {
-    setUser(null);
-  };
-
-  const getAuthToken = (): string | null => {
-    const stored = sessionStorage.getItem(STORAGE_KEY.USER_INFO);
-    if (stored) {
-      try {
-        const parsedUser = JSON.parse(stored);
-        return parsedUser?.authToken || null;
-      } catch {
-        return null;
-      }
+  // 토큰이 변경될 때 API 클라이언트에 설정
+  useEffect(() => {
+    if (token) {
+      apiClient.setToken(token);
+    } else {
+      apiClient.setToken(null);
     }
-    return null;
+  }, [token]);
+
+  // 토큰 갱신 함수
+  const refreshAccessToken = async () => {
+    if (!refreshToken) {
+      throw new Error('Refresh token이 없습니다.');
+    }
+
+    try {
+      const response = await authApi.refreshToken({ refreshToken });
+      setToken(response.accessToken);
+      setRefreshToken(response.refreshToken);
+      apiClient.setToken(response.accessToken);
+    } catch (error) {
+      console.error('토큰 갱신 실패:', error);
+      setToken(null);
+      setRefreshToken(null);
+      throw error;
+    }
   };
+
+  useEffect(() => {
+    apiClient.setOnTokenExpired(async () => {
+      try {
+        await refreshAccessToken();
+      } catch (error) {
+        console.warn('토큰 갱신 실패, 로그아웃 처리:', error);
+        setToken(null);
+        setRefreshToken(null);
+        queryClient.clear();
+      }
+    });
+  }, [refreshToken, setRefreshToken, setToken, refreshAccessToken]);
+
+  const login = async (loginData: LoginRequest) => {
+    console.log('🔐 Auth Context login 함수 호출됨:', loginData);
+
+    try {
+      const response = await authApi.login(loginData);
+      setToken(response.accessToken);
+      setRefreshToken(response.refreshToken);
+      apiClient.setToken(response.accessToken);
+      console.log('✅ 로그인 성공, 토큰 설정 완료');
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      throw error;
+    }
+  };
+
+  const register = async (registerData: RegisterRequest) => {
+    try {
+      const response = await authApi.register(registerData);
+      setToken(response.accessToken);
+      setRefreshToken(response.refreshToken);
+      apiClient.setToken(response.accessToken);
+      console.log('✅ 회원가입 성공, 토큰 설정 완료');
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await authApi.logoutAll();
+    } catch (error) {
+      console.warn('로그아웃 API 호출 실패:', error);
+    } finally {
+      setToken(null);
+      setRefreshToken(null);
+      apiClient.setToken(null);
+      queryClient.clear();
+      console.log('✅ 로그아웃 완료');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <div>로딩 중...</div>
+      </div>
+    );
+  }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, getAuthToken }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        refreshToken,
+        isAuthenticated: !!token,
+        login,
+        register,
+        logout,
+        refreshAccessToken,
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth는 반드시 AuthProvider 내부에서 사용해야 합니다.');
+  }
+  return context;
 }
