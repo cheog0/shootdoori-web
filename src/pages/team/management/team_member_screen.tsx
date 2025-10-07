@@ -429,9 +429,12 @@ export default function MemberManagementScreen({
 
       <div
         style={scrollContainer}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
-        }
+        onScroll={(e) => {
+          // 웹용 새로고침 기능 (스크롤 맨 위에서 새로고침)
+          if (e.currentTarget.scrollTop === 0 && isLoading) {
+            refetch();
+          }
+        }}
       >
         <div style={contentContainer}>
           <MemberInfoCard />

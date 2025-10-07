@@ -1,15 +1,5 @@
-// import { useLocalSearchParams, router } from 'react-router-dom';
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-// import {
-//   View,
-//   FlatList,
-//   StatusBar,
-//   Animated,
-//   ActivityIndicator,
-//   Alert,
-//   Text,
-// } from 'react-native-web';
 import styled from '@emotion/styled';
 
 // import FilterModal from '@/components/team/filters/filter_modal';

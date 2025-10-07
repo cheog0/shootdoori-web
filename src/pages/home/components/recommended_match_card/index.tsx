@@ -394,7 +394,7 @@ const ModalClose = styled.button`
   }
 `;
 
-const FlatListContent = styled.div`
+const MatchListContent = styled.div`
   flex: 1;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -573,14 +573,14 @@ export default function SafeMatchPreview({
                   닫기
                 </ModalClose>
               </ModalHeader>
-              <FlatListContent>
+              <MatchListContent>
                 {matches.map((item, index) => (
                   <div key={item.id}>
                     {renderFullItem(item)}
                     {index < matches.length - 1 && <Separator />}
                   </div>
                 ))}
-              </FlatListContent>
+              </MatchListContent>
             </ModalContainer>
           )}
         </>

@@ -93,7 +93,7 @@ const TimePickerContainer = styled.div`
   gap: 8px;
 `;
 
-const ScrollView = styled.div`
+const ScrollableContainer = styled.div`
   max-height: 200px;
   overflow-y: auto;
   border: 1px solid #d1d5db;
@@ -240,9 +240,9 @@ export const ModalDatePicker: React.FC<ModalDatePickerProps> = ({
               <TimeColumn>
                 <TimeLabel>월</TimeLabel>
                 <TimePickerContainer>
-                  <ScrollView>
+                  <ScrollableContainer>
                     {renderScrollItem(months, selectedMonth, setSelectedMonth)}
-                  </ScrollView>
+                  </ScrollableContainer>
                 </TimePickerContainer>
               </TimeColumn>
 
@@ -251,11 +251,11 @@ export const ModalDatePicker: React.FC<ModalDatePickerProps> = ({
               <TimeColumn>
                 <TimeLabel>일</TimeLabel>
                 <TimePickerContainer>
-                  <ScrollView>
+                  <ScrollableContainer>
                     {renderScrollItem(days, selectedDay - 1, index =>
                       setSelectedDay(index + 1)
                     )}
-                  </ScrollView>
+                  </ScrollableContainer>
                 </TimePickerContainer>
               </TimeColumn>
             </PickerRow>

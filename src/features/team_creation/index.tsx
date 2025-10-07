@@ -1,14 +1,5 @@
-// import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import {
-//   View,
-//   Text,
-//   StatusBar,
-//   Alert,
-//   Keyboard,
-//   TouchableWithoutFeedback,
-// } from 'react-native-web';
 import styled from '@emotion/styled';
 
 // import TeamBasicInfo from '@/components/team/steps/team_basic_info';
