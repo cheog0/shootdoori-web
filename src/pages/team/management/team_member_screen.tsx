@@ -428,12 +428,12 @@ export default function MemberManagementScreen({
       <CustomHeader title="팀원 관리" />
 
       <div
-        style={{scrollContainer}
+        style={scrollContainer}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
         }
       >
-        <div style={{contentContainer}>
+        <div style={contentContainer}>
           <MemberInfoCard />
           <MemberListSection
             teamMembers={teamMembers.content.sort((a, b) => {

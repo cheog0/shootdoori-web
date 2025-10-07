@@ -164,8 +164,8 @@ export default function MatchCard({
               </span>
             </div>
             <div style={[infoItemHalf, styles.infoItemHalfLast]}>
-              <span style={{infoLabel}>실력</span>
-              <div style={{skillLevelContainer}>
+              <span style={infoLabel}>실력</span>
+              <div style={skillLevelContainer}>
                 <div
                   style={[
                     styles.skillLevelBadge,
@@ -176,7 +176,7 @@ export default function MatchCard({
                     },
                   ]}
                 >
-                  <span style={{skillLevelText}>
+                  <span style={skillLevelText}>
                     {getSkillLevelLabel(match?.skillLevelMin || 'AMATEUR')}
                   </span>
                 </div>
