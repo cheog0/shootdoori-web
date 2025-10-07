@@ -1,5 +1,3 @@
-import type { AppExtra } from '@/types';
-
 const getEnvVars = () => {
   // 웹 환경에서는 import.meta.env를 사용
   const apiBaseUrl =

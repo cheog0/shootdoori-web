@@ -5,8 +5,6 @@ import { IoArrowBack } from 'react-icons/io5';
 
 import { theme } from '@/styles/theme';
 
-import { IconSymbol } from './icon_symbol';
-
 // Styled Components
 const HeaderContainer = styled.div`
   background-color: ${theme.colors.white};

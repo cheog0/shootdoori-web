@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { theme } from '@/theme';
-
 // Styled Components
 const Overlay = styled.div<{ visible: boolean }>`
   position: fixed;

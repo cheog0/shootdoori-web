@@ -128,7 +128,6 @@ export function IconSymbol({
   name,
   size = 24,
   color = theme.colors.textMain,
-  weight = 'regular',
 }: IconSymbolProps) {
   const IconComponent = iconMap[name];
 
