@@ -201,9 +201,9 @@ export default function MatchCard({
         </div>
 
         {match?.message && (
-          <div style={{matchMessage}>
-            <span style={{matchMessageLabel}>메시지</span>
-            <span style={{matchMessageText}>
+          <div style={matchMessage}>
+            <span style={matchMessageLabel}>메시지</span>
+            <span style={matchMessageText}>
               &quot;{match.message}&quot;
             </span>
           </div>
