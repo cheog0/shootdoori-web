@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import { theme } from '@/theme';
+import type { MatchWaitingResponseDto } from '@/types/match';
 
 interface SafeMatchPreviewProps {
   onMatchPress?: (matchId: number) => void;
