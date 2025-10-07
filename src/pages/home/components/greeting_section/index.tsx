@@ -122,7 +122,7 @@ const HighlightText = styled.span`
   position: relative;
 `;
 
-const AccentDot = styled.div`
+const AccentDot = styled.span`
   position: absolute;
   top: -8px;
   right: -8px;
