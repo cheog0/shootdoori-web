@@ -1,6 +1,6 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import styled from 'styled-components';
-import { IoPerson, IoPeople } from 'react-icons/io5';
+import { IoPerson } from 'react-icons/io5';
 
 import { theme } from '@/styles/theme';
 import type { TeamMember } from '@/types/team';
@@ -93,10 +93,7 @@ export default memo(function TeamMembersSection({
   membersLoading,
   onMemberPress,
 }: TeamMembersSectionProps) {
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-
   const handleMemberPress = (member: TeamMember) => {
-    setSelectedMember(member);
     onMemberPress?.(member);
   };
 

@@ -2,15 +2,6 @@ import { memo } from 'react';
 import styled from 'styled-components';
 import { IoPerson, IoEllipsisVertical } from 'react-icons/io5';
 
-import { theme } from '@/styles/theme';
-import type { TeamMember, TeamMemberRole } from '@/types/team';
-import { getRoleDisplayName } from '@/utils/team';
-
-// Styled Components
-const MemberListSection = styled.div`
-  padding: ${theme.spacing.spacing4};
-`;
-
 const SectionTitle = styled.h3`
   font-size: ${theme.typography.fontSize.lg};
   font-weight: ${theme.fontWeight.semibold};
@@ -100,9 +91,6 @@ export default memo(function MemberListSection({
   teamMembers,
   currentUserMember,
   onMemberPress,
-  onRoleChange,
-  onRemoveMember,
-  onDelegateLeadership,
 }: MemberListSectionProps) {
   const canManageMember = (member: TeamMember) => {
     if (!currentUserMember) return false;

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { UNIVERSITIES } from '@/constants/universities';
-import { colors } from '@/theme';
 import { TeamType, TEAM_TYPES } from '@/types/team';
 
 // Styled Components
