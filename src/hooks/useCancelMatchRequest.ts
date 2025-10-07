@@ -16,5 +16,5 @@ export const useCancelMatchRequest = () => {
       // 사용자 프로필도 갱신 (팀 정보가 변경될 수 있음)
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
-  };
+  });
 };

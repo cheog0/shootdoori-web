@@ -28,7 +28,7 @@ export const useTeamJoinRequest = () => {
         queryKey: ['teamDetail', variables.teamId],
       });
     },
-  };
+  });
 
   const cancelJoinRequestMutation = useMutation({
     mutationFn: ({
@@ -48,7 +48,7 @@ export const useTeamJoinRequest = () => {
         queryKey: ['teamJoinWaitingList', variables.teamId],
       });
     },
-  };
+  });
 
   return {
     joinWaiting: joinWaitingMutation.mutate,

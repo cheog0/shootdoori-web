@@ -116,7 +116,7 @@ export default function MemberManagementScreen({
 
   if (!teamMembers) {
     return (
-      <div style={{container}>
+      <div style={container}>
         <span>팀원 정보를 불러오는 중...</span>
       </div>
     );

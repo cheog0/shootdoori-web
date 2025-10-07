@@ -15,5 +15,5 @@ export const useCreateMatch = () => {
       // ✅ 새로 생성된 매치가 바로 반영되도록 무효화
       queryClient.invalidateQueries({ queryKey: ['my-created-matches'] });
     },
-  };
+  });
 };

@@ -20,7 +20,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-};
+});
 
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),

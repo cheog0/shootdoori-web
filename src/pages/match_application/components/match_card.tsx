@@ -156,10 +156,10 @@ export default function MatchCard({
             </div>
           </div>
 
-          <div style={{infoRowContainer}>
-            <div style={{infoItemHalf}>
-              <span style={{infoLabel}>경기장</span>
-              <span style={{infoValue}>
+          <div style={infoRowContainer}>
+            <div style={infoItemHalf}>
+              <span style={infoLabel}>경기장</span>
+              <span style={infoValue}>
                 {getVenueName(match?.preferredVenueId)}
               </span>
             </div>
