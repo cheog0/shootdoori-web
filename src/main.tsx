@@ -6,7 +6,7 @@ import App from './App';
 import './styles/reset.css';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
-import { queryClient } from '@/lib/queryClient';
+import { queryClient } from '@/lib/query_client';
 
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>

@@ -296,11 +296,12 @@ export const theme: Theme = {
     success: '#22c55e',
     error: '#fa342c',
     brand: {
-      main: '#217cf9',
+      main: '#6C8E68',
     },
     white: '#ffffff',
     grass: {
       500: '#22c55e',
+      600: '#16a34a',
     },
   },
 

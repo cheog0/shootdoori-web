@@ -1,64 +1,57 @@
 import { useState } from 'react';
-import { z } from 'zod';
 
-const emailSchema = z.string().email('ID는 이메일 형식으로 입력해주세요.');
+import type { LoginRequest } from '@/types';
 
 export function useLoginForm() {
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [emailTouched, setEmailTouched] = useState(false);
+  const [formData, setFormData] = useState<LoginRequest>({
+    email: '',
+    password: '',
+  });
 
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [errors, setErrors] = useState<Partial<LoginRequest>>({});
 
-  const validateEmailField = (value: string) => {
-    if (!value) return 'ID를 입력해주세요.';
-    const result = emailSchema.safeParse(value);
-    if (!result.success) return result.error.errors[0].message;
-    return '';
-  };
+  const updateField = (field: keyof LoginRequest, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
 
-  const validatePasswordField = (value: string) => {
-    if (!value) return 'PW를 입력해주세요.';
-    if (value.length < 8) return 'PW는 최소 8글자 이상이어야 합니다.';
-    return '';
-  };
-
-  const handleEmailBlur = () => {
-    setEmailTouched(true);
-    setEmailError(validateEmailField(email));
-  };
-  const handlePasswordBlur = () => {
-    setPasswordTouched(true);
-    setPasswordError(validatePasswordField(password));
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    if (emailTouched) {
-      setEmailError(validateEmailField(e.target.value));
-    }
-  };
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    if (passwordTouched) {
-      setPasswordError(validatePasswordField(e.target.value));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
-  const isValid =
-    validateEmailField(email) === '' && validatePasswordField(password) === '';
+  const validateForm = (): boolean => {
+    const newErrors: Partial<LoginRequest> = {};
+
+    if (!formData.email) {
+      newErrors.email = '이메일을 입력해주세요';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = '올바른 이메일 형식을 입력해주세요';
+    }
+
+    if (!formData.password) {
+      newErrors.password = '비밀번호를 입력해주세요';
+    } else if (formData.password.length < 8) {
+      newErrors.password = '비밀번호는 최소 8자 이상이어야 합니다';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const resetForm = () => {
+    setFormData({
+      email: '',
+      password: '',
+    });
+    setErrors({});
+  };
 
   return {
-    email,
-    password,
-    emailError: emailTouched ? emailError : '',
-    passwordError: passwordTouched ? passwordError : '',
-    handleEmailChange,
-    handlePasswordChange,
-    handleEmailBlur,
-    handlePasswordBlur,
-    isValid,
+    formData,
+    errors,
+    updateField,
+    validateForm,
+    resetForm,
+    isValid:
+      Object.keys(errors).length === 0 && formData.email && formData.password,
   };
 }

@@ -30,8 +30,18 @@
       "@/pages/*": ["src/pages/*"],
       "@/utils/*": ["src/utils/*"],
       "@/types/*": ["src/types/*"],
-      "@/assets/*": ["src/assets/*"]
+      "@/assets/*": ["src/assets/*"],
+      "@/api/*": ["src/api/*"],
+      "@/constants/*": ["src/constants/*"],
+      "@/contexts/*": ["src/contexts/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/theme/*": ["src/theme/*"],
+      "@/stores/*": ["src/stores/*"],
+      "@/features/*": ["src/features/*"],
+      "@/config/*": ["src/config/*"],
+      "@/styles/*": ["src/styles/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/types/**/*.d.ts", "**/*.ts", "**/*.tsx"]
 }
