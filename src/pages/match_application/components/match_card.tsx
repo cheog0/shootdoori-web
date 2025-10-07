@@ -32,7 +32,9 @@ export default function MatchCard({
           map[venue.venueId] = venue.venueName;
         });
         setVenueMap(map);
-      } catch {}
+      } catch (error) {
+        console.error('Failed to load venues:', error);
+      }
     };
     loadVenues();
   }, []);
