@@ -4,7 +4,6 @@ import { IoStar, IoStarOutline } from 'react-icons/io5';
 
 import { theme } from '@/styles/theme';
 import type { TeamReview } from '@/types/review';
-import { ReviewType } from '@/types/review';
 
 // Styled Components
 const ReviewsSection = styled.div`

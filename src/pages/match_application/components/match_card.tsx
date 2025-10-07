@@ -107,16 +107,16 @@ export default function MatchCard({
   const status = getStatusStyle(match?.status);
 
   return (
-    <div style={{matchCard}>
-      <div style={{matchCardHeader}>
+    <div style={matchCard}>
+      <div style={matchCardHeader}>
         <div style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <span style={{matchCardTitle}>
+          <span style={matchCardTitle}>
             {getTeamName(match?.teamName)}
           </span>
 
           {match?.universityOnly && (
-            <div style={[matchBadge, { marginLeft: 6 }]}>
-              <span style={{matchBadgeText}>대학만</span>
+            <div style={{...matchBadge, marginLeft: 6}}>
+              <span style={matchBadgeText}>대학만</span>
             </div>
           )}
 
@@ -138,16 +138,16 @@ export default function MatchCard({
         </div>
       </div>
 
-      <div style={{matchContent}>
-        <div style={{infoGrid}>
-          <div style={{infoRowContainer}>
-            <div style={{infoItemHalf}>
-              <span style={{infoLabel}>날짜</span>
-              <span style={{infoValue}>{match?.preferredDate}</span>
+      <div style={matchContent}>
+        <div style={infoGrid}>
+          <div style={infoRowContainer}>
+            <div style={infoItemHalf}>
+              <span style={infoLabel}>날짜</span>
+              <span style={infoValue}>{match?.preferredDate}</span>
             </div>
-            <div style={[infoItemHalf, styles.infoItemHalfLast]}>
-              <span style={{infoLabel}>시간</span>
-              <span style={{infoValue}>
+            <div style={{...infoItemHalf, ...styles.infoItemHalfLast}}>
+              <span style={infoLabel}>시간</span>
+              <span style={infoValue}>
                 {formatTime(
                   match?.preferredTimeStart || '00:00',
                   match?.preferredTimeEnd || '00:00'

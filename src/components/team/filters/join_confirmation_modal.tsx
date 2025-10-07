@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Users, Check } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 import { colors } from '@/theme';
 

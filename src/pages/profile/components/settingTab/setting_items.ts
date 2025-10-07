@@ -1,14 +1,12 @@
-import { useNavigate } from 'react-router-dom';
-
 import { EXTERNAL_LINKS } from '@/constants/external_links';
 import { ROUTES } from '@/constants/routes';
 import { theme } from '@/theme';
 import type { SettingItem } from '@/types';
 
 export const getDefaultSettingsItems = (
-  logout: () => Promise<void>
+  logout: () => Promise<void>,
+  navigate: (path: string) => void
 ): SettingItem[] => {
-  const navigate = useNavigate();
 
   return [
     {

@@ -78,9 +78,9 @@ export default function MemberManagementScreen({
 
   if (!teamId || teamId === null || teamId === undefined) {
     return (
-      <div style={{container}>
+      <div style={container}>
         <CustomHeader title="팀원 관리" />
-        <div style={{contentContainer}>
+        <div style={contentContainer}>
           <span style={{ textAlign: 'center', color: '#ff4444' }}>
             유효하지 않은 팀 ID입니다.
           </span>
@@ -95,9 +95,9 @@ export default function MemberManagementScreen({
     numericTeamId <= 0
   ) {
     return (
-      <div style={{container}>
+      <div style={container}>
         <CustomHeader title="팀원 관리" />
-        <div style={{contentContainer}>
+        <div style={contentContainer}>
           <span style={{ textAlign: 'center', color: '#ff4444' }}>
             유효하지 않은 팀 ID입니다.
           </span>

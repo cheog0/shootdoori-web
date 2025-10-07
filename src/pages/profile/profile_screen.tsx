@@ -165,7 +165,7 @@ function ProfileScreen() {
   const { data: userInfo, isLoading, error, refetch } = useUserProfile();
 
   const displayUser = userInfo;
-  const settingsItems = getDefaultSettingsItems(logout);
+  const settingsItems = getDefaultSettingsItems(logout, navigate);
 
   if (!token) {
     return (

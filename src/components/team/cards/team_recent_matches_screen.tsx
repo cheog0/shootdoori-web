@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { CustomHeader } from '@/components/ui/custom_header';
 import GlobalErrorFallback from '@/components/ui/global_error_fallback';
 import { useTeamRecentMatches, useTeam } from '@/hooks/queries';
-import { colors, spacing, typography, theme } from '@/theme';
+import { colors, theme } from '@/theme';
 import type { RecentMatchResponse } from '@/types/match';
 import { formatDate, formatTime } from '@/utils/date';
 
@@ -181,7 +181,7 @@ export default memo(function TeamRecentMatchesScreen({
     error,
     refetch,
   } = useTeamRecentMatches('FINISHED');
-  const { data: team } = useTeam(teamId);
+  useTeam(teamId);
 
   if (!teamId || teamId === null || teamId === undefined) {
     return (
