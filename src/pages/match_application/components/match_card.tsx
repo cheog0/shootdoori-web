@@ -210,7 +210,7 @@ export default function MatchCard({
         )}
       </div>
 
-      <div style={{matchFooter}>
+      <div style={matchFooter}>
         {!['CANCELED'].includes(match?.status?.toUpperCase?.() || '') && (
           <button
             onClick={onPressRequest}
