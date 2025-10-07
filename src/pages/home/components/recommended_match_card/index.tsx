@@ -484,10 +484,15 @@ export default function SafeMatchPreview({
   }, [extendedMatches, middleOffset]);
 
   const renderPreviewCard = (match: MatchWaitingResponseDto, index: number) => (
-    <Card key={`${match.waitingId}-${index}`} onClick={() => onMatchPress?.(match.waitingId)}>
+    <Card
+      key={`${match.waitingId}-${index}`}
+      onClick={() => onMatchPress?.(match.waitingId)}
+    >
       <div>
         <Location>{match.preferredVenueId}</Location>
-        <Time>{match.preferredTimeStart} - {match.preferredTimeEnd}</Time>
+        <Time>
+          {match.preferredTimeStart} - {match.preferredTimeEnd}
+        </Time>
       </div>
       <MetaRow>
         <SmallBadge bgColor={badgeBg(match.skillLevelMin).backgroundColor}>
@@ -512,7 +517,9 @@ export default function SafeMatchPreview({
     >
       <FullItemLeft>
         <Location>{item.preferredVenueId}</Location>
-        <Time>{item.preferredTimeStart} - {item.preferredTimeEnd}</Time>
+        <Time>
+          {item.preferredTimeStart} - {item.preferredTimeEnd}
+        </Time>
       </FullItemLeft>
       <FullItemRight>
         <SmallBadge bgColor={badgeBg(item.skillLevelMin).backgroundColor}>

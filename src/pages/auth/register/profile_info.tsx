@@ -1,10 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import {
   IoMdPerson,
   IoMdChatbubbles,
   IoMdSchool,
   IoMdBusiness,
+  IoMdStar,
+  IoMdFootball,
 } from 'react-icons/io';
 
 import type { RegisterFormData } from '@/hooks/useRegisterForm';
@@ -260,10 +262,116 @@ const BackButtonText = styled.span`
   }
 `;
 
+const DropdownContainer = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const DropdownButton = styled.button.withConfig({
+  shouldForwardProp: prop => prop !== 'hasError',
+})<{ hasError?: boolean }>`
+  width: 100%;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  border: 2px solid
+    ${props =>
+      props.hasError ? theme.colors.red[500] : 'rgba(108, 142, 104, 0.2)'};
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+
+  &:hover {
+    border-color: ${props =>
+      props.hasError ? theme.colors.red[500] : 'rgba(108, 142, 104, 0.4)'};
+  }
+
+  &:focus {
+    border-color: ${props =>
+      props.hasError ? theme.colors.red[500] : theme.colors.brand.main};
+    box-shadow:
+      0 8px 24px rgba(108, 142, 104, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+  }
+`;
+
+const DropdownContent = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  border: 2px solid rgba(108, 142, 104, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+`;
+
+const DropdownItem = styled.button`
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 16px;
+  color: ${theme.colors.text.main};
+
+  &:hover {
+    background: rgba(108, 142, 104, 0.1);
+  }
+
+  &:first-child {
+    border-radius: 10px 10px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 10px 10px;
+  }
+`;
+
+const DropdownText = styled.span`
+  color: ${theme.colors.text.main};
+  font-size: 16px;
+`;
+
+const DropdownIcon = styled.div`
+  color: ${theme.colors.brand.main};
+  opacity: 0.7;
+  transition: all 0.3s ease;
+`;
+
 export function ProfileInfo({ data, onChange, handlePrev, handleNext }: Props) {
   const { validateField, errors } = useRegisterValidation(
     profileValidationRules
   );
+  const [isSkillLevelDropdownOpen, setIsSkillLevelDropdownOpen] =
+    useState(false);
+  const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false);
+
+  const skillLevelOptions = ['초급', '중급', '고급', '세미프로', '프로'];
+  const positionOptions = [
+    '골키퍼',
+    '수비수',
+    '미드필더',
+    '공격수',
+    '풀백',
+    '윙어',
+  ];
 
   const handleFieldChange = <K extends keyof RegisterFormData>(
     key: K,
@@ -275,15 +383,41 @@ export function ProfileInfo({ data, onChange, handlePrev, handleNext }: Props) {
 
   const isFormValid = useMemo(() => {
     const nameValid = !errors.name && data.name?.trim() !== '';
+    const skillLevelValid =
+      !errors.skillLevel && data.skillLevel?.trim() !== '';
     const kakaotalkIdValid =
       !errors.kakaotalkId && data.kakaoTalkId?.trim() !== '';
+    const positionValid = !errors.position && data.position?.trim() !== '';
     const studentYearValid =
       !errors.studentYear && data.studentYear?.trim() !== '';
     const departmentValid =
       !errors.department && data.department?.trim() !== '';
 
-    return nameValid && kakaotalkIdValid && studentYearValid && departmentValid;
+    return (
+      nameValid &&
+      skillLevelValid &&
+      kakaotalkIdValid &&
+      positionValid &&
+      studentYearValid &&
+      departmentValid
+    );
   }, [data, errors]);
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-dropdown-container]')) {
+        setIsSkillLevelDropdownOpen(false);
+        setIsPositionDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <Container>
@@ -301,6 +435,35 @@ export function ProfileInfo({ data, onChange, handlePrev, handleNext }: Props) {
       </InputGroup>
       {errors.name && <ErrorText>{errors.name}</ErrorText>}
 
+      <DropdownContainer data-dropdown-container>
+        <DropdownButton
+          hasError={!!errors.skillLevel}
+          onClick={() => setIsSkillLevelDropdownOpen(!isSkillLevelDropdownOpen)}
+        >
+          <InputIcon>
+            <IoMdStar size={22} />
+          </InputIcon>
+          <DropdownText>{data.skillLevel || '실력을 선택하세요'}</DropdownText>
+          <DropdownIcon>▼</DropdownIcon>
+        </DropdownButton>
+        {isSkillLevelDropdownOpen && (
+          <DropdownContent>
+            {skillLevelOptions.map(option => (
+              <DropdownItem
+                key={option}
+                onClick={() => {
+                  handleFieldChange('skillLevel', option);
+                  setIsSkillLevelDropdownOpen(false);
+                }}
+              >
+                {option}
+              </DropdownItem>
+            ))}
+          </DropdownContent>
+        )}
+      </DropdownContainer>
+      {errors.skillLevel && <ErrorText>{errors.skillLevel}</ErrorText>}
+
       <InputGroup hasError={!!errors.kakaotalkId}>
         <InputIcon>
           <IoMdChatbubbles size={22} />
@@ -314,6 +477,35 @@ export function ProfileInfo({ data, onChange, handlePrev, handleNext }: Props) {
         />
       </InputGroup>
       {errors.kakaotalkId && <ErrorText>{errors.kakaotalkId}</ErrorText>}
+
+      <DropdownContainer data-dropdown-container>
+        <DropdownButton
+          hasError={!!errors.position}
+          onClick={() => setIsPositionDropdownOpen(!isPositionDropdownOpen)}
+        >
+          <InputIcon>
+            <IoMdFootball size={22} />
+          </InputIcon>
+          <DropdownText>{data.position || '포지션을 선택하세요'}</DropdownText>
+          <DropdownIcon>▼</DropdownIcon>
+        </DropdownButton>
+        {isPositionDropdownOpen && (
+          <DropdownContent>
+            {positionOptions.map(option => (
+              <DropdownItem
+                key={option}
+                onClick={() => {
+                  handleFieldChange('position', option);
+                  setIsPositionDropdownOpen(false);
+                }}
+              >
+                {option}
+              </DropdownItem>
+            ))}
+          </DropdownContent>
+        )}
+      </DropdownContainer>
+      {errors.position && <ErrorText>{errors.position}</ErrorText>}
 
       <InputGroup hasError={!!errors.studentYear}>
         <InputIcon>
