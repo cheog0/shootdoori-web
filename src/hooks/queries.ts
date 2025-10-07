@@ -323,7 +323,7 @@ export function useLoginMutation() {
   return useMutation({
     // TODO: 백엔드 API 연동 시 활성화
     // mutationFn: queries.login.fn,
-    mutationFn: async (_loginData: LoginRequest) => {
+    mutationFn: async () => {
       // 임시 Mock 응답
       return {
         accessToken: 'mock-access-token-' + Date.now(),
@@ -332,7 +332,7 @@ export function useLoginMutation() {
         refreshTokenExpiresIn: 2592000,
       };
     },
-    onSuccess: async (_data: LoginResponse) => {
+    onSuccess: async () => {
       console.log('🎉 useLoginMutation onSuccess 실행됨');
 
       // Auth Context를 통해 토큰 설정
@@ -363,7 +363,7 @@ export function useRegisterMutation() {
   return useMutation({
     // TODO: 백엔드 API 연동 시 활성화
     // mutationFn: queries.register.fn,
-    mutationFn: async (_registerData: RegisterRequest) => {
+    mutationFn: async () => {
       // 임시 Mock 응답
       return {
         accessToken: 'mock-access-token-' + Date.now(),

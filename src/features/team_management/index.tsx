@@ -75,7 +75,7 @@ export default function TeamManagementScreen({
     );
   }
 
-  const handleMemberPress = (member: TeamMember) => {
+  const _handleMemberPress = (member: TeamMember) => {
     setSelectedMember(member);
     setShowMemberDetailModal(true);
   };
