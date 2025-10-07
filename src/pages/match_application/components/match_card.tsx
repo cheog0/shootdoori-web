@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-
 import { getVenues } from '@/api/venue';
 import { theme } from '@/theme';
 import { MatchWaitingResponseDto } from '@/types/match';
-
 
 type MatchCardProps = {
   match: MatchWaitingResponseDto;
@@ -112,12 +110,10 @@ export default function MatchCard({
     <div style={matchCard}>
       <div style={matchCardHeader}>
         <div style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <span style={matchCardTitle}>
-            {getTeamName(match?.teamName)}
-          </span>
+          <span style={matchCardTitle}>{getTeamName(match?.teamName)}</span>
 
           {match?.universityOnly && (
-            <div style={{...matchBadge, marginLeft: 6}}>
+            <div style={{ ...matchBadge, marginLeft: 6 }}>
               <span style={matchBadgeText}>대학만</span>
             </div>
           )}
@@ -147,7 +143,7 @@ export default function MatchCard({
               <span style={infoLabel}>날짜</span>
               <span style={infoValue}>{match?.preferredDate}</span>
             </div>
-            <div style={{...infoItemHalf, ...styles.infoItemHalfLast}}>
+            <div style={{ ...infoItemHalf, ...styles.infoItemHalfLast }}>
               <span style={infoLabel}>시간</span>
               <span style={infoValue}>
                 {formatTime(
@@ -205,9 +201,7 @@ export default function MatchCard({
         {match?.message && (
           <div style={matchMessage}>
             <span style={matchMessageLabel}>메시지</span>
-            <span style={matchMessageText}>
-              &quot;{match.message}&quot;
-            </span>
+            <span style={matchMessageText}>&quot;{match.message}&quot;</span>
           </div>
         )}
       </div>

@@ -69,7 +69,10 @@ export default function UniversityTeamListScreen() {
   } = useTeamsByUniversityInfinite(university || '', 10);
 
   const filteredTeams = useMemo(() => {
-    const allTeams = data?.pages.flatMap((page: unknown) => (page as { content: unknown[] }).content) ?? [];
+    const allTeams =
+      data?.pages.flatMap(
+        (page: unknown) => (page as { content: unknown[] }).content
+      ) ?? [];
     let filtered = [...allTeams];
 
     if (filterOptions.skillLevel.length > 0) {
@@ -170,14 +173,16 @@ export default function UniversityTeamListScreen() {
   if (loading && !data) {
     return (
       <div style={loadingContainer}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: `4px solid ${theme.colors.gray[200]}`,
-          borderTop: `4px solid ${theme.colors.blue[500]}`,
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }} />
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            border: `4px solid ${theme.colors.gray[200]}`,
+            borderTop: `4px solid ${theme.colors.blue[500]}`,
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -202,14 +207,10 @@ export default function UniversityTeamListScreen() {
       />
 
       <ContentContainer>
-        {filteredTeams.map((team) => (
-          <TeamCard
-            key={team.id}
-            team={team}
-            onJoin={handleJoinTeam}
-          />
+        {filteredTeams.map(team => (
+          <TeamCard key={team.id} team={team} onJoin={handleJoinTeam} />
         ))}
-        
+
         {loading && data && (
           <LoadingContainer>
             <LoadingText>더 많은 팀을 불러오는 중...</LoadingText>

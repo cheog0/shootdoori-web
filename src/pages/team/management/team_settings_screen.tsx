@@ -233,7 +233,7 @@ export default function TeamSettingsScreen({
           const apiError = error as {
             status: number;
             message?: string;
-              data?: unknown;
+            data?: unknown;
           };
 
           if (apiError.status === 401) {

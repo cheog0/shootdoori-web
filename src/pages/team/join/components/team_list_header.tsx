@@ -4,7 +4,6 @@ import { Settings } from 'lucide-react';
 
 import { colors } from '@/theme';
 
-
 interface TeamListHeaderProps {
   university: string;
   onFilterPress: () => void;

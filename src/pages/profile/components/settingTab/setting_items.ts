@@ -7,7 +7,6 @@ export const getDefaultSettingsItems = (
   logout: () => Promise<void>,
   navigate: (path: string) => void
 ): SettingItem[] => {
-
   return [
     {
       key: 'edit-profile',

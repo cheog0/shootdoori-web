@@ -118,7 +118,6 @@ export default memo(function RoleChangeModal({
   onClose,
   onUpdateRole,
 }: RoleChangeModalProps) {
-
   return (
     <ModalOverlay visible={visible}>
       <ModalContainer>

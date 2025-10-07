@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 
-
 import type { TeamListItem } from '@/types';
-
 
 interface TeamCardProps {
   team: TeamListItem;
@@ -44,9 +42,7 @@ export default function TeamCard({ team, onJoin }: TeamCardProps) {
         </div>
       </div>
 
-      <span style={teamDescription}>
-        {team.description}
-      </span>
+      <span style={teamDescription}>{team.description}</span>
 
       <div style={teamInfo}>
         {teamInfoItems.map((item, index) => (
