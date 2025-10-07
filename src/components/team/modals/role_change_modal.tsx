@@ -118,31 +118,6 @@ export default memo(function RoleChangeModal({
   onClose,
   onUpdateRole,
 }: RoleChangeModalProps) {
-  const getRoleDisplayName = (role: TeamMemberRole) => {
-    switch (role) {
-      case 'LEADER':
-        return '팀장';
-      case 'VICE_LEADER':
-        return '부팀장';
-      case 'MEMBER':
-        return '팀원';
-      default:
-        return role;
-    }
-  };
-
-  const getRoleDescription = (role: TeamMemberRole) => {
-    switch (role) {
-      case 'LEADER':
-        return '팀의 모든 권한을 가집니다';
-      case 'VICE_LEADER':
-        return '팀장을 보조하며 일부 권한을 가집니다';
-      case 'MEMBER':
-        return '기본적인 팀원 권한을 가집니다';
-      default:
-        return '';
-    }
-  };
 
   return (
     <ModalOverlay visible={visible}>

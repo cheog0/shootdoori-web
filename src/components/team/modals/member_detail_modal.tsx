@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { X, Loader2, User, Calendar, Star, MapPin } from 'lucide-react';
 
 import { useTeamMember } from '@/hooks/queries';
-import { colors, spacing, typography } from '@/theme';
+import { colors } from '@/theme';
 import { formatDate } from '@/utils/date';
 import { getRoleDisplayName } from '@/utils/team';
 

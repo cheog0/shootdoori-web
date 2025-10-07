@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { theme } from '@/styles/theme';
-
 import RequestManagementModal, {
   type RequestItem,
 } from './request_management_modal';

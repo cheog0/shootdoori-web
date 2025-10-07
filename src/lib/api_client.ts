@@ -2,10 +2,17 @@ import axios from 'axios';
 
 import config from '@/config/environment';
 
+interface RequestOptions {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  data?: unknown;
+  headers?: Record<string, string>;
+  params?: Record<string, string | number>;
+}
+
 // axios의 isAxiosError 함수를 직접 구현
 function isAxiosError(
   error: unknown
-): error is { response?: { status: number; data?: any; statusText: string } } {
+): error is { response?: { status: number; data?: unknown; statusText: string } } {
   return typeof error === 'object' && error !== null && 'response' in error;
 }
 
@@ -37,14 +44,14 @@ class ApiClient {
     this.onTokenExpired = callback;
   }
 
-  private async request<T>(endpoint: string, options: any = {}): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     if (!this.token && this.isAuthRequiredEndpoint(endpoint)) {
       this.onTokenExpired?.();
       throw new ApiError('Authentication required', 401);
     }
 
     try {
-      const response: any = await axios({
+      const response = await axios({
         ...options,
         url: endpoint,
         baseURL: this.baseURL,
@@ -70,7 +77,7 @@ class ApiClient {
           }
         }
 
-        const errorData = (error as any).response.data || {};
+        const errorData = (error as { response?: { data?: unknown } }).response?.data || {};
 
         const errorMessage =
           errorData.data &&
@@ -79,11 +86,11 @@ class ApiClient {
             ? String(errorData.data.message)
             : typeof errorData.message === 'string'
               ? errorData.message
-              : (error as any).response.statusText;
+              : (error as { response?: { statusText?: string } }).response?.statusText || 'Unknown error';
 
         throw new ApiError(
           errorMessage,
-          (error as any).response.status,
+          (error as { response?: { status?: number } }).response?.status || 500,
           errorData
         );
       }
@@ -106,7 +113,7 @@ class ApiClient {
     return this.request<T>(endpoint);
   }
 
-  async post<T>(endpoint: string, body: unknown, options?: any): Promise<T> {
+  async post<T>(endpoint: string, body: unknown, options?: Partial<RequestOptions>): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       data: body,

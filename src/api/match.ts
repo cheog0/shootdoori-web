@@ -34,7 +34,18 @@ export const teamMatchApi = {
   getTeamMatchRequests: () => {
     return apiClient.get<{
       content: MatchRequestResponseDto[];
-      pageable: any;
+      pageable: {
+        sort: {
+          sorted: boolean;
+          unsorted: boolean;
+          empty: boolean;
+        };
+        pageNumber: number;
+        pageSize: number;
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+      };
       totalElements: number;
       totalPages: number;
       first: boolean;
@@ -108,9 +119,24 @@ export async function getMatchWaitingList(
     last: boolean;
     number: number;
     numberOfElements: number;
-    pageable: any;
+    pageable: {
+      sort: {
+        sorted: boolean;
+        unsorted: boolean;
+        empty: boolean;
+      };
+      pageNumber: number;
+      pageSize: number;
+      offset: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
     size: number;
-    sort: any;
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
   }
 
   try {

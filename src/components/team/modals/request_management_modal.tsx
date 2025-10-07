@@ -251,7 +251,6 @@ export default function RequestManagementModal({
   visible,
   title,
   requests,
-  emptyStateIcon = 'person-add-outline',
   emptyStateTitle,
   emptyStateText,
   onClose,

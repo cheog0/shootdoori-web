@@ -170,9 +170,7 @@ export default function TeamDetails({
     <div style={stepContainer}>
       <div style={stepHeader}>
         <span style={stepTitle}>팀 상세 정보를 입력해주세요</span>
-        <span style={stepSubtitle}>
-          팀의 실력 수준과 설명을 작성해주세요
-        </span>
+        <span style={stepSubtitle}>팀의 실력 수준과 설명을 작성해주세요</span>
       </div>
 
       <div style={stepContent}>
@@ -191,7 +189,9 @@ export default function TeamDetails({
                 <span
                   style={{
                     ...stepSelectorButtonText,
-                    ...(skillLevel === level ? stepSelectorButtonTextActive : {}),
+                    ...(skillLevel === level
+                      ? stepSelectorButtonTextActive
+                      : {}),
                   }}
                 >
                   {level}
@@ -209,7 +209,7 @@ export default function TeamDetails({
               ...(errors.description ? textInputError : {}),
             }}
             value={description}
-            onChange={(e) => onDescriptionChange(e.target.value)}
+            onChange={e => onDescriptionChange(e.target.value)}
             placeholder="팀의 목표, 활동 내용, 모집 조건 등을 자유롭게 작성해주세요"
             maxLength={1000}
           />

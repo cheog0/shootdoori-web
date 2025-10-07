@@ -113,22 +113,19 @@ const Badge = styled.span`
 interface ManageSectionProps {
   teamId: string | number;
   joinRequests: TeamJoinRequest[];
-  matchRequests?: any[]; // 매치 요청 타입은 추후 정의
+  matchRequests?: unknown[]; // 매치 요청 타입은 추후 정의
   onShowJoinRequestsModal: () => void;
   onShowMatchRequestsModal?: () => void;
   onDeleteTeam: () => void;
 }
 
 export default function ManageSection({
-  teamId,
   joinRequests,
   matchRequests = [],
   onShowJoinRequestsModal,
   onShowMatchRequestsModal,
   onDeleteTeam,
 }: ManageSectionProps) {
-  const navigate = useNavigate();
-
   const handleDeleteTeam = () => {
     if (
       confirm('정말로 팀을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
