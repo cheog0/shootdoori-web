@@ -48,14 +48,18 @@ export default function UniversityTeamListScreen() {
   const data = null;
   const loading = false;
   const error = null;
-  const fetchNextPage = () => {};
+  const fetchNextPage = () => {
+    // TODO: 다음 페이지 로드 로직 구현
+  };
   const hasNextPage = false;
-  const refetch = () => {};
+  const refetch = () => {
+    // TODO: 데이터 새로고침 로직 구현
+  };
 
   const filteredTeams = useMemo(() => {
     // TODO: 실제 데이터 필터링 로직 구현
     return [];
-  }, [data?.pages, filterOptions]);
+  }, []);
 
   const openFilterModal = () => {
     setShowFilterModal(true);

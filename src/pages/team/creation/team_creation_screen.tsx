@@ -134,7 +134,9 @@ export default function TeamCreationScreen({
             university={formData.university}
             teamType={formData.teamType}
             onTeamNameChange={name => updateFormData('name', name)}
-            onUniversityChange={() => {}} // 대학교는 수정 불가
+            onUniversityChange={() => {
+              // 대학교는 수정 불가
+            }}
             onTeamTypeChange={type => updateFormData('teamType', type)}
             {...stepProps}
             errors={{

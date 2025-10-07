@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRefreshToken(null);
       queryClient.clear();
     });
-  }, [refreshToken]);
+  }, [refreshToken, setRefreshToken, setToken]);
 
   const login = async (loginData: LoginRequest) => {
     console.log('🔐 Auth Context login 함수 호출됨:', loginData);
