@@ -130,7 +130,7 @@ export default function DataDeletionScreen() {
           const apiError = error as {
             status: number;
             message?: string;
-            data?: any;
+            data?: unknown;
           };
 
           if (apiError.status === 404) {

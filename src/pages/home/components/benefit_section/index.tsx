@@ -23,7 +23,7 @@ const fadeInUp = keyframes`
   }
 `;
 
-const _float = keyframes`
+const float = keyframes`
   0%, 100% {
     transform: translateY(0px);
   }

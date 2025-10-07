@@ -6,10 +6,10 @@ import { Card } from '@/components/card/card';
 import { theme } from '@/theme';
 
 // Styled Components
-const MannerCard = styled(Card)`
-  padding: 20px;
-  margin-bottom: 16px;
-`;
+// const MannerCard = styled(Card)`
+//   padding: 20px;
+//   margin-bottom: 16px;
+// `;
 
 const MannerHeader = styled.div`
   display: flex;
@@ -50,7 +50,7 @@ const ReviewCount = styled.span`
 export default memo(function MannerCard({
   mannerScore,
   totalReviews,
-  noShowCount,
+  // noShowCount,
 }: {
   mannerScore: number;
   totalReviews: number;

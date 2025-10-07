@@ -42,7 +42,7 @@ const pulse = keyframes`
   }
 `;
 
-const _fadeIn = keyframes`
+const fadeIn = keyframes`
   from {
     opacity: 0;
     transform: translateY(10px);

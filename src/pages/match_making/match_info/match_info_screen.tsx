@@ -222,7 +222,7 @@ export default function MatchInfoScreen() {
     };
 
     createMatch(payload, {
-      onSuccess: data => {
+      onSuccess: () => {
         setSuccessModalVisible(true);
       },
       onError: err => {

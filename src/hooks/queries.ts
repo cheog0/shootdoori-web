@@ -8,7 +8,6 @@ import { queryClient } from '@/lib/query_client';
 import type { CreateTeamRequest } from '@/types/team';
 import type {
   LoginRequest,
-  LoginResponse,
   RegisterRequest,
   RegisterResponse,
   VerifyEmailRequest,

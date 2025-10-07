@@ -177,7 +177,7 @@ export default function JoinConfirmationModal({
   visible,
   teamName,
   teamType,
-  teamId,
+  // teamId,
   onConfirm,
   onCancel,
 }: JoinConfirmationModalProps) {

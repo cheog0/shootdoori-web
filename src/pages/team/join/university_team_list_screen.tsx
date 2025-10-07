@@ -1,4 +1,4 @@
-import { useLocalSearchParams, router } from 'react-router-dom';
+import { useLocalSearchParams } from 'react-router-dom';
 import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 
@@ -69,7 +69,7 @@ export default function UniversityTeamListScreen() {
   } = useTeamsByUniversityInfinite(university || '', 10);
 
   const filteredTeams = useMemo(() => {
-    const allTeams = data?.pages.flatMap((page: any) => page.content) ?? [];
+    const allTeams = data?.pages.flatMap((page: unknown) => (page as { content: unknown[] }).content) ?? [];
     let filtered = [...allTeams];
 
     if (filterOptions.skillLevel.length > 0) {
@@ -107,11 +107,11 @@ export default function UniversityTeamListScreen() {
     });
   };
 
-  const loadMoreTeams = () => {
-    if (hasNextPage && !loading) {
-      fetchNextPage();
-    }
-  };
+  // const loadMoreTeams = () => {
+  //   if (hasNextPage && !loading) {
+  //     fetchNextPage();
+  //   }
+  // };
 
   const handleJoinTeam = (teamId: number) => {
     const team = filteredTeams.find(t => t.id === teamId);
@@ -145,9 +145,9 @@ export default function UniversityTeamListScreen() {
     setSelectedTeam(null);
   };
 
-  const renderTeamItem = ({ item }: { item: TeamListItem }) => (
-    <TeamCard team={item} onJoin={handleJoinTeam} />
-  );
+  // const renderTeamItem = ({ item }: { item: TeamListItem }) => (
+  //   <TeamCard team={item} onJoin={handleJoinTeam} />
+  // );
 
   const toggleSkillLevel = (level: SkillLevel) => {
     setFilterOptions(prev => ({

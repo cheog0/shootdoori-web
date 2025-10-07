@@ -51,7 +51,7 @@ export default function TeamManagementScreen({
     data: teamMembersData,
     isLoading: membersLoading,
     error: membersError,
-    refetch: refetchMembers,
+    refetch: _refetchMembers,
   } = useTeamMembers(numericTeamId);
 
   if (!teamId || teamId === null || teamId === undefined) {
@@ -149,7 +149,7 @@ export default function TeamManagementScreen({
             const apiError = error as {
               status: number;
               message?: string;
-              data?: any;
+              data?: unknown;
             };
 
             if (apiError.status === 403) {

@@ -20,37 +20,37 @@ import { getRoleDisplayName } from '@/utils/team';
 import { theme } from '@/styles/theme';
 
 // Styled Components
-const Container = styled.div`
-  flex: 1;
-  background-color: ${theme.colors.default};
-`;
+// const Container = styled.div`
+//   flex: 1;
+//   background-color: ${theme.colors.default};
+// `;
 
-const Content = styled.div`
-  flex: 1;
-  padding: ${theme.spacing.spacing4};
-`;
+// const Content = styled.div`
+//   flex: 1;
+//   padding: ${theme.spacing.spacing4};
+// `;
 
-const LoadingContainer = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: ${theme.spacing.spacing4};
-`;
+// const LoadingContainer = styled.div`
+//   flex: 1;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   padding: ${theme.spacing.spacing4};
+// `;
 
-const ErrorContainer = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: ${theme.spacing.spacing4};
-`;
+// const ErrorContainer = styled.div`
+//   flex: 1;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   padding: ${theme.spacing.spacing4};
+// `;
 
-const ErrorText = styled.p`
-  color: ${theme.colors.error};
-  text-align: center;
-  margin: 0;
-`;
+// const ErrorText = styled.p`
+//   color: ${theme.colors.error};
+//   text-align: center;
+//   margin: 0;
+// `;
 
 interface MemberManagementScreenProps {
   teamId: string | number;
@@ -201,7 +201,7 @@ export default function MemberManagementScreen({
                     const apiError = error as {
                       status: number;
                       message?: string;
-                      data?: any;
+                      data?: unknown;
                     };
 
                     if (apiError.status === 401) {
@@ -312,7 +312,7 @@ export default function MemberManagementScreen({
                     const apiError = error as {
                       status: number;
                       message?: string;
-                      data?: any;
+                      data?: unknown;
                     };
 
                     if (apiError.status === 403) {
@@ -395,7 +395,7 @@ export default function MemberManagementScreen({
                     const apiError = error as {
                       status: number;
                       message?: string;
-                      data?: any;
+                      data?: unknown;
                     };
 
                     if (apiError.status === 403) {

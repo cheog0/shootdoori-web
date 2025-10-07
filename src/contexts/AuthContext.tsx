@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('✅ 토큰 설정 완료, isAuthenticated:', !!mockToken);
   };
 
-  const register = async (_registerData: RegisterRequest) => {
+  const register = async (registerData: RegisterRequest) => {
     // TODO: 백엔드 API 연동 시 활성화
     // try {
     //   const response = await authApi.register(registerData);

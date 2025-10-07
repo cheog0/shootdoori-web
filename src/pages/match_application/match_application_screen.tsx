@@ -101,7 +101,7 @@ const BottomSpacing = styled.div`
 `;
 
 export default function MatchApplicationScreen({
-  teamId,
+  teamId: _teamId,
 }: MatchApplicationScreenProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
@@ -128,11 +128,11 @@ export default function MatchApplicationScreen({
   } = useMatchWaitingList(params);
   const { mutate: requestMatch, isPending } = useMatchRequest();
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await Promise.all([refetch(), refetchData()]);
-    setRefreshing(false);
-  };
+  // const handleRefresh = async () => {
+  //   setRefreshing(true);
+  //   await Promise.all([refetch(), refetchData()]);
+  //   setRefreshing(false);
+  // };
 
   const handlePressRequest = async (waitingId: number) => {
     await refetch();

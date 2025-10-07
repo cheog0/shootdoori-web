@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ChevronBack, ChevronForward, Lock } from 'lucide-react';
+import { ChevronForward, Lock } from 'lucide-react';
 
 import { colors, theme } from '@/theme';
 import { TeamType, TEAM_TYPES } from '@/types/team';
@@ -179,10 +179,10 @@ export default function TeamBasicInfo({
   university,
   teamType,
   onTeamNameChange,
-  onUniversityChange,
+  // onUniversityChange,
   onTeamTypeChange,
   onNext,
-  onBack,
+  // onBack,
   errors,
 }: TeamBasicInfoProps) {
   const isValid =
