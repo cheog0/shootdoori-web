@@ -22,6 +22,18 @@ const fadeInUp = keyframes`
   }
 `;
 
+const gradientShift = keyframes`
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+`;
+
 // Styled Components
 const AppContainer = styled.div`
   min-height: 100vh;
