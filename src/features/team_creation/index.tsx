@@ -97,7 +97,7 @@ export default function TeamCreationScreen() {
     }
   };
 
-  const updateFormData = <Key extends keyof TeamFormData>(
+  const _updateFormData = <Key extends keyof TeamFormData>(
     field: Key,
     value: TeamFormData[Key]
   ) => {
@@ -111,7 +111,7 @@ export default function TeamCreationScreen() {
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const renderCurrentStep = () => {
-    const stepProps = {
+    const _stepProps = {
       onNext: nextStep,
       onBack: prevStep,
     };

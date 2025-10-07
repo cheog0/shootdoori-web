@@ -38,7 +38,7 @@ export default function UniversityTeamListScreen() {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamListItem | null>(null);
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+  const [_filterOptions, setFilterOptions] = useState<FilterOptions>({
     skillLevel: [],
     teamType: [],
     maxMemberCount: 50,
@@ -69,7 +69,7 @@ export default function UniversityTeamListScreen() {
     setShowFilterModal(false);
   };
 
-  const resetFilters = () => {
+  const _resetFilters = () => {
     setFilterOptions({
       skillLevel: [],
       teamType: [],
@@ -77,7 +77,7 @@ export default function UniversityTeamListScreen() {
     });
   };
 
-  const loadMoreTeams = () => {
+  const _loadMoreTeams = () => {
     if (hasNextPage && !loading) {
       fetchNextPage();
     }
@@ -105,11 +105,11 @@ export default function UniversityTeamListScreen() {
     setSelectedTeam(null);
   };
 
-  const renderTeamItem = ({ item }: { item: TeamListItem }) => (
+  const _renderTeamItem = ({ item }: { item: TeamListItem }) => (
     <TeamCard team={item} onJoin={handleJoinTeam} />
   );
 
-  const toggleSkillLevel = (level: SkillLevel) => {
+  const _toggleSkillLevel = (level: SkillLevel) => {
     setFilterOptions(prev => ({
       ...prev,
       skillLevel: prev.skillLevel.includes(level)
@@ -118,7 +118,7 @@ export default function UniversityTeamListScreen() {
     }));
   };
 
-  const toggleTeamType = (type: TeamType) => {
+  const _toggleTeamType = (type: TeamType) => {
     setFilterOptions(prev => ({
       ...prev,
       teamType: prev.teamType.includes(type)

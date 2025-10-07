@@ -24,8 +24,8 @@ export default function TeamManagementScreen({
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   // TODO: 실제 데이터 fetching 로직 구현
-  const userProfile = null;
-  const team = null;
+  const _userProfile = null;
+  const _team = null;
   const isLoading = false;
   if (!teamId || teamId === null || teamId === undefined) {
     return (
