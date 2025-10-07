@@ -110,7 +110,7 @@ export default function CheckCreatedMatchesScreen() {
     await Promise.all([refetchProfile(), refetchMatches()]);
   }, [refetchProfile, refetchMatches]);
 
-  const renderMatchCard = (item: any) => (
+  const renderMatchCard = (item: MatchWaitingResponseDto) => (
     <MatchCard
       match={item}
       showStatus={true}

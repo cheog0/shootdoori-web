@@ -169,7 +169,7 @@ export default function MatchApplicationScreen({
     );
   };
 
-  const renderMatchCard = (item: any) => (
+  const renderMatchCard = (item: MatchWaitingResponseDto) => (
     <MatchCard
       key={item.waitingId}
       match={item}

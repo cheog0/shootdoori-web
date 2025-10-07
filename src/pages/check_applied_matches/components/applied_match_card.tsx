@@ -150,17 +150,17 @@ export default function AppliedMatchCard({
           </DateInfo>
         </InfoRow>
 
-        {(match as any).venue && (
+        {match.venue && (
           <InfoRow>
             <InfoLabel>경기장</InfoLabel>
-            <InfoValue>{(match as any).venue}</InfoValue>
+            <InfoValue>{match.venue}</InfoValue>
           </InfoRow>
         )}
 
-        {(match as any).message && (
+        {match.message && (
           <InfoRow>
             <InfoLabel>메시지</InfoLabel>
-            <InfoValue>{(match as any).message}</InfoValue>
+            <InfoValue>{match.message}</InfoValue>
           </InfoRow>
         )}
       </MatchInfo>

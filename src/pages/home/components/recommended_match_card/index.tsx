@@ -10,7 +10,7 @@ interface SafeMatchPreviewProps {
 const CARD_WIDTH = 150 + theme.spacing.spacing2;
 
 // 추천 매치 데이터 (빈 배열로 설정하여 빈 상태 테스트)
-const mockRecommendedMatches: any[] = [];
+const mockRecommendedMatches: MatchWaitingResponseDto[] = [];
 
 // 애니메이션 정의
 const fadeInUp = keyframes`
@@ -482,7 +482,7 @@ export default function SafeMatchPreview({
     };
   }, [extendedMatches, middleOffset]);
 
-  const renderPreviewCard = (match: any, index: number) => (
+  const renderPreviewCard = (match: MatchWaitingResponseDto, index: number) => (
     <Card key={`${match.id}-${index}`} onClick={() => onMatchPress?.(match.id)}>
       <div>
         <Location>{match.location}</Location>
@@ -501,7 +501,7 @@ export default function SafeMatchPreview({
     </Card>
   );
 
-  const renderFullItem = (item: any) => (
+  const renderFullItem = (item: MatchWaitingResponseDto) => (
     <FullItem
       onClick={() => {
         setModalVisible(false);
