@@ -424,7 +424,7 @@ export default function MemberManagementScreen({
   };
 
   return (
-    <div style={{container}>
+    <div style={container}>
       <CustomHeader title="팀원 관리" />
 
       <div

@@ -180,7 +180,7 @@ export default function MatchCard({
                     {getSkillLevelLabel(match?.skillLevelMin || 'AMATEUR')}
                   </span>
                 </div>
-                <span style={{skillLevelRange}>~</span>
+                <span style={skillLevelRange}>~</span>
                 <div
                   style={[
                     styles.skillLevelBadge,
@@ -191,7 +191,7 @@ export default function MatchCard({
                     },
                   ]}
                 >
-                  <span style={{skillLevelText}>
+                  <span style={skillLevelText}>
                     {getSkillLevelLabel(match?.skillLevelMax || 'PRO')}
                   </span>
                 </div>
