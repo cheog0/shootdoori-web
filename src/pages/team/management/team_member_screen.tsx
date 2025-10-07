@@ -143,13 +143,19 @@ export default function MemberManagementScreen({
       currentUserMember.role !== 'LEADER' &&
       currentUserMember.role !== 'VICE_LEADER'
     ) {
-      window.alert('권한 없음', '회장과 부회장만 팀원의 역할을 변경할 수 있습니다.');
+      window.alert(
+        '권한 없음',
+        '회장과 부회장만 팀원의 역할을 변경할 수 있습니다.'
+      );
       return;
     }
 
     // 자기 자신의 역할은 변경할 수 없음
     if (member.userId === currentUserMember.userId) {
-      window.alert('알림', '회장/부회장은 자신의 역할을 직접 변경할 수 없습니다.');
+      window.alert(
+        '알림',
+        '회장/부회장은 자신의 역할을 직접 변경할 수 없습니다.'
+      );
       return;
     }
 
@@ -279,7 +285,10 @@ export default function MemberManagementScreen({
     }
 
     if (!numericTeamId || !member.userId) {
-      window.alert('오류', '팀 정보 또는 사용자 정보가 올바르지 않을 수 없습니다.');
+      window.alert(
+        '오류',
+        '팀 정보 또는 사용자 정보가 올바르지 않을 수 없습니다.'
+      );
       return;
     }
 
@@ -429,7 +438,7 @@ export default function MemberManagementScreen({
 
       <div
         style={scrollContainer}
-        onScroll={(e) => {
+        onScroll={e => {
           // 웹용 새로고침 기능 (스크롤 맨 위에서 새로고침)
           if (e.currentTarget.scrollTop === 0 && isLoading) {
             refetch();

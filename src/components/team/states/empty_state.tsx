@@ -80,10 +80,7 @@ export default memo(function EmptyState({
       <span style={stateSubtitle}>{subtitle}</span>
       <span style={stateDescription}>{description}</span>
       {showRetryButton && onRetry && (
-        <button
-          style={{...actionButton, marginTop: 20}}
-          onClick={onRetry}
-        >
+        <button style={{ ...actionButton, marginTop: 20 }} onClick={onRetry}>
           <RefreshCw size={18} color={colors.white} />
           <span style={actionButtonText}>다시 시도</span>
         </button>

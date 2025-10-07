@@ -10,9 +10,9 @@ interface RequestOptions {
 }
 
 // axios의 isAxiosError 함수를 직접 구현
-function isAxiosError(
-  error: unknown
-): error is { response?: { status: number; data?: unknown; statusText: string } } {
+function isAxiosError(error: unknown): error is {
+  response?: { status: number; data?: unknown; statusText: string };
+} {
   return typeof error === 'object' && error !== null && 'response' in error;
 }
 
@@ -44,7 +44,10 @@ class ApiClient {
     this.onTokenExpired = callback;
   }
 
-  private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    options: RequestOptions = {}
+  ): Promise<T> {
     if (!this.token && this.isAuthRequiredEndpoint(endpoint)) {
       this.onTokenExpired?.();
       throw new ApiError('Authentication required', 401);
@@ -77,7 +80,8 @@ class ApiClient {
           }
         }
 
-        const errorData = (error as { response?: { data?: unknown } }).response?.data || {};
+        const errorData =
+          (error as { response?: { data?: unknown } }).response?.data || {};
 
         const errorMessage =
           errorData.data &&
@@ -86,7 +90,8 @@ class ApiClient {
             ? String(errorData.data.message)
             : typeof errorData.message === 'string'
               ? errorData.message
-              : (error as { response?: { statusText?: string } }).response?.statusText || 'Unknown error';
+              : (error as { response?: { statusText?: string } }).response
+                  ?.statusText || 'Unknown error';
 
         throw new ApiError(
           errorMessage,
@@ -113,7 +118,11 @@ class ApiClient {
     return this.request<T>(endpoint);
   }
 
-  async post<T>(endpoint: string, body: unknown, options?: Partial<RequestOptions>): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    body: unknown,
+    options?: Partial<RequestOptions>
+  ): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       data: body,
