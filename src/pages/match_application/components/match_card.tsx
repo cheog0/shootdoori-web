@@ -221,7 +221,7 @@ export default function MatchCard({
               isCancellable && { backgroundColor: theme.colors.red[600] }, // ✅ 빨간색 적용
             ]}
           >
-            <span style={{requestButtonText}>
+            <span style={requestButtonText}>
               {disabled
                 ? '요청 중...'
                 : isCancellable
