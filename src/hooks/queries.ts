@@ -110,29 +110,7 @@ export function useUserProfile() {
 
   return useQuery({
     queryKey: queries.userProfile.key,
-    // TODO: 백엔드 API 연동 시 활성화
-    // queryFn: queries.userProfile.fn,
-    queryFn: async () => {
-      // 임시 Mock 사용자 프로필 데이터
-      return {
-        id: 1,
-        name: '테스트 사용자',
-        email: 'test@example.com',
-        universityEmail: 'test@university.ac.kr',
-        skillLevel: '아마추어',
-        position: '공격수',
-        university: '테스트대학교',
-        department: '컴퓨터공학과',
-        studentYear: '25',
-        kakaoTalkId: 'testuser',
-        bio: '테스트용 사용자입니다.',
-        teamId: 1,
-        teamName: '테스트팀',
-        teamRole: 'LEADER',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-    },
+    queryFn: queries.userProfile.fn,
     enabled: !!token,
   });
 }
@@ -336,10 +314,7 @@ export function useLoginMutation() {
 
       // Auth Context를 통해 토큰 설정
       console.log('🔐 Auth Context login 함수 호출 중...');
-      await login({
-        email: 'test@example.com',
-        password: 'password123',
-      });
+      await login(formData);
       console.log('✅ Auth Context login 함수 완료');
 
       console.log('🧹 Query cache 클리어 중...');

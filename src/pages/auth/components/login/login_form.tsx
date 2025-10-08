@@ -360,24 +360,6 @@ function LoginForm() {
           <LoginButtonText>로그인</LoginButtonText>
         )}
       </LoginButton>
-
-      {/* 테스트용 로그인 버튼 */}
-      <LoginButton
-        onClick={() =>
-          loginMutation.mutateAsync({
-            email: 'test@example.com',
-            password: 'password123',
-          })
-        }
-        disabled={loginMutation.isPending}
-        style={{
-          marginTop: '12px',
-          backgroundColor: '#4CAF50',
-          border: '1px solid #4CAF50',
-        }}
-      >
-        <LoginButtonText>🧪 테스트 로그인 (바로 홈 이동)</LoginButtonText>
-      </LoginButton>
     </Container>
   );
 }
