@@ -9,6 +9,16 @@ export default defineConfig({
       jsxImportSource: '@emotion/react',
     }),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://app.shootdoori.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: path => path.replace(/^\/api/, '/api'),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
