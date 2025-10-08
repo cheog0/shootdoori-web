@@ -35,6 +35,15 @@ export interface UpdateProfileRequest {
 }
 
 export interface UpdateProfileResponse {
-  success: boolean;
-  user: UserProfile;
+  name: string;
+  skillLevel: string;
+  email: string;
+  kakaoTalkId: string;
+  position: string;
+  university: string;
+  department: string;
+  studentYear: string;
+  bio: string;
+  createdAt: string;
+  teamId: number | null;
 }

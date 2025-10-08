@@ -36,6 +36,10 @@ export const queries = {
     key: ['user', 'profile'] as const,
     fn: () => api.profileApi.getProfile(),
   },
+  userProfileById: {
+    key: (id: string | number) => ['user', 'profile', id] as const,
+    fn: (id: string | number) => api.profileApi.getProfileById(id),
+  },
   user: {
     key: ['user'] as const,
   },
@@ -242,6 +246,14 @@ export function useTeamJoinWaitingList(
   });
 }
 
+export function useUserProfileById(id: string | number) {
+  return useQuery({
+    queryKey: queries.userProfileById.key(id),
+    queryFn: () => queries.userProfileById.fn(id),
+    enabled: !!id,
+  });
+}
+
 export function useUpdateProfileMutation() {
   return useMutation({
     mutationFn: (data: UpdateProfileRequest) =>
@@ -251,6 +263,22 @@ export function useUpdateProfileMutation() {
     },
     onError: (error: unknown) => {
       console.error('프로필 업데이트 실패:', error);
+    },
+  });
+}
+
+export function useDeleteProfileMutation() {
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: () => api.profileApi.deleteProfile(),
+    onSuccess: () => {
+      // 프로필 삭제 성공 시 로그아웃 처리
+      queryClient.clear();
+      navigate('/auth/login');
+    },
+    onError: (error: unknown) => {
+      console.error('프로필 삭제 실패:', error);
     },
   });
 }

@@ -10,6 +10,7 @@ export const AUTH_API = {
 
 export const PROFILE_API = {
   GET_PROFILE: '/api/profiles/me',
+  GET_PROFILE_BY_ID: (id: string | number) => `/api/profiles/${id}`,
   UPDATE_PROFILE: '/api/profiles/me',
   DELETE_PROFILE: '/api/profiles/me',
 };
