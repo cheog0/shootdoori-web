@@ -78,8 +78,8 @@ export const queries = {
       api.teamJoinRequestApi.getTeamJoinRequests(teamId),
   },
   teamMatches: {
-    key: (teamId: string | number) => ['teamMatches', teamId] as const,
-    fn: (teamId: string | number) => api.teamMatchApi.getTeamMatches(teamId),
+    key: () => ['teamMatches'] as const,
+    fn: () => api.teamMatchApi.getTeamMatches(),
   },
   teamRecentMatches: {
     key: (status?: string) => ['teamRecentMatches', status] as const,
@@ -217,11 +217,10 @@ export function useTeamJoinRequests(teamId: string | number) {
   });
 }
 
-export function useTeamMatches(teamId: string | number) {
+export function useTeamMatches() {
   return useQuery({
-    queryKey: queries.teamMatches.key(teamId),
-    queryFn: () => queries.teamMatches.fn(teamId),
-    enabled: !!teamId,
+    queryKey: queries.teamMatches.key(),
+    queryFn: () => queries.teamMatches.fn(),
   });
 }
 
@@ -328,7 +327,7 @@ export function useLoginMutation() {
   return useMutation({
     // TODO: 백엔드 API 연동 시 활성화
     // mutationFn: queries.login.fn,
-    mutationFn: async () => {
+    mutationFn: async (formData: any) => {
       // 임시 Mock 응답
       return {
         accessToken: 'mock-access-token-' + Date.now(),
@@ -337,7 +336,7 @@ export function useLoginMutation() {
         refreshTokenExpiresIn: 2592000,
       };
     },
-    onSuccess: async () => {
+    onSuccess: async (data, formData) => {
       console.log('🎉 useLoginMutation onSuccess 실행됨');
 
       // Auth Context를 통해 토큰 설정
