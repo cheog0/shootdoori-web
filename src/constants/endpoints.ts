@@ -1,5 +1,5 @@
 export const AUTH_API = {
-  LOGIN: '/api/auth/login',
+  LOGIN: '/api/auth/signin',
   LOGOUT: '/api/auth/logout',
   LOGOUT_ALL: '/api/auth/logout-all',
   REFRESH: '/api/auth/refresh',
