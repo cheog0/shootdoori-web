@@ -1,24 +1,93 @@
-# 테스트 및 자동화 가이드
+# Shoot Doori Web
 
-이 프로젝트는 **React Testing Library**, **Jest**, **MSW**, **GitHub Actions**를 활용해 테스트를 수행하고 자동화했습니다.
+축구 매칭 플랫폼 웹 애플리케이션
 
-## 1. 컴포넌트 테스트
+## 🚀 배포
 
-- 대상: `FormField`, `Typography`
-- 내용: 렌더링, props 반영, 이벤트 처리 검증
+### Vercel 배포
 
-## 2. 로그인 페이지 시나리오 테스트
+1. **Vercel 계정 연결**
+   - [Vercel](https://vercel.com)에 로그인
+   - GitHub 저장소 연결
 
-- 성공 → 홈 이동
-- 실패 → 에러 메시지 표시
-- 엣지 케이스: 빈 입력, 서버 오류, 네트워크 장애
+2. **환경 변수 설정**
 
-## 3. 선물하기 홈 랭킹 테스트 (MSW)
+   ```
+   VITE_API_BASE_URL=https://your-backend-api.com
+   VITE_ENVIRONMENT=production
+   ```
 
-- 실시간 급상승 랭킹 Mock API 테스트
-- 정상, 지연, 오류 시 UI 동작 검증
+3. **자동 배포**
+   - `main` 브랜치에 푸시 시 자동 배포
+   - Pull Request 생성 시 프리뷰 배포
 
-## 4. GitHub Actions 테스트 자동화
+## 🛠️ 개발
 
-- **PR 생성 / main 브랜치 머지 시 테스트 실행**
-- `.github/workflows/test.yml` 사용
+### 로컬 개발 환경 설정
+
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+
+# 빌드
+npm run build
+
+# 린팅
+npm run lint
+
+# 포맷팅
+npm run format
+```
+
+### 환경 변수
+
+`.env` 파일을 생성하고 다음 변수들을 설정하세요:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+VITE_ENVIRONMENT=development
+```
+
+## 📁 프로젝트 구조
+
+```
+src/
+├── api/           # API 호출 함수
+├── components/    # 재사용 가능한 컴포넌트
+├── pages/         # 페이지 컴포넌트
+├── hooks/         # 커스텀 훅
+├── contexts/      # React Context
+├── types/         # TypeScript 타입 정의
+├── utils/         # 유틸리티 함수
+├── theme/         # 테마 설정
+└── constants/     # 상수 정의
+```
+
+## 🧪 테스트
+
+```bash
+# 테스트 실행
+npm test
+
+# 테스트 커버리지
+npm run test:coverage
+```
+
+## 📝 주요 기능
+
+- 🔐 사용자 인증 (로그인/회원가입)
+- ⚽ 팀 생성 및 관리
+- 🏆 매치 신청 및 관리
+- 👥 팀원 관리
+- 📊 프로필 관리
+
+## 🔧 기술 스택
+
+- **Frontend**: React, TypeScript, Vite
+- **Styling**: Styled Components, Emotion
+- **State Management**: React Query, Context API
+- **Testing**: Jest, React Testing Library, MSW
+- **Deployment**: Vercel
