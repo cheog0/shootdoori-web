@@ -325,17 +325,7 @@ export function useLoginMutation() {
   const { login } = useAuth();
 
   return useMutation({
-    // TODO: 백엔드 API 연동 시 활성화
-    // mutationFn: queries.login.fn,
-    mutationFn: async (formData: any) => {
-      // 임시 Mock 응답
-      return {
-        accessToken: 'mock-access-token-' + Date.now(),
-        refreshToken: 'mock-refresh-token-' + Date.now(),
-        accessTokenExpiresIn: 1800,
-        refreshTokenExpiresIn: 2592000,
-      };
-    },
+    mutationFn: queries.login.fn,
     onSuccess: async (data, formData) => {
       console.log('🎉 useLoginMutation onSuccess 실행됨');
 
