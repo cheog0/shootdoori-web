@@ -2,10 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 
-// import TeamBasicInfo from './components/team/steps/team_basic_info';
-// import TeamDetails from './components/team/steps/team_details';
-// import { CustomHeader } from './components/ui/custom_header';
-// import { useCreateTeamMutation } from '@/hooks/queries';
+import { useCreateTeamMutation } from '@/hooks/queries';
 import { theme } from '@/theme';
 import {
   TeamType,
@@ -73,17 +70,11 @@ export default function TeamCreationScreen() {
       try {
         const response = await createTeamMutation.mutateAsync(formData);
 
-        window.alert('팀 생성 완료', response.message, [
-          {
-            text: '확인',
-            onPress: () => {
-              router.replace('/');
-            },
-          },
-        ]);
+        alert('팀 생성이 완료되었습니다.');
+        navigate('/');
       } catch (error) {
         console.error('팀 생성 실패:', error);
-        window.alert('오류', '팀 생성에 실패했습니다.');
+        alert('팀 생성에 실패했습니다.');
       }
     }
   };
