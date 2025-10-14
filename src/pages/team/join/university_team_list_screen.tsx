@@ -7,13 +7,13 @@ import GlobalErrorFallback from '@/components/ui/global_error_fallback';
 import { useTeamsByUniversityInfinite } from '@/hooks/queries';
 import { useTeamJoinRequest } from '@/hooks/useTeamJoinRequest';
 import { theme } from '@/theme';
-import type { TeamListItem } from '@/types';
+import type { TeamListItem } from './types';
 import { SkillLevel, TeamType } from '@/types/team';
 
-import FilterModal from './components/filter_modal';
-import JoinConfirmationModal from './components/join_confirmation_modal';
-import TeamCard from './components/team_card';
-import TeamListHeader from './components/team_list_header';
+import FilterModal from '@/components/filter_modal';
+import JoinConfirmationModal from '@/components/join_confirmation_modal';
+import TeamCard from '@/components/team_card';
+import TeamListHeader from '@/components/team_list_header';
 
 // Styled Components
 const Container = styled.div`

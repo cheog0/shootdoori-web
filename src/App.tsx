@@ -6,26 +6,26 @@ import {
   Navigate,
 } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
-import { ErrorBoundary, SuspenseFallback } from '@/components/shared/ui';
-import { ROUTES } from '@/constants/routes';
+import { ErrorBoundary, SuspenseFallback } from './components/shared/ui';
+import { ROUTES } from './constants/routes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth, AuthProvider } from '@/contexts/auth_context';
+import { useAuth, AuthProvider } from './contexts/auth_context';
 
-const MainPage = lazy(() => import('@/pages/MainPage.tsx'));
-const LoginPage = lazy(() => import('@/pages/LoginPage.tsx'));
-const RegisterPage = lazy(() => import('@/pages/RegisterPage.tsx'));
-const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage.tsx'));
-const ProfilePage = lazy(() => import('@/pages/ProfilePage.tsx'));
+const MainPage = lazy(() => import('./pages/MainPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const EditProfilePage = lazy(
-  () => import('@/pages/profile/edit/edit_profile_screen')
+  () => import('./pages/profile/edit/edit_profile_screen')
 );
-// const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
-// const MyPage = lazy(() => import('@/pages/MyPage'));
-// const GiftOrderPage = lazy(() => import('@/pages/GiftOrderPage'));
-// const ThemePage = lazy(() => import('@/pages/ThemePage'));
-// const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'));
-// const TeamGuidePage = lazy(() => import('@/pages/TeamGuidePage'));
+// const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+// const MyPage = lazy(() => import('./pages/MyPage'));
+// const GiftOrderPage = lazy(() => import('./pages/GiftOrderPage'));
+// const ThemePage = lazy(() => import('./pages/ThemePage'));
+// const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
+// const TeamGuidePage = lazy(() => import('./pages/TeamGuidePage'));
 
 function App() {
   return (

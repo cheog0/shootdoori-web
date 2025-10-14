@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 //
 import styled from '@emotion/styled';
 
-// import TeamInfoCard from '@/components/team/cards/team_info_card';
-// import MemberDetailModal from '@/components/team/modals/member_detail_modal';
-// import TeamMembersSection from '@/components/team/sections/team_members_section';
-// import EmptyState from '@/components/team/states/empty_state';
-// import LoadingState from '@/components/team/states/loading_state';
-// import { CustomHeader } from '@/components/ui/custom_header';
+// import TeamInfoCard from './components/team/cards/team_info_card';
+// import MemberDetailModal from './components/team/modals/member_detail_modal';
+// import TeamMembersSection from './components/team/sections/team_members_section';
+// import EmptyState from './components/team/states/empty_state';
+// import LoadingState from './components/team/states/loading_state';
+// import { CustomHeader } from './components/ui/custom_header';
 // import { useTeam, useTeamMembers, useUserProfile } from '@/hooks/queries';
 import type { TeamMember } from '@/types/team';
 
@@ -24,8 +24,6 @@ export default function TeamManagementScreen({
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   // TODO: 실제 데이터 fetching 로직 구현
-  const _userProfile = null;
-  const _team = null;
   const isLoading = false;
   if (!teamId || teamId === null || teamId === undefined) {
     return (
@@ -75,7 +73,7 @@ export default function TeamManagementScreen({
     );
   }
 
-  const _handleMemberPress = (member: TeamMember) => {
+  const handleMemberPress = (member: TeamMember) => {
     setSelectedMember(member);
     setShowMemberDetailModal(true);
   };

@@ -13,7 +13,7 @@ import {
   DEFAULT_SKILL_LEVEL,
 } from '@/types/team';
 
-import TeamBasicInfo from './components/steps/team_basic_info';
+import TeamBasicInfo from '@/components/steps/team_basic_info';
 
 // Styled Components
 const Container = styled.div`

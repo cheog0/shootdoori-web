@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import config from '@/config/environment';
+import config from '../config/environment';
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

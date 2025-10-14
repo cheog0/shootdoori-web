@@ -149,11 +149,11 @@ export function getTeamTypeInEnglish(teamType: TeamType): string {
 
 export function getSkillLevelInEnglish(skillLevel: SkillLevel): string {
   const levelMap: Record<SkillLevel, string> = {
-    초급: 'BEGINNER',
-    중급: 'INTERMEDIATE',
-    고급: 'ADVANCED',
+    아마추어: 'AMATEUR',
+    세미프로: 'SEMI_PRO',
+    프로: 'PRO',
   };
-  return levelMap[skillLevel] || 'BEGINNER';
+  return levelMap[skillLevel] || 'AMATEUR';
 }
 
 export function getRoleInKorean(role: TeamMemberRole): string {

@@ -2,9 +2,9 @@ import styled from 'styled-components';
 
 import { colors } from '@/theme';
 
-import Buttons from './components/buttons';
-import Cards from './components/cards';
-import Header from './components/header';
+import Buttons from '@/components/buttons';
+import Cards from '@/components/cards';
+import Header from '@/components/header';
 
 const Container = styled.div`
   flex: 1;

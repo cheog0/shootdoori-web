@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Card } from '@/components/card/card';
 import { Badge } from '@/screens/profile/components/badge/badge';
-import { ReviewStatsType } from '@/types';
+import { ReviewStatsType } from './types';
 
 // Styled Components
 const ReviewsCard = styled(Card)`

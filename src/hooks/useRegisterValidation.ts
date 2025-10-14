@@ -38,11 +38,13 @@ const runValidation = (
   }
 
   if (rule.minLength && value.trim().length < rule.minLength) {
-    return `${label}은(는) ${rule.minLength}자 이상 입력해주세요`;
+    return `${label}은(는) ${rule.minLength}자 이상 
+입력해주세요`;
   }
 
   if (rule.maxLength && value.trim().length > rule.maxLength) {
-    return `${label}은(는) ${rule.maxLength}자 이하로 입력해주세요`;
+    return `${label}은(는) ${rule.maxLength}자 이하로 
+입력해주세요`;
   }
 
   if (rule.pattern && !rule.pattern.test(value)) {
@@ -155,12 +157,7 @@ export const profileValidationRules: ValidationRules = {
   name: {
     required: true,
     minLength: 2,
-    maxLength: 100,
     label: '이름',
-  },
-  skillLevel: {
-    required: true,
-    label: '실력',
   },
   kakaoTalkId: {
     required: true,
@@ -168,11 +165,6 @@ export const profileValidationRules: ValidationRules = {
     label: '카카오톡 아이디',
     patternMessage:
       '카카오톡 아이디는 영문, 숫자, 특수문자(-, _, .)를 포함하여 4~20자이어야 합니다',
-  },
-  position: {
-    required: true,
-    maxLength: 10,
-    label: '포지션',
   },
   studentYear: {
     required: true,
@@ -183,7 +175,6 @@ export const profileValidationRules: ValidationRules = {
   department: {
     required: true,
     minLength: 2,
-    maxLength: 100,
     label: '학과',
   },
   bio: {
@@ -195,12 +186,10 @@ export const profileValidationRules: ValidationRules = {
 export const emailValidationRules: ValidationRules = {
   university: {
     required: true,
-    maxLength: 100,
     label: '대학교',
   },
   universityEmail: {
     required: true,
-    maxLength: 255,
     pattern: UNIVERSITY_EMAIL_REGEX,
     label: '학교 이메일',
     patternMessage: '학교 이메일은 *.ac.kr 도메인으로 입력해주세요',
@@ -216,7 +205,6 @@ export const emailValidationRules: ValidationRules = {
 export const accountValidationRules: ValidationRules = {
   email: {
     required: true,
-    maxLength: 255,
     pattern: EMAIL_REGEX,
     label: '이메일',
     patternMessage: '올바른 이메일 형식을 입력해주세요',
@@ -229,8 +217,8 @@ export const accountValidationRules: ValidationRules = {
 
       const errors: string[] = [];
 
-      if (value.length < 8 || value.length > 20) {
-        errors.push('8~20자 사이');
+      if (value.length < 8) {
+        errors.push('8자 이상');
       }
 
       const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);

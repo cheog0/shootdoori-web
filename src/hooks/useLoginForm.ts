@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { LoginRequest } from '@/types';
+import type { LoginRequest } from './types';
 
 export function useLoginForm() {
   const [formData, setFormData] = useState<LoginRequest>({

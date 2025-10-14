@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import type { TeamListItem } from '@/types';
+import type { TeamListItem } from './types';
 
 interface TeamCardProps {
   team: TeamListItem;

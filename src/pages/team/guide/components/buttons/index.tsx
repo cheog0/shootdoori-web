@@ -7,7 +7,7 @@ import { useUserProfile } from '@/hooks/queries';
 import { useMyJoinWaitingList } from '@/hooks/useTeamJoinRequest';
 import { colors } from '@/theme';
 
-import JoinWaitingList from '../join_waiting_list';
+import JoinWaitingList from '@/pages/team/guide/components/join_waiting_list';
 
 const ButtonContainer = styled.div`
   display: flex;

@@ -3,9 +3,9 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { authApi } from '@/api/auth';
 import { AUTH_STORAGE_KEYS } from '@/constants/auth';
 import { useStorageState } from '@/hooks/useStorageState';
-import { apiClient } from '@/lib/api_client';
-import { queryClient } from '@/lib/query_client';
-import type { LoginRequest, RegisterRequest } from '@/types';
+import { apiClient } from '../lib/api_client';
+import { queryClient } from '../lib/query_client';
+import type { LoginRequest, RegisterRequest } from './types';
 
 interface AuthContextType {
   token: string | null;

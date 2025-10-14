@@ -1,13 +1,7 @@
 import React from 'react';
-// import { View } from 'react-native-web';
 import styled from '@emotion/styled';
 
-// import Buttons from '@/components/team/guide/buttons';
-// import Cards from '@/components/team/guide/cards';
-// import Header from '@/components/team/guide/header';
 import { colors } from '@/theme';
-
-// import { styles } from './styles';
 
 const TeamGuideScreen = () => {
   return (

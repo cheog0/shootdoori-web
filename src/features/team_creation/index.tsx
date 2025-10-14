@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 
-// import TeamBasicInfo from '@/components/team/steps/team_basic_info';
-// import TeamDetails from '@/components/team/steps/team_details';
-// import { CustomHeader } from '@/components/ui/custom_header';
+// import TeamBasicInfo from './components/team/steps/team_basic_info';
+// import TeamDetails from './components/team/steps/team_details';
+// import { CustomHeader } from './components/ui/custom_header';
 // import { useCreateTeamMutation } from '@/hooks/queries';
 import { theme } from '@/theme';
 import {
@@ -88,7 +88,7 @@ export default function TeamCreationScreen() {
     }
   };
 
-  const _updateFormData = <Key extends keyof TeamFormData>(
+  const updateFormData = <Key extends keyof TeamFormData>(
     field: Key,
     value: TeamFormData[Key]
   ) => {
@@ -102,11 +102,6 @@ export default function TeamCreationScreen() {
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const renderCurrentStep = () => {
-    const _stepProps = {
-      onNext: nextStep,
-      onBack: prevStep,
-    };
-
     switch (currentStep) {
       case 1:
         return (

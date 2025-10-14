@@ -12,8 +12,8 @@ import type {
   MatchRequestRequestDto,
 } from '@/types/match';
 
-import FilterCard from './components/filter_card';
-import MatchCard from './components/match_card';
+import FilterCard from '@/components/filter_card';
+import MatchCard from '@/components/match_card';
 
 interface MatchApplicationScreenProps {
   teamId?: number;

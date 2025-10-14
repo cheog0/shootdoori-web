@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
-// import { useAuth } from '@/contexts/AuthContext';
+// import { useAuth } from './contexts/AuthContext';
 // import { useUserProfile } from '@/hooks/queries';
 
 interface TeamGuardProps {

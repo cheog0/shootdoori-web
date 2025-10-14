@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { RegisterRequest } from '@/types';
+import type { RegisterRequest } from './types';
 
 export interface RegisterFormData {
   // step 1
@@ -8,9 +8,7 @@ export interface RegisterFormData {
   universityEmail: string;
   // step 2
   name: string;
-  skillLevel: string;
   kakaoTalkId: string;
-  position: string;
   studentYear: string;
   department: string;
   bio: string;
@@ -26,9 +24,7 @@ const initialFormData: RegisterFormData = {
   university: '',
   universityEmail: '',
   name: '',
-  skillLevel: '',
   kakaoTalkId: '',
-  position: '',
   studentYear: '',
   department: '',
   bio: '',
@@ -53,12 +49,12 @@ export const useRegisterForm = () => {
 
   const getRegisterData = (): RegisterRequest => ({
     name: formData.name,
-    skillLevel: formData.skillLevel,
+    skillLevel: '아마추어',
     email: formData.email,
     universityEmail: formData.universityEmail,
     password: formData.password,
     kakaoTalkId: formData.kakaoTalkId,
-    position: formData.position,
+    position: '공격수',
     university: formData.university,
     department: formData.department,
     studentYear: formData.studentYear,

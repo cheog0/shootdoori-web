@@ -2,8 +2,8 @@ import { memo } from 'react';
 import styled from 'styled-components';
 import { Loader2 } from 'lucide-react';
 
-import { CustomHeader } from '@/components/ui/custom_header';
-import GlobalErrorFallback from '@/components/ui/global_error_fallback';
+import { CustomHeader } from './components/ui/custom_header';
+import GlobalErrorFallback from './components/ui/global_error_fallback';
 import { useTeamRecentMatches, useTeam } from '@/hooks/queries';
 import { colors, theme } from '@/theme';
 import type { RecentMatchResponse } from '@/types/match';

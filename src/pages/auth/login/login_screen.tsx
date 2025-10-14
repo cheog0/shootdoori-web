@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import LoginForm from '../components/login/login_form';
+import LoginForm from '@/pages/auth/components/login/login_form';
 import { theme } from '@/theme';
 
 interface LoginScreenProps {

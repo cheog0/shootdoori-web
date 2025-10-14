@@ -1,12 +1,12 @@
 export type TeamType = '중앙동아리' | '과동아리' | '기타';
-export type SkillLevel = '초급' | '중급' | '고급';
+export type SkillLevel = '아마추어' | '세미프로' | '프로';
 export type TeamMemberRole = 'LEADER' | 'VICE_LEADER' | 'MEMBER';
 
 export const TEAM_TYPES: TeamType[] = ['중앙동아리', '과동아리', '기타'];
-export const SKILL_LEVELS: SkillLevel[] = ['초급', '중급', '고급'];
+export const SKILL_LEVELS: SkillLevel[] = ['아마추어', '세미프로', '프로'];
 
 export const DEFAULT_TEAM_TYPE: TeamType = '중앙동아리';
-export const DEFAULT_SKILL_LEVEL: SkillLevel = '초급';
+export const DEFAULT_SKILL_LEVEL: SkillLevel = '아마추어';
 
 export interface CreateTeamRequest {
   name: string;

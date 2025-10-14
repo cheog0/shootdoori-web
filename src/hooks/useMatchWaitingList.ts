@@ -8,11 +8,7 @@ import type {
 
 export const useMatchWaitingList = (
   params: MatchWaitingListRequestDto,
-  options?: {
-    enabled?: boolean;
-    staleTime?: number;
-    refetchOnWindowFocus?: boolean;
-  }
+  options?: { enabled?: boolean; staleTime?: number }
 ) => {
   return useQuery<MatchWaitingResponseDto[]>({
     queryKey: ['match-waiting-list', params],

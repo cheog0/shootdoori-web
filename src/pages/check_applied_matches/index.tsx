@@ -5,7 +5,7 @@ import { CustomHeader } from '@/components/ui/custom_header';
 import { useUserProfile } from '@/hooks/queries';
 import { useCancelMatchRequest } from '@/hooks/useCancelMatchRequest';
 import { useMyAppliedMatches } from '@/hooks/useMyAppliedMatches';
-import AppliedMatchCard from './components/applied_match_card';
+import AppliedMatchCard from '@/components/applied_match_card';
 
 // Styled Components
 const Container = styled.div`

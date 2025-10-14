@@ -5,7 +5,8 @@ import { CustomHeader } from '@/components/ui/custom_header';
 import { useUserProfile } from '@/hooks/queries';
 import { useCancelMatch } from '@/hooks/useCancelMatch';
 import { useMyCreatedMatches } from '@/hooks/useMyCreatedMatches';
-import MatchCard from '../match_application/components/match_card';
+import MatchCard from '@/pages/match_application/components/match_card';
+import type { MatchWaitingResponseDto } from '@/types/match';
 
 // Styled Components
 const Container = styled.div`

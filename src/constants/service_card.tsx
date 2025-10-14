@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-// import { Image } from 'react-native-web';
 
 import { colors } from '@/theme';
 

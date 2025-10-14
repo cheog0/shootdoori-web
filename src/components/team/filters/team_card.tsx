@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { IoPeople, IoCalendar, IoLocation } from 'react-icons/io5';
 
-import type { TeamListItem } from '@/types';
+import type { TeamListItem } from './types';
 import { theme } from '@/styles/theme';
 
 // Styled Components

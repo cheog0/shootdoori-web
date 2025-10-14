@@ -1,10 +1,10 @@
 export interface RecommendedMatch {
   id: number;
+  teamName: string;
+  university: string;
+  skillLevel: string;
+  matchDate: string;
   location: string;
-  time: string;
-  level: string;
-  currentPlayers: number;
-  totalPlayers: number;
 }
 
 export interface RecommendedMatchListData {

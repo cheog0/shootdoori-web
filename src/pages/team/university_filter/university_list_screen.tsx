@@ -6,9 +6,9 @@ import { CustomHeader } from '@/components/ui/custom_header';
 import { UNIVERSITIES } from '@/constants/universities';
 import { theme } from '@/styles/theme';
 
-import ConnectButton from './components/connect_button';
-import UniversityHeader from './components/university_header';
-import UniversityItem from './components/university_item';
+import ConnectButton from '@/components/connect_button';
+import UniversityHeader from '@/components/university_header';
+import UniversityItem from '@/components/university_item';
 
 // Styled Components
 const Container = styled.div`

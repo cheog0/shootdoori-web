@@ -1,17 +1,9 @@
-// import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { View, FlatList, StatusBar } from 'react-native-web';
 import styled from '@emotion/styled';
 
-// import ConnectButton from '@/components/team/filters/connect_button';
-// import UniversityHeader from '@/components/team/filters/university_header';
-// import UniversityItem from '@/components/team/filters/university_item';
-// import { CustomHeader } from '@/components/ui/custom_header';
 import { UNIVERSITIES } from '@/constants/universities';
 import { theme } from '@/theme';
-
-// import { styles } from './styles';
 
 export default function UniversityListScreen() {
   const navigate = useNavigate();
