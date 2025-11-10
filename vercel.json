@@ -1,4 +1,8 @@
 {
+  "buildCommand": "npm run web:build",
+  "outputDirectory": "web-build",
+  "installCommand": "npm install",
+  "framework": null,
   "rewrites": [
     {
       "source": "/(.*)",

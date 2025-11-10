@@ -8,7 +8,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "EXPO_PLATFORM=web expo start --web",
-    "web:build": "EXPO_PLATFORM=web WEB_BUILD=true expo export:web",
+    "web:build": "EXPO_PLATFORM=web WEB_BUILD=true npx expo export --platform web --output-dir web-build",
     "web:serve": "npx serve web-build",
     "lint": "expo lint",
     "format": "prettier --write .",
