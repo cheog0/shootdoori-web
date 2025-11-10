@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
 import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ROUTES } from '@/src/constants/routes';
 import { useAuth } from '@/src/contexts/auth_context';
@@ -9,6 +10,7 @@ import { theme } from '@/src/theme';
 export default function TabLayout() {
   const { token } = useAuth();
   const isAuthenticated = !!token;
+  const insets = useSafeAreaInsets();
 
   if (!isAuthenticated) {
     return <Redirect href={ROUTES.LOGIN} />;
@@ -23,26 +25,29 @@ export default function TabLayout() {
           ios: {
             position: 'absolute',
             backgroundColor: theme.colors.background.main,
-            height: theme.spacing.spacing18,
+            height: theme.spacing.spacing18 + insets.bottom,
+            paddingBottom: insets.bottom,
             borderTopWidth: 1,
             borderTopColor: theme.colors.gray[300],
           },
           web: {
             backgroundColor: theme.colors.background.main,
-            height: 60,
+            minHeight: 60,
             borderTopWidth: 1,
             borderTopColor: theme.colors.gray[300],
             paddingTop: 8,
-            paddingBottom: 8,
+            paddingBottom: Math.max(12, insets.bottom || 12),
             position: 'relative' as const,
+            marginBottom: 0,
+            boxSizing: 'border-box' as const,
           },
           default: {
             backgroundColor: theme.colors.background.main,
-            height: 100,
+            height: 100 + insets.bottom,
+            paddingBottom: insets.bottom,
             borderTopWidth: 1,
             borderTopColor: theme.colors.gray[400],
             paddingTop: 4,
-            paddingBottom: 16,
           },
         }),
       }}
