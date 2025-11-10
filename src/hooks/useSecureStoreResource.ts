@@ -1,3 +1,47 @@
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+
+import { FormatError } from '@/src/lib/errors';
+
+// 웹에서는 localStorage를 사용하는 헬퍼 함수
+const getItemAsync = async (key: string): Promise<string | null> => {
+  if (Platform.OS === 'web') {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.error(`localStorage.getItem 실패: ${key}:`, error);
+      return null;
+    }
+  }
+  return SecureStore.getItemAsync(key);
+};
+
+const setItemAsync = async (key: string, value: string): Promise<void> => {
+  if (Platform.OS === 'web') {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.error(`localStorage.setItem 실패: ${key}:`, error);
+      throw error;
+    }
+    return;
+  }
+  return SecureStore.setItemAsync(key, value);
+};
+
+const deleteItemAsync = async (key: string): Promise<void> => {
+  if (Platform.OS === 'web') {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error(`localStorage.removeItem 실패: ${key}:`, error);
+      throw error;
+    }
+    return;
+  }
+  return SecureStore.deleteItemAsync(key);
+};
+
 interface Resource<T> {
   read(): T;
 }
@@ -32,19 +76,6 @@ function setResourceState<T>(key: string, state: ResourceState<T>) {
   resourceCache.set(key, state);
 }
 
-// 웹 환경에서 localStorage를 사용하는 헬퍼 함수들
-const getItem = (key: string): Promise<string | null> => {
-  return Promise.resolve(localStorage.getItem(key));
-};
-
-const setItem = (key: string, value: string): Promise<void> => {
-  return Promise.resolve(localStorage.setItem(key, value));
-};
-
-const deleteItem = (key: string): Promise<void> => {
-  return Promise.resolve(localStorage.removeItem(key));
-};
-
 function createSecureStoreResource<T>(
   key: string,
   initialValue: T,
@@ -72,16 +103,20 @@ function createSecureStoreResource<T>(
     throw cached.promise;
   }
 
-  const promise = getItem(key)
+  const promise = getItemAsync(key)
     .then(stored => {
       let result: T;
 
       if (stored !== null) {
         try {
           result = deserialize(stored);
-        } catch {
-          console.warn(`저장된 데이터가 손상되었습니다: 
-${key}`);
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            throw new FormatError(
+              `저장된 데이터 형식이 올바르지 않습니다: ${key}`
+            );
+          }
+          console.warn(`저장된 데이터가 손상되었습니다: ${key}`);
           result = initialValue;
         }
       } else {
@@ -100,8 +135,7 @@ ${key}`);
 
       setResourceState<T>(key, {
         status: 'rejected',
-        error: new Error(`Failed to load ${key}: 
-${error.message}`),
+        error: new Error(`Failed to load ${key}: ${error.message}`),
       });
 
       throw error;
@@ -133,11 +167,11 @@ export function createRefreshTokenResource() {
   });
 }
 
-export function updateSecureStoreResource<T>(
+export async function updateSecureStoreResource<T>(
   key: string,
   value: T,
   serialize?: (value: T) => string
-) {
+): Promise<void> {
   const cached = getResourceState<T>(key);
   if (cached) {
     setResourceState<T>(key, {
@@ -147,14 +181,25 @@ export function updateSecureStoreResource<T>(
   }
 
   const serializeFn = serialize ?? ((val: T) => JSON.stringify(val));
-  setItem(key, serializeFn(value)).catch(error => {
+  try {
+    await setItemAsync(key, serializeFn(value));
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new FormatError(
+        `데이터 직렬화 중 형식 오류가 발생했습니다: ${key}`
+      );
+    }
     console.error(`데이터 저장 실패: ${key}:`, error);
-  });
+    throw error;
+  }
 }
 
-export function deleteSecureStoreResource(key: string) {
+export async function deleteSecureStoreResource(key: string): Promise<void> {
   resourceCache.delete(key);
-  deleteItem(key).catch(error => {
+  try {
+    await deleteItemAsync(key);
+  } catch (error) {
     console.error(`데이터 삭제 실패: ${key}:`, error);
-  });
+    throw error;
+  }
 }

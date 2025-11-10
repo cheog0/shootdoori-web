@@ -1,176 +1,13 @@
-import React from 'react';
-import styled from 'styled-components';
+import { View, Text, TouchableOpacity, Modal, Animated } from 'react-native';
 
-import { SkillLevel, TeamType, SKILL_LEVELS, TEAM_TYPES } from '@/types/team';
-
-import MemberCountSlider from './member_count_slider';
-
-// Styled Components
-const ModalOverlay = styled.div<{ visible: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: ${props => (props.visible ? 'flex' : 'none')};
-  justify-content: flex-end;
-  z-index: 1000;
-`;
-
-const ModalBackdrop = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-`;
-
-const FilterModal = styled.div`
-  background-color: white;
-  border-radius: 20px 20px 0 0;
-  width: 100%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-`;
-
-const FilterHeader = styled.div`
-  padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const DragHandle = styled.div`
-  width: 40px;
-  height: 4px;
-  background-color: #d1d5db;
-  border-radius: 2px;
-  margin: 0 auto 16px;
-`;
-
-const FilterTitle = styled.h2`
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: #6b7280;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f3f4f6;
-  }
-`;
-
-const FilterContent = styled.div`
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const FilterSection = styled.div`
-  margin-bottom: 24px;
-`;
-
-const FilterSectionTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 12px 0;
-`;
-
-const FilterOptions = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const FilterOption = styled.button<{ selected: boolean }>`
-  padding: 8px 16px;
-  border: 1px solid ${props => (props.selected ? '#3b82f6' : '#d1d5db')};
-  border-radius: 20px;
-  background-color: ${props => (props.selected ? '#3b82f6' : 'white')};
-  color: ${props => (props.selected ? 'white' : '#374151')};
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: #3b82f6;
-    background-color: ${props => (props.selected ? '#2563eb' : '#f8fafc')};
-  }
-`;
-
-const FilterOptionText = styled.span`
-  font-size: 14px;
-`;
-
-const SliderSection = styled.div`
-  margin-bottom: 24px;
-`;
-
-const FilterActions = styled.div`
-  padding: 20px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  gap: 12px;
-`;
-
-const ResetButton = styled.button`
-  flex: 1;
-  padding: 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background-color: white;
-  color: #374151;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f3f4f6;
-  }
-`;
-
-const ResetButtonText = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const ApplyButton = styled.button`
-  flex: 1;
-  padding: 16px;
-  border: none;
-  border-radius: 8px;
-  background-color: #3b82f6;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #2563eb;
-  }
-`;
-
-const ApplyButtonText = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-`;
+import { styles } from '@/src/components/team/filters/filter_modal_styles';
+import MemberCountSlider from '@/src/components/team/filters/member_count_slider';
+import {
+  SkillLevel,
+  TeamType,
+  SKILL_LEVELS,
+  TEAM_TYPES,
+} from '@/src/types/team';
 
 interface FilterOptions {
   skillLevel: SkillLevel[];
@@ -181,6 +18,7 @@ interface FilterOptions {
 interface FilterModalProps {
   visible: boolean;
   filterOptions: FilterOptions;
+  slideAnim: Animated.Value;
   onClose: () => void;
   onApply: () => void;
   onReset: () => void;
@@ -192,6 +30,7 @@ interface FilterModalProps {
 export default function FilterModal({
   visible,
   filterOptions,
+  slideAnim,
   onClose,
   onApply,
   onReset,
@@ -200,66 +39,123 @@ export default function FilterModal({
   onMemberCountChange,
 }: FilterModalProps) {
   return (
-    <ModalOverlay visible={visible}>
-      <ModalBackdrop onClick={onClose} />
-      <FilterModal>
-        <FilterHeader>
-          <DragHandle />
-          <FilterTitle>필터</FilterTitle>
-          <CloseButton onClick={onClose}>
-            <span>✕</span>
-          </CloseButton>
-        </FilterHeader>
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="none"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={onClose}
+        />
+        <Animated.View
+          style={[
+            styles.filterModal,
+            {
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [400, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <View style={styles.filterHeader}>
+            <View style={styles.dragHandle} />
+            <Text style={styles.filterTitle}>필터</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.closeButton}>✕</Text>
+            </TouchableOpacity>
+          </View>
 
-        <FilterContent>
-          <FilterSection>
-            <FilterSectionTitle>실력 수준</FilterSectionTitle>
-            <FilterOptions>
-              {SKILL_LEVELS.map(level => (
-                <FilterOption
-                  key={level.value}
-                  selected={filterOptions.skillLevel.includes(level.value)}
-                  onClick={() => onToggleSkillLevel(level.value)}
-                >
-                  <FilterOptionText>{level.label}</FilterOptionText>
-                </FilterOption>
-              ))}
-            </FilterOptions>
-          </FilterSection>
+          <View style={styles.filterContent}>
+            <View style={styles.filterSection}>
+              <Text style={styles.filterSectionTitle}>실력 수준</Text>
+              <View style={styles.filterOptions}>
+                {SKILL_LEVELS.map(level => (
+                  <TouchableOpacity
+                    key={level}
+                    style={[
+                      styles.filterOption,
+                      filterOptions.skillLevel.includes(level) &&
+                        styles.filterOptionSelected,
+                    ]}
+                    onPress={() => onToggleSkillLevel(level)}
+                  >
+                    <Text
+                      style={[
+                        styles.filterOptionText,
+                        filterOptions.skillLevel.includes(level) &&
+                          styles.filterOptionTextSelected,
+                      ]}
+                    >
+                      {level}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-          <FilterSection>
-            <FilterSectionTitle>팀 유형</FilterSectionTitle>
-            <FilterOptions>
-              {TEAM_TYPES.map(type => (
-                <FilterOption
-                  key={type.value}
-                  selected={filterOptions.teamType.includes(type.value)}
-                  onClick={() => onToggleTeamType(type.value)}
-                >
-                  <FilterOptionText>{type.label}</FilterOptionText>
-                </FilterOption>
-              ))}
-            </FilterOptions>
-          </FilterSection>
+            <View style={styles.filterSection}>
+              <Text style={styles.filterSectionTitle}>팀 유형</Text>
+              <View style={styles.filterOptions}>
+                {TEAM_TYPES.map(type => (
+                  <TouchableOpacity
+                    key={type}
+                    style={[
+                      styles.filterOption,
+                      filterOptions.teamType.includes(type) &&
+                        styles.filterOptionSelected,
+                    ]}
+                    onPress={() => onToggleTeamType(type)}
+                  >
+                    <Text
+                      style={[
+                        styles.filterOptionText,
+                        filterOptions.teamType.includes(type) &&
+                          styles.filterOptionTextSelected,
+                      ]}
+                    >
+                      {type}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-          <SliderSection>
-            <FilterSectionTitle>최대 인원</FilterSectionTitle>
-            <MemberCountSlider
-              value={filterOptions.maxMemberCount}
-              onChange={onMemberCountChange}
-            />
-          </SliderSection>
-        </FilterContent>
+            <View style={styles.filterSection}>
+              <Text style={styles.filterSectionTitle}>멤버 수</Text>
+              <View style={styles.sliderSection}>
+                <MemberCountSlider
+                  value={filterOptions.maxMemberCount}
+                  onValueChange={onMemberCountChange}
+                />
+              </View>
+            </View>
+          </View>
 
-        <FilterActions>
-          <ResetButton onClick={onReset}>
-            <ResetButtonText>초기화</ResetButtonText>
-          </ResetButton>
-          <ApplyButton onClick={onApply}>
-            <ApplyButtonText>적용</ApplyButtonText>
-          </ApplyButton>
-        </FilterActions>
-      </FilterModal>
-    </ModalOverlay>
+          <View style={styles.filterActions}>
+            <TouchableOpacity style={styles.resetButton} onPress={onReset}>
+              <Text style={styles.resetButtonText}>초기화</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() => {
+                onApply();
+                onClose();
+              }}
+            >
+              <Text style={styles.applyButtonText}>적용</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 }

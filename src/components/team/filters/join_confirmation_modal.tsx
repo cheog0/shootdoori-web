@@ -1,163 +1,15 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Users } from 'lucide-react';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  Animated,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 
-import { colors } from '@/theme';
-
-// Styled Components
-const ModalOverlay = styled.div<{ visible: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: ${props => (props.visible ? 'flex' : 'none')};
-  justify-content: flex-end;
-  z-index: 1000;
-`;
-
-const Backdrop = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-`;
-
-const ModalContainer = styled.div`
-  background-color: white;
-  border-radius: 20px 20px 0 0;
-  width: 100%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-`;
-
-const DragHandle = styled.div`
-  width: 40px;
-  height: 4px;
-  background-color: #d1d5db;
-  border-radius: 2px;
-  margin: 16px auto;
-`;
-
-const ModalHeader = styled.div`
-  padding: 0 20px 20px;
-  text-align: center;
-`;
-
-const IconContainer = styled.div`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: #f0f9ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-`;
-
-const ModalTitle = styled.h2`
-  font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 8px 0;
-`;
-
-const ModalSubtitle = styled.p`
-  font-size: 14px;
-  color: #6b7280;
-  margin: 0;
-`;
-
-const TeamInfoContainer = styled.div`
-  padding: 0 20px 20px;
-`;
-
-const TeamInfoCard = styled.div`
-  background-color: #f8f9fa;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
-`;
-
-const TeamInfoHeader = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-`;
-
-const TeamName = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0 8px;
-`;
-
-const TeamTypeBadge = styled.div`
-  background-color: #e0f2fe;
-  color: #0277bd;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-`;
-
-const TeamTypeText = styled.span`
-  font-size: 12px;
-`;
-
-const ModalActions = styled.div`
-  padding: 20px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  gap: 12px;
-`;
-
-const CancelButton = styled.button`
-  flex: 1;
-  padding: 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background-color: white;
-  color: #374151;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f3f4f6;
-  }
-`;
-
-const CancelButtonText = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const ConfirmButton = styled.button`
-  flex: 1;
-  padding: 16px;
-  border: none;
-  border-radius: 8px;
-  background-color: #3b82f6;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #2563eb;
-  }
-`;
-
-const ConfirmButtonText = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-`;
+import { colors } from '@/src/theme';
 
 interface JoinConfirmationModalProps {
   visible: boolean;
@@ -165,7 +17,10 @@ interface JoinConfirmationModalProps {
   teamType: string;
   onConfirm: () => void;
   onCancel: () => void;
+  slideAnim: Animated.Value;
 }
+
+const { height: screenHeight } = Dimensions.get('window');
 
 export default function JoinConfirmationModal({
   visible,
@@ -173,42 +28,233 @@ export default function JoinConfirmationModal({
   teamType,
   onConfirm,
   onCancel,
+  slideAnim,
 }: JoinConfirmationModalProps) {
+  const translateY = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [screenHeight, 0],
+  });
+
   return (
-    <ModalOverlay visible={visible}>
-      <Backdrop onClick={onCancel} />
-      <ModalContainer>
-        <DragHandle />
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onCancel}
+    >
+      <View style={styles.modalOverlay}>
+        <TouchableOpacity
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={onCancel}
+        />
 
-        <ModalHeader>
-          <IconContainer>
-            <Users size={24} color={colors.blue[500]} />
-          </IconContainer>
-          <ModalTitle>팀 가입 신청</ModalTitle>
-          <ModalSubtitle>정말로 이 팀에 가입하시겠습니까?</ModalSubtitle>
-        </ModalHeader>
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            {
+              transform: [{ translateY }],
+            },
+          ]}
+        >
+          <View style={styles.dragHandle} />
 
-        <TeamInfoContainer>
-          <TeamInfoCard>
-            <TeamInfoHeader>
-              <Users size={16} color={colors.gray[600]} />
-              <TeamName>{teamName}</TeamName>
-            </TeamInfoHeader>
-            <TeamTypeBadge>
-              <TeamTypeText>{teamType}</TeamTypeText>
-            </TeamTypeBadge>
-          </TeamInfoCard>
-        </TeamInfoContainer>
+          <View style={styles.modalHeader}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="people" size={32} color={colors.white} />
+            </View>
+            <Text style={styles.modalTitle}>팀 신청 확인</Text>
+            <Text style={styles.modalSubtitle}>
+              선택한 팀에 신청하시겠습니까?
+            </Text>
+          </View>
 
-        <ModalActions>
-          <CancelButton onClick={onCancel}>
-            <CancelButtonText>취소</CancelButtonText>
-          </CancelButton>
-          <ConfirmButton onClick={onConfirm}>
-            <ConfirmButtonText>가입 신청</ConfirmButtonText>
-          </ConfirmButton>
-        </ModalActions>
-      </ModalContainer>
-    </ModalOverlay>
+          <View style={styles.teamInfoContainer}>
+            <View style={styles.teamInfoCard}>
+              <View style={styles.teamInfoHeader}>
+                <Text style={styles.teamName}>{teamName}</Text>
+                <View style={styles.teamTypeBadge}>
+                  <Text style={styles.teamTypeText}>{teamType}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.modalActions}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+              <Text style={styles.cancelButtonText}>취소</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
+              <Ionicons name="checkmark" size={20} color={colors.white} />
+              <Text style={styles.confirmButtonText}>신청하기</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    flex: 1,
+  },
+  modalContainer: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 40,
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  dragHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: colors.gray[300],
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+  },
+  iconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.blue[500],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: colors.blue[500],
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.gray[900],
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: colors.gray[600],
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  teamInfoContainer: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+  },
+  teamInfoCard: {
+    backgroundColor: colors.gray[50],
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+  },
+  teamInfoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  teamName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.gray[900],
+    flex: 1,
+  },
+  teamTypeBadge: {
+    backgroundColor: colors.blue[50],
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  teamTypeText: {
+    fontSize: 12,
+    color: colors.blue[500],
+    fontWeight: '500',
+  },
+  teamDetails: {
+    gap: 12,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: colors.gray[600],
+    fontWeight: '500',
+    minWidth: 40,
+  },
+  detailValue: {
+    fontSize: 14,
+    color: colors.gray[900],
+    fontWeight: '600',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    gap: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: colors.gray[100],
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.gray[700],
+  },
+  confirmButton: {
+    flex: 1,
+    backgroundColor: colors.blue[500],
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: colors.blue[500],
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.white,
+  },
+});

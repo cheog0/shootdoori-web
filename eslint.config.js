@@ -1,38 +1,43 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import tseslint from 'typescript-eslint';
+const { defineConfig } = require('eslint/config');
+const expoConfig = require('eslint-config-expo/flat');
 
-export default tseslint.config(
-  { ignores: ['dist'] },
+module.exports = defineConfig([
+  expoConfig,
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
+    ignores: ['dist/*'],
+  },
+  {
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-hooks/exhaustive-deps': [
-        'warn',
+      'import/order': [
+        'error',
         {
-          additionalHooks: '(useFetch)',
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
         },
       ],
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-      // 임시로 오류를 경고로 변경
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-empty-function': 'warn',
+      'import/no-duplicates': 'error',
     },
-  }
-);
+    settings: {
+      'import/resolver': {
+        alias: {
+          map: [
+            ['@/src', './src'],
+            ['@', './src'],
+          ],
+          extensions: ['.ts', '.tsx', '.js', '.jsx'],
+        },
+      },
+    },
+  },
+]);

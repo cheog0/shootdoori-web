@@ -1,102 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 
-import type { SkillLevel, TeamType } from '@/types/team';
-import { theme } from '@/styles/theme';
-
-// Styled Components
-const FormSectionContainer = styled.div`
-  padding: ${theme.spacing.spacing4};
-`;
-
-const InputGroup = styled.div`
-  margin-bottom: ${theme.spacing.spacing6};
-`;
-
-const Label = styled.label`
-  font-size: ${theme.typography.fontSize.base};
-  font-weight: ${theme.fontWeight.medium};
-  color: ${theme.colors.textMain};
-  margin-bottom: ${theme.spacing.spacing2};
-  display: block;
-`;
-
-const Input = styled.input.withConfig({
-  shouldForwardProp: prop => prop !== 'hasError',
-})<{ hasError?: boolean }>`
-  width: 100%;
-  padding: ${theme.spacing.spacing3};
-  border: 1px solid
-    ${props => (props.hasError ? theme.colors.error : theme.colors.borderInput)};
-  border-radius: 8px;
-  font-size: ${theme.typography.fontSize.base};
-  color: ${theme.colors.textMain};
-  background-color: ${theme.colors.white};
-  transition: border-color 0.2s ease;
-  box-sizing: border-box;
-
-  &:focus {
-    outline: none;
-    border-color: ${theme.colors.brand.main};
-    box-shadow: 0 0 0 2px ${theme.colors.brand.main}20;
-  }
-
-  &::placeholder {
-    color: ${theme.colors.textSub};
-  }
-`;
-
-const TextArea = styled.textarea.withConfig({
-  shouldForwardProp: prop => prop !== 'hasError',
-})<{ hasError?: boolean }>`
-  width: 100%;
-  padding: ${theme.spacing.spacing3};
-  border: 1px solid
-    ${props => (props.hasError ? theme.colors.error : theme.colors.borderInput)};
-  border-radius: 8px;
-  font-size: ${theme.typography.fontSize.base};
-  color: ${theme.colors.textMain};
-  background-color: ${theme.colors.white};
-  transition: border-color 0.2s ease;
-  box-sizing: border-box;
-  min-height: 100px;
-  resize: vertical;
-
-  &:focus {
-    outline: none;
-    border-color: ${theme.colors.brand.main};
-    box-shadow: 0 0 0 2px ${theme.colors.brand.main}20;
-  }
-
-  &::placeholder {
-    color: ${theme.colors.textSub};
-  }
-`;
-
-const SelectContainer = styled.div`
-  display: flex;
-  gap: ${theme.spacing.spacing3};
-`;
-
-const Select = styled.select.withConfig({
-  shouldForwardProp: prop => prop !== 'hasError',
-})<{ hasError?: boolean }>`
-  flex: 1;
-  padding: ${theme.spacing.spacing3};
-  border: 1px solid
-    ${props => (props.hasError ? theme.colors.error : theme.colors.borderInput)};
-  border-radius: 8px;
-  font-size: ${theme.typography.fontSize.base};
-  color: ${theme.colors.textMain};
-  background-color: ${theme.colors.white};
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: ${theme.colors.brand.main};
-    box-shadow: 0 0 0 2px ${theme.colors.brand.main}20;
-  }
-`;
+import { styles } from '@/src/components/team/sections/form_section_styles';
+import type { SkillLevel, TeamType } from '@/src/types/team';
 
 interface FormSectionProps {
   formData: {
@@ -108,71 +13,103 @@ interface FormSectionProps {
   updateFormData: (field: string, value: string) => void;
 }
 
-const SKILL_LEVELS: SkillLevel[] = ['아마추어', '세미프로', '프로'];
-const TEAM_TYPES: TeamType[] = ['중앙동아리', '과동아리', '기타'];
-
 export default function FormSection({
   formData,
   updateFormData,
 }: FormSectionProps) {
   return (
-    <FormSectionContainer>
-      <InputGroup>
-        <Label>팀명</Label>
-        <Input
-          type="text"
-          placeholder="팀명을 입력하세요"
-          value={formData.name}
-          onChange={e => updateFormData('name', e.target.value)}
-        />
-      </InputGroup>
+    <View style={styles.formSection}>
+      <Text style={styles.sectionTitle}>팀 정보</Text>
 
-      <InputGroup>
-        <Label>팀 설명</Label>
-        <TextArea
-          placeholder="팀에 대한 설명을 입력하세요"
-          value={formData.description}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            updateFormData('description', e.target.value)
-          }
-        />
-      </InputGroup>
+      <View style={styles.formCard}>
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>팀명 *</Text>
+          <TextInput
+            style={styles.textInput}
+            value={formData.name}
+            onChangeText={value => updateFormData('name', value)}
+            placeholder="팀명을 입력하세요"
+            maxLength={50}
+          />
+          <Text style={styles.inputCounter}>{formData.name.length}/50</Text>
+        </View>
 
-      <InputGroup>
-        <Label>실력 수준</Label>
-        <SelectContainer>
-          <Select
-            value={formData.skillLevel}
-            onChange={e => updateFormData('skillLevel', e.target.value)}
-          >
-            {SKILL_LEVELS.map(level => (
-              <option key={level} value={level}>
-                {level === '아마추어' && '아마추어'}
-                {level === '세미프로' && '세미프로'}
-                {level === '프로' && '프로'}
-              </option>
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>팀 설명 *</Text>
+          <TextInput
+            style={[styles.textInput, styles.textArea]}
+            value={formData.description}
+            onChangeText={value => updateFormData('description', value)}
+            placeholder="팀에 대한 설명을 입력하세요"
+            multiline
+            numberOfLines={4}
+            maxLength={500}
+          />
+          <Text style={styles.inputCounter}>
+            {formData.description.length}/500
+          </Text>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>실력 수준</Text>
+          <View style={styles.radioGroup}>
+            {(['아마추어', '세미프로', '프로'] as SkillLevel[]).map(level => (
+              <TouchableOpacity
+                key={level}
+                style={[
+                  styles.radioOption,
+                  formData.skillLevel === level && styles.radioOptionSelected,
+                ]}
+                onPress={() => updateFormData('skillLevel', level)}
+              >
+                <View style={styles.radioCircle}>
+                  {formData.skillLevel === level && (
+                    <View style={styles.radioCircleInner} />
+                  )}
+                </View>
+                <Text
+                  style={[
+                    styles.radioText,
+                    formData.skillLevel === level && styles.radioTextSelected,
+                  ]}
+                >
+                  {level}
+                </Text>
+              </TouchableOpacity>
             ))}
-          </Select>
-        </SelectContainer>
-      </InputGroup>
+          </View>
+        </View>
 
-      <InputGroup>
-        <Label>팀 유형</Label>
-        <SelectContainer>
-          <Select
-            value={formData.teamType}
-            onChange={e => updateFormData('teamType', e.target.value)}
-          >
-            {TEAM_TYPES.map(type => (
-              <option key={type} value={type}>
-                {type === '중앙동아리' && '중앙동아리'}
-                {type === '과동아리' && '과동아리'}
-                {type === '기타' && '기타'}
-              </option>
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>팀 유형</Text>
+          <View style={styles.radioGroup}>
+            {(['중앙동아리', '과동아리', '기타'] as TeamType[]).map(type => (
+              <TouchableOpacity
+                key={type}
+                style={[
+                  styles.radioOption,
+                  formData.teamType === type && styles.radioOptionSelected,
+                ]}
+                onPress={() => updateFormData('teamType', type)}
+              >
+                <View style={styles.radioCircle}>
+                  {formData.teamType === type && (
+                    <View style={styles.radioCircleInner} />
+                  )}
+                </View>
+                <Text
+                  style={[
+                    styles.radioText,
+                    formData.teamType === type && styles.radioTextSelected,
+                  ]}
+                >
+                  {type}
+                </Text>
+              </TouchableOpacity>
             ))}
-          </Select>
-        </SelectContainer>
-      </InputGroup>
-    </FormSectionContainer>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 }

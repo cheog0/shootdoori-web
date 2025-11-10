@@ -1,82 +1,11 @@
+import { Ionicons } from '@expo/vector-icons';
 import { memo } from 'react';
-import styled from 'styled-components';
-import { IoStar, IoStarOutline } from 'react-icons/io5';
+import { View, Text } from 'react-native';
 
-import { theme } from '@/styles/theme';
-import type { TeamReview } from '@/types/review';
-
-// Styled Components
-const ReviewsSection = styled.div`
-  padding: ${theme.spacing.spacing4};
-`;
-
-const SectionTitle = styled.h3`
-  font-size: ${theme.typography.fontSize.lg};
-  font-weight: ${theme.fontWeight.semibold};
-  color: ${theme.colors.textMain};
-  margin: 0 0 ${theme.spacing.spacing4} 0;
-`;
-
-const ReviewsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.spacing3};
-`;
-
-const ReviewCard = styled.div`
-  background-color: ${theme.colors.white};
-  border-radius: 12px;
-  padding: ${theme.spacing.spacing4};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const ReviewHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${theme.spacing.spacing2};
-`;
-
-const ReviewerName = styled.h4`
-  font-size: ${theme.typography.fontSize.base};
-  font-weight: ${theme.fontWeight.semibold};
-  color: ${theme.colors.textMain};
-  margin: 0;
-`;
-
-const ReviewDate = styled.span`
-  font-size: ${theme.typography.fontSize.sm};
-  color: ${theme.colors.textSub};
-`;
-
-const StarsContainer = styled.div`
-  display: flex;
-  gap: ${theme.spacing.spacing1};
-  margin-bottom: ${theme.spacing.spacing2};
-`;
-
-const StarIcon = styled.div<{ filled: boolean }>`
-  color: ${props =>
-    props.filled ? theme.colors.yellow500 : theme.colors.gray300};
-`;
-
-const ReviewText = styled.p`
-  font-size: ${theme.typography.fontSize.sm};
-  color: ${theme.colors.textMain};
-  line-height: 1.4;
-  margin: 0;
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: ${theme.spacing.spacing8};
-  color: ${theme.colors.textSub};
-`;
-
-const EmptyText = styled.p`
-  font-size: ${theme.typography.fontSize.base};
-  margin: 0;
-`;
+import { styles } from '@/src/components/team/cards/team_reviews_section_styles';
+import { colors } from '@/src/theme';
+import type { TeamReview } from '@/src/types/review';
+import { ReviewType } from '@/src/types/review';
 
 interface TeamReviewsSectionProps {
   teamReviews: TeamReview[] | undefined;
@@ -90,61 +19,125 @@ export default memo(function TeamReviewsSection({
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
+      const starRating = i;
+      const isFilled = starRating <= Math.floor(rating);
+      const isHalfFilled = starRating === Math.ceil(rating) && rating % 1 !== 0;
+
       stars.push(
-        <StarIcon key={i} filled={i <= rating}>
-          {i <= rating ? <IoStar size={16} /> : <IoStarOutline size={16} />}
-        </StarIcon>
+        <Ionicons
+          key={i}
+          name={isFilled ? 'star' : isHalfFilled ? 'star-half' : 'star-outline'}
+          size={14}
+          color={
+            isFilled || isHalfFilled ? colors.yellow[500] : colors.gray[300]
+          }
+        />
       );
     }
     return stars;
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+  const getReviewTypeText = (reviewTypeKey: string) => {
+    return (
+      ReviewType[reviewTypeKey as keyof typeof ReviewType] || reviewTypeKey
+    );
   };
+
+  const getReviewSummary = () => {
+    if (!Array.isArray(teamReviews) || teamReviews.length === 0) {
+      return { averageRating: 0, reviewTypeCounts: {} };
+    }
+
+    const totalRating = teamReviews.reduce(
+      (sum, review) => sum + review.rating,
+      0
+    );
+    const averageRating =
+      Math.round((totalRating / teamReviews.length) * 10) / 10;
+
+    const reviewTypeCounts: { [key: string]: number } = {};
+    teamReviews.forEach(review => {
+      review.reviewTypes.forEach(reviewType => {
+        const koreanText = getReviewTypeText(reviewType);
+        reviewTypeCounts[koreanText] = (reviewTypeCounts[koreanText] || 0) + 1;
+      });
+    });
+
+    return { averageRating, reviewTypeCounts };
+  };
+
+  const { averageRating, reviewTypeCounts } = getReviewSummary();
 
   if (reviewsLoading) {
     return (
-      <ReviewsSection>
-        <SectionTitle>팀 리뷰</SectionTitle>
-        <EmptyState>
-          <EmptyText>리뷰를 불러오는 중...</EmptyText>
-        </EmptyState>
-      </ReviewsSection>
-    );
-  }
-
-  if (!teamReviews || teamReviews.length === 0) {
-    return (
-      <ReviewsSection>
-        <SectionTitle>팀 리뷰</SectionTitle>
-        <EmptyState>
-          <EmptyText>아직 리뷰가 없습니다.</EmptyText>
-        </EmptyState>
-      </ReviewsSection>
+      <View style={styles.reviewsCard}>
+        <Text style={styles.sectionTitle}>받은 후기</Text>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>리뷰 정보를 불러오는 중...</Text>
+        </View>
+      </View>
     );
   }
 
   return (
-    <ReviewsSection>
-      <SectionTitle>팀 리뷰</SectionTitle>
-      <ReviewsList>
-        {teamReviews.map(review => (
-          <ReviewCard key={review.id}>
-            <ReviewHeader>
-              <ReviewerName>{review.reviewerName}</ReviewerName>
-              <ReviewDate>{formatDate(review.createdAt)}</ReviewDate>
-            </ReviewHeader>
-            <StarsContainer>{renderStars(review.rating)}</StarsContainer>
-            <ReviewText>{review.content}</ReviewText>
-          </ReviewCard>
-        ))}
-      </ReviewsList>
-    </ReviewsSection>
+    <View style={styles.reviewsCard}>
+      <Text style={styles.sectionTitle}>받은 후기</Text>
+
+      {!Array.isArray(teamReviews) || teamReviews.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateTitle}>아직 받은 후기가 없습니다</Text>
+          <Text style={styles.emptyStateText}>
+            다른 팀과 경기를 하면 후기를 받을 수 있습니다.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.reviewsSummary}>
+          <View style={styles.averageRatingContainer}>
+            <View style={styles.averageRatingCard}>
+              <View style={styles.averageRatingHeader}>
+                <Ionicons name="star" size={20} color={colors.yellow[500]} />
+                <Text style={styles.averageRatingLabel}>평균 별점</Text>
+              </View>
+              <View style={styles.averageRatingContent}>
+                <View style={styles.starContainer}>
+                  {renderStars(averageRating)}
+                </View>
+                <Text style={styles.averageRatingText}>{averageRating}</Text>
+                <Text style={styles.averageRatingSubtext}>
+                  ({Array.isArray(teamReviews) ? teamReviews.length : 0}개 후기)
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.reviewTypeSummary}>
+            <View style={styles.reviewTypeSummaryHeader}>
+              <Ionicons
+                name="chatbubbles-outline"
+                size={20}
+                color={colors.blue[500]}
+              />
+              <Text style={styles.reviewTypeSummaryLabel}>후기 요약</Text>
+            </View>
+            <View style={styles.reviewTypeSummaryList}>
+              {Object.entries(reviewTypeCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([reviewType, count]) => (
+                  <View key={reviewType} style={styles.reviewTypeSummaryItem}>
+                    <View style={styles.reviewTypeSummaryContent}>
+                      <Text style={styles.reviewTypeSummaryText}>
+                        {reviewType}
+                      </Text>
+                      <View style={styles.reviewTypeCountBadge}>
+                        <Text style={styles.reviewTypeCountText}>{count}</Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+            </View>
+          </View>
+        </View>
+      )}
+    </View>
   );
 });

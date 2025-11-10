@@ -1,145 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import {
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView,
+  BackHandler,
+} from 'react-native';
 
-import { theme } from '@/theme';
-
-// Styled Components
-const Overlay = styled.div<{ visible: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: ${props => (props.visible ? 'flex' : 'none')};
-  justify-content: flex-end;
-  z-index: 1000;
-`;
-
-const ModalContainer = styled.div`
-  background-color: ${theme.colors.background.main};
-  border-top-left-radius: ${theme.spacing.spacing4};
-  border-top-right-radius: ${theme.spacing.spacing4};
-  padding-bottom: ${theme.spacing.spacing6};
-  width: 100%;
-  max-height: 80vh;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${theme.spacing.spacing4} ${theme.spacing.spacing5};
-  border-bottom: 1px solid ${theme.colors.border.light};
-`;
-
-const Title = styled.h2`
-  font-size: ${theme.typography.fontSize.font5};
-  font-weight: ${theme.typography.fontWeight.semibold};
-  color: ${theme.colors.text.main};
-  margin: 0;
-`;
-
-const CancelButton = styled.button`
-  padding: ${theme.spacing.spacing2} ${theme.spacing.spacing3};
-  background: none;
-  border: none;
-  cursor: pointer;
-`;
-
-const CancelButtonText = styled.span`
-  font-size: ${theme.typography.fontSize.font4};
-  color: ${theme.colors.text.sub};
-`;
-
-const PickerContainer = styled.div`
-  padding: ${theme.spacing.spacing4} ${theme.spacing.spacing5};
-`;
-
-const PickerRow = styled.div`
-  display: flex;
-  align-items: stretch;
-`;
-
-const TimeColumn = styled.div`
-  flex: 1;
-  margin-right: 8px;
-`;
-
-const TimeColumnSpacer = styled.div`
-  width: 12px;
-`;
-
-const TimeLabel = styled.label`
-  color: ${theme.colors.text.sub};
-  margin-bottom: 8px;
-  display: block;
-`;
-
-const TimePickerContainer = styled.div`
-  border: 1px solid ${theme.colors.border.light};
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const ScrollView = styled.div`
-  max-height: 200px;
-  overflow-y: auto;
-`;
-
-const ScrollItem = styled.button<{ selected: boolean }>`
-  padding: 12px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${props =>
-    props.selected ? theme.colors.blue[50] : 'transparent'};
-  border: none;
-  width: 100%;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: ${props =>
-      props.selected ? theme.colors.blue[100] : theme.colors.gray[50]};
-  }
-`;
-
-const ScrollItemText = styled.span<{ selected: boolean }>`
-  color: ${props =>
-    props.selected ? theme.colors.blue[600] : theme.colors.text.main};
-  font-weight: ${props =>
-    props.selected
-      ? theme.typography.fontWeight.semibold
-      : theme.typography.fontWeight.regular};
-  font-size: ${theme.typography.fontSize.font4};
-`;
-
-const Footer = styled.div`
-  padding: ${theme.spacing.spacing4} ${theme.spacing.spacing5} 0
-    ${theme.spacing.spacing5};
-  border-top: 1px solid ${theme.colors.border.light};
-`;
-
-const ConfirmButton = styled.button`
-  background-color: ${theme.colors.blue[500]};
-  padding: ${theme.spacing.spacing4};
-  border-radius: ${theme.spacing.spacing3};
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: ${theme.colors.blue[600]};
-  }
-`;
-
-const ConfirmButtonText = styled.span`
-  font-size: ${theme.typography.fontSize.font4};
-  font-weight: ${theme.typography.fontWeight.semibold};
-  color: ${theme.colors.white};
-`;
+import { theme } from '@/src/theme';
 
 interface ModalTimePickerProps {
   visible: boolean;
@@ -183,51 +54,92 @@ export const ModalTimePicker: React.FC<ModalTimePickerProps> = ({
     onClose();
   };
 
-  return (
-    <Overlay visible={visible}>
-      <div onClick={handleCancel}>
-        <ModalContainer onClick={e => e.stopPropagation()}>
-          <Header>
-            <Title>{title}</Title>
-            <CancelButton onClick={handleCancel}>
-              <CancelButtonText>취소</CancelButtonText>
-            </CancelButton>
-          </Header>
+  useEffect(() => {
+    // 웹에서는 BackHandler를 사용하지 않음
+    if (Platform.OS === 'web') {
+      return;
+    }
 
-          <PickerContainer>
-            <PickerRow>
-              <TimeColumn>
-                <TimeLabel>시</TimeLabel>
-                <TimePickerContainer>
+    const backAction = () => {
+      if (visible) {
+        onClose();
+        return true;
+      }
+      return false;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [visible, onClose]);
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={handleCancel}
+      >
+        <TouchableOpacity
+          style={styles.modalContainer}
+          activeOpacity={1}
+          onPress={e => e.stopPropagation()}
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>{title}</Text>
+            <TouchableOpacity
+              onPress={handleCancel}
+              style={styles.cancelButton}
+            >
+              <Text style={styles.cancelButtonText}>취소</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.pickerContainer}>
+            <View style={styles.pickerRow}>
+              <View style={styles.timeColumn}>
+                <Text style={styles.timeLabel}>시</Text>
+                <View style={styles.timePickerContainer}>
                   <ScrollColumn
                     range={{ start: 0, end: 23 }}
                     selectedValue={selectedHour}
                     onSelect={setSelectedHour}
                   />
-                </TimePickerContainer>
-              </TimeColumn>
-              <TimeColumnSpacer />
-              <TimeColumn>
-                <TimeLabel>분</TimeLabel>
-                <TimePickerContainer>
+                </View>
+              </View>
+              <View style={styles.timeColumnSpacer} />
+              <View style={styles.timeColumn}>
+                <Text style={styles.timeLabel}>분</Text>
+                <View style={styles.timePickerContainer}>
                   <ScrollColumn
                     range={{ start: 0, end: 59 }}
                     selectedValue={selectedMinute}
                     onSelect={setSelectedMinute}
                   />
-                </TimePickerContainer>
-              </TimeColumn>
-            </PickerRow>
-          </PickerContainer>
+                </View>
+              </View>
+            </View>
+          </View>
 
-          <Footer>
-            <ConfirmButton onClick={handleConfirm}>
-              <ConfirmButtonText>확인</ConfirmButtonText>
-            </ConfirmButton>
-          </Footer>
-        </ModalContainer>
-      </div>
-    </Overlay>
+          <View style={styles.footer}>
+            <TouchableOpacity
+              onPress={handleConfirm}
+              style={styles.confirmButton}
+            >
+              <Text style={styles.confirmButtonText}>확인</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
   );
 };
 
@@ -248,21 +160,137 @@ const ScrollColumn: React.FC<ScrollColumnProps> = ({
   );
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       {values.map(value => {
         const isSelected = value === selectedValue;
         return (
-          <ScrollItem
+          <TouchableOpacity
             key={value}
-            onClick={() => onSelect(value)}
-            selected={isSelected}
+            onPress={() => onSelect(value)}
+            style={[styles.scrollItem, isSelected && styles.scrollItemSelected]}
           >
-            <ScrollItemText selected={isSelected}>
+            <Text
+              style={[
+                styles.scrollItemText,
+                isSelected && styles.scrollItemTextSelected,
+              ]}
+            >
               {String(value).padStart(2, '0')}
-            </ScrollItemText>
-          </ScrollItem>
+            </Text>
+          </TouchableOpacity>
         );
       })}
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.spacing4,
+  },
+  modalContainer: {
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.spacing.spacing4,
+    padding: theme.spacing.spacing4,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '80%',
+    shadowColor: theme.colors.gray[900],
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.spacing4,
+    paddingVertical: theme.spacing.spacing3,
+    marginBottom: theme.spacing.spacing4,
+  },
+  title: {
+    fontSize: theme.typography.fontSize.font5,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.gray[900],
+    textAlign: 'center',
+  },
+  cancelButton: {
+    paddingHorizontal: theme.spacing.spacing3,
+    paddingVertical: theme.spacing.spacing2,
+  },
+  cancelButtonText: {
+    fontSize: theme.typography.fontSize.font4,
+    color: theme.colors.text.sub,
+  },
+  pickerContainer: {
+    paddingHorizontal: theme.spacing.spacing5,
+    paddingVertical: theme.spacing.spacing4,
+  },
+  picker: {
+    height: Platform.OS === 'ios' ? 200 : 'auto',
+  },
+  pickerRow: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  timeColumn: {
+    flex: 1,
+    marginRight: 8,
+  },
+  timeColumnSpacer: {
+    width: 12,
+  },
+  timeLabel: {
+    color: theme.colors.text.sub,
+    marginBottom: 8,
+  },
+  timePickerContainer: {
+    borderWidth: 1,
+    borderColor: theme.colors.border.light,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  scrollView: {
+    maxHeight: 200,
+  },
+  scrollItem: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  scrollItemSelected: {
+    backgroundColor: theme.colors.blue[50],
+  },
+  scrollItemText: {
+    color: theme.colors.text.main,
+    fontWeight: theme.typography.fontWeight.regular,
+    fontSize: theme.typography.fontSize.font4,
+  },
+  scrollItemTextSelected: {
+    color: theme.colors.blue[600],
+    fontWeight: theme.typography.fontWeight.semibold,
+  },
+  footer: {
+    paddingTop: theme.spacing.spacing4,
+    marginTop: theme.spacing.spacing4,
+  },
+  confirmButton: {
+    backgroundColor: theme.colors.blue[600],
+    paddingVertical: theme.spacing.spacing4,
+    borderRadius: theme.spacing.spacing3,
+    alignItems: 'center',
+  },
+  confirmButtonText: {
+    fontSize: theme.typography.fontSize.font4,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.white,
+  },
+});

@@ -1,33 +1,88 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop, production]
   pull_request:
-    branches: [main]
+    branches: [main, develop, production]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  lint-and-test:
+  quality-check:
+    name: 코드 품질 검사
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '18'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Check code formatting
-        run: npm run format:check
-
-      - name: Run linting
+      - name: ESLint 검사
         run: npm run lint
 
-      - name: Build project
-        run: npm run build
+      - name: ESLint 자동 수정
+        run: npm run lint -- --fix
+
+      - name: Prettier 포맷 검사
+        run: npm run format:check
+
+      - name: Prettier 자동 포맷팅
+        run: npm run format
+
+      - name: TypeScript 타입 체크
+        run: npx tsc --noEmit
+
+      - name: Expo Doctor 체크
+        run: npx expo-doctor
+
+      - name: 의존성 호환성 검사
+        run: npm audit --audit-level=moderate
+
+  build:
+    name: EAS Build 실행
+    needs: quality-check
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/production') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'production')
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Expo 설정
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 빌드 전 작업 실행
+        run: |
+          chmod +x scripts/prebuild.sh
+          ./scripts/prebuild.sh
+
+      - name: EAS Build 실행
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/production" ]; then
+            # 프로덕션 브랜치: 프로덕션 빌드
+            eas build --platform android --profile production --non-interactive
+            echo "🚀 프로덕션 빌드 완료 (${{ github.ref }} 브랜치)"
+          else
+            # PR 머지: 프리뷰 빌드
+            eas build --platform android --profile preview --non-interactive
+            echo "📝 풀 리퀘스트 빌드 완료"
+          fi
+
+      - name: 빌드 후 작업 실행
+        run: |
+          chmod +x scripts/postbuild.sh
+          ./scripts/postbuild.sh

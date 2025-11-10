@@ -1,201 +1,20 @@
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { memo } from 'react';
-import styled from 'styled-components';
 import {
-  Settings,
-  Exit,
-  Users,
-  Star,
-  Calendar,
-  Football,
-  ChevronRight,
-} from 'lucide-react';
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  useWindowDimensions,
+} from 'react-native';
 
 import {
   getTeamManagementSettingsUrl,
   getTeamManagementRecentMatchesUrl,
-} from '@/constants/routes';
-import { colors } from '@/theme';
-import type { TeamDetailResponse } from '@/types/team';
-
-// Styled Components
-const Container = styled.div`
-  background-color: white;
-  border-radius: 20px;
-  margin: 0 0 20px 0;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-`;
-
-const HeaderGradient = styled.div`
-  background-color: ${colors.gray[400]};
-  padding: 20px 20px 30px 20px;
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const TeamTitleContainer = styled.div`
-  flex: 1;
-`;
-
-const HeaderButtonsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const TeamTitle = styled.h2`
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  margin: 0 0 4px 0;
-`;
-
-const TeamSubtitle = styled.p`
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 500;
-  margin: 0;
-`;
-
-const HeaderExitButton = styled.button`
-  background-color: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 6px 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-  }
-`;
-
-const HeaderExitButtonText = styled.span`
-  color: ${colors.orange[500]};
-  font-size: 11px;
-  font-weight: 500;
-`;
-
-const SettingsButton = styled.button`
-  width: 40px;
-  height: 40px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-  }
-`;
-
-const MainContent = styled.div`
-  padding: 20px;
-`;
-
-const DescriptionSection = styled.div`
-  margin-bottom: 24px;
-`;
-
-const DescriptionLabel = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${colors.gray[700]};
-  margin: 0 0 8px 0;
-`;
-
-const DescriptionText = styled.p`
-  font-size: 15px;
-  color: ${colors.gray[600]};
-  line-height: 22px;
-  margin: 0;
-`;
-
-const StatsContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-`;
-
-const StatCard = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: ${colors.gray[50]};
-  border-radius: 12px;
-  padding: 8px;
-  margin: 0 2px;
-`;
-
-const StatIconContainer = styled.div<{ backgroundColor: string }>`
-  width: 36px;
-  height: 36px;
-  border-radius: 18px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 6px;
-  background-color: ${props => props.backgroundColor};
-`;
-
-const StatValue = styled.span`
-  font-size: 10px;
-  font-weight: bold;
-  color: ${colors.gray[900]};
-  margin-bottom: 2px;
-  text-align: center;
-`;
-
-const StatLabel = styled.span`
-  font-size: 9px;
-  color: ${colors.gray[500]};
-  font-weight: 500;
-  text-align: center;
-`;
-
-const RecentMatchesButton = styled.button`
-  background-color: ${colors.blue[500]};
-  border-radius: 16px;
-  margin-top: 0;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-  opacity: 0.9;
-  transition: all 0.2s ease;
-
-  &:hover {
-    opacity: 1;
-    transform: translateY(-1px);
-  }
-`;
-
-const RecentMatchesButtonContent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 20px;
-  gap: 8px;
-`;
-
-const RecentMatchesButtonText = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-  color: white;
-  flex: 1;
-  text-align: center;
-`;
+} from '@/src/constants/routes';
+import { colors } from '@/src/theme';
+import type { TeamDetailResponse } from '@/src/types/team';
 
 interface TeamInfoCardProps {
   team: TeamDetailResponse;
@@ -210,82 +29,301 @@ export default memo(function TeamInfoCard({
   onExitTeam,
   isTeamLeader = false,
 }: TeamInfoCardProps) {
+  const { width } = useWindowDimensions();
+
+  const dynamicStyles = StyleSheet.create({
+    statCard: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: colors.gray[50],
+      borderRadius: Math.max(12, width * 0.04),
+      padding: Math.max(8, width * 0.03),
+      marginHorizontal: Math.max(2, width * 0.01),
+    },
+    statIconContainer: {
+      width: Math.max(36, width * 0.12),
+      height: Math.max(36, width * 0.12),
+      borderRadius: Math.max(18, width * 0.06),
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: Math.max(6, width * 0.02),
+    },
+    statValue: {
+      fontSize: Math.max(10, width * 0.032),
+      fontWeight: 'bold',
+      color: colors.gray[900],
+      marginBottom: Math.max(2, width * 0.005),
+      textAlign: 'center',
+    },
+    statLabel: {
+      fontSize: Math.max(9, width * 0.03),
+      color: colors.gray[500],
+      fontWeight: '500',
+      textAlign: 'center',
+    },
+  });
+
   const handleTeamManagement = () => {
-    navigate(getTeamManagementSettingsUrl(team.id.toString()));
+    router.push(getTeamManagementSettingsUrl(team.id.toString()));
   };
 
   const handleRecentMatches = () => {
-    navigate(getTeamManagementRecentMatchesUrl(team.id.toString()));
+    router.push(getTeamManagementRecentMatchesUrl(team.id.toString()));
   };
 
   return (
-    <Container>
-      <HeaderGradient>
-        <HeaderContent>
-          <TeamTitleContainer>
-            <TeamTitle>{team.name}</TeamTitle>
-            <TeamSubtitle>{team.university}</TeamSubtitle>
-          </TeamTitleContainer>
-          <HeaderButtonsContainer>
-            {/* 팀장이 아닌 경우에만 팀 탈퇴 버튼 표시 */}
+    <View style={styles.container}>
+      <View style={styles.headerGradient}>
+        <View style={styles.headerContent}>
+          <View style={styles.teamTitleContainer}>
+            <Text style={styles.teamTitle}>{team.name}</Text>
+            <Text style={styles.teamSubtitle}>{team.university}</Text>
+          </View>
+          <View style={styles.headerButtonsContainer}>
             {onExitTeam && !isTeamLeader && (
-              <HeaderExitButton onClick={onExitTeam}>
-                <Exit size={16} color={colors.orange[600]} />
-                <HeaderExitButtonText>팀 나가기</HeaderExitButtonText>
-              </HeaderExitButton>
+              <TouchableOpacity
+                style={styles.headerExitButton}
+                onPress={onExitTeam}
+              >
+                <Ionicons
+                  name="exit-outline"
+                  size={16}
+                  color={colors.orange[600]}
+                />
+                <Text
+                  style={styles.headerExitButtonText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  팀 나가기
+                </Text>
+              </TouchableOpacity>
             )}
             {canManageTeam && (
-              <SettingsButton onClick={handleTeamManagement}>
-                <Settings size={20} color="white" />
-              </SettingsButton>
+              <TouchableOpacity
+                style={styles.settingsButton}
+                onPress={handleTeamManagement}
+              >
+                <Ionicons name="settings-outline" size={20} color="white" />
+              </TouchableOpacity>
             )}
-          </HeaderButtonsContainer>
-        </HeaderContent>
-      </HeaderGradient>
+          </View>
+        </View>
+      </View>
 
-      <MainContent>
-        <DescriptionSection>
-          <DescriptionLabel>팀 소개</DescriptionLabel>
-          <DescriptionText>{team.description}</DescriptionText>
-        </DescriptionSection>
+      <View style={styles.mainContent}>
+        <View style={styles.descriptionSection}>
+          <Text style={styles.descriptionLabel}>팀 소개</Text>
+          <Text style={styles.descriptionText}>{team.description}</Text>
+        </View>
 
-        <StatsContainer>
-          <StatCard>
-            <StatIconContainer backgroundColor={colors.blue[50]}>
-              <Users size={24} color={colors.blue[700]} />
-            </StatIconContainer>
-            <StatValue>{team.memberCount}</StatValue>
-            <StatLabel>멤버</StatLabel>
-          </StatCard>
+        <View style={styles.statsContainer}>
+          <View style={dynamicStyles.statCard}>
+            <View
+              style={[
+                dynamicStyles.statIconContainer,
+                { backgroundColor: colors.blue[50] },
+              ]}
+            >
+              <Ionicons
+                name="people-outline"
+                size={24}
+                color={colors.blue[700]}
+              />
+            </View>
+            <Text
+              style={dynamicStyles.statValue}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {team.memberCount}
+            </Text>
+            <Text style={dynamicStyles.statLabel}>멤버</Text>
+          </View>
 
-          <StatCard>
-            <StatIconContainer backgroundColor={colors.orange[50]}>
-              <Star size={24} color={colors.orange[700]} />
-            </StatIconContainer>
-            <StatValue>{team.skillLevel}</StatValue>
-            <StatLabel>실력</StatLabel>
-          </StatCard>
+          <View style={dynamicStyles.statCard}>
+            <View
+              style={[
+                dynamicStyles.statIconContainer,
+                { backgroundColor: colors.orange[50] },
+              ]}
+            >
+              <Ionicons
+                name="star-outline"
+                size={24}
+                color={colors.orange[700]}
+              />
+            </View>
+            <Text
+              style={dynamicStyles.statValue}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {team.skillLevel}
+            </Text>
+            <Text style={dynamicStyles.statLabel}>실력</Text>
+          </View>
 
-          <StatCard>
-            <StatIconContainer backgroundColor={colors.purple[50]}>
-              <Calendar size={24} color={colors.purple[700]} />
-            </StatIconContainer>
-            <StatValue>
+          <View style={dynamicStyles.statCard}>
+            <View
+              style={[
+                dynamicStyles.statIconContainer,
+                { backgroundColor: colors.purple[50] },
+              ]}
+            >
+              <Ionicons
+                name="calendar-outline"
+                size={24}
+                color={colors.purple[700]}
+              />
+            </View>
+            <Text
+              style={dynamicStyles.statValue}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {new Date(team.createdAt).getFullYear()}.
               {String(new Date(team.createdAt).getMonth() + 1).padStart(2, '0')}
-            </StatValue>
-            <StatLabel>생성</StatLabel>
-          </StatCard>
-        </StatsContainer>
+            </Text>
+            <Text style={dynamicStyles.statLabel}>생성</Text>
+          </View>
+        </View>
 
-        <RecentMatchesButton onClick={handleRecentMatches}>
-          <RecentMatchesButtonContent>
-            <Football size={20} color="white" />
-            <RecentMatchesButtonText>최근 경기 보기</RecentMatchesButtonText>
-            <ChevronRight size={16} color="white" />
-          </RecentMatchesButtonContent>
-        </RecentMatchesButton>
-      </MainContent>
-    </Container>
+        <TouchableOpacity
+          style={styles.recentMatchesButton}
+          onPress={handleRecentMatches}
+        >
+          <View style={styles.recentMatchesButtonContent}>
+            <Ionicons name="football-outline" size={20} color="white" />
+            <Text
+              style={styles.recentMatchesButtonText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              최근 경기 보기
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color="white" />
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
+});
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    marginHorizontal: 0,
+    marginBottom: 20,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+    overflow: 'hidden',
+  },
+  headerGradient: {
+    backgroundColor: colors.gray[400],
+    paddingTop: 20,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  teamTitleContainer: {
+    flex: 1,
+  },
+  headerButtonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  teamTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 4,
+  },
+  teamSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500',
+  },
+  headerExitButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  headerExitButtonText: {
+    color: colors.orange[500],
+    fontSize: 11,
+    fontWeight: '500',
+    flexShrink: 1,
+  },
+  settingsButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mainContent: {
+    padding: 20,
+  },
+  descriptionSection: {
+    marginBottom: 24,
+  },
+  descriptionLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.gray[700],
+    marginBottom: 8,
+  },
+  descriptionText: {
+    fontSize: 15,
+    color: colors.gray[600],
+    lineHeight: 22,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+
+  recentMatchesButton: {
+    backgroundColor: colors.blue[500],
+    borderRadius: 16,
+    marginTop: 0,
+    shadowColor: colors.blue[300],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+    opacity: 0.9,
+  },
+  recentMatchesButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  recentMatchesButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    flex: 1,
+    textAlign: 'center',
+    flexShrink: 1,
+  },
 });

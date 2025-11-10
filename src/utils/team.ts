@@ -1,180 +1,207 @@
 import type {
-  ApiTeamDetailResponse,
-  TeamDetailResponse,
+  TeamType,
+  SkillLevel,
+  TeamMemberRole,
+  ApiTeamListItem,
+  TeamListItem,
   ApiTeamListPageResponse,
   TeamListPageResponse,
-  ApiTeamMemberPageResponse,
-  TeamMemberPageResponse,
+  ApiTeamDetailResponse,
+  TeamDetailResponse,
   ApiTeamMember,
   TeamMember,
+  ApiTeamMemberPageResponse,
+  TeamMemberPageResponse,
+  ApiTeamJoinRequest,
+  TeamJoinRequest,
   ApiTeamJoinRequestPageResponse,
   TeamJoinRequestPageResponse,
+  ApiUserJoinWaitingItem,
+  UserJoinWaitingItem,
   ApiUserJoinWaitingPageResponse,
   UserJoinWaitingPageResponse,
-  TeamMemberRole,
-  SkillLevel,
-  TeamType,
-} from '@/types/team';
+} from '@/src/types/team';
 
-export function transformTeamDetailResponse(
+import {
+  BASIC_STATUS_LABELS,
+  EXTENDED_STATUS_LABELS,
+  KOREAN_TO_ENGLISH_STATUS_MAPPING,
+} from './status_labels';
+
+export const TEAM_TYPE_MAPPING: Record<string, TeamType> = {
+  CENTRAL_CLUB: '중앙동아리',
+  DEPARTMENT_CLUB: '과동아리',
+  OTHER: '기타',
+};
+
+export const SKILL_LEVEL_MAPPING: Record<string, SkillLevel> = {
+  AMATEUR: '아마추어',
+  SEMI_PRO: '세미프로',
+  PRO: '프로',
+};
+
+export const getTeamTypeInKorean = (apiType: string): TeamType => {
+  return TEAM_TYPE_MAPPING[apiType] || '기타';
+};
+
+export const getSkillLevelInKorean = (apiLevel: string): SkillLevel => {
+  return SKILL_LEVEL_MAPPING[apiLevel] || '아마추어';
+};
+
+export const getTeamTypeInEnglish = (koreanType: TeamType): string => {
+  return koreanType;
+};
+
+export const getSkillLevelInEnglish = (koreanLevel: SkillLevel): string => {
+  return koreanLevel;
+};
+
+export const transformTeamListItem = (
+  apiItem: ApiTeamListItem
+): TeamListItem => {
+  return {
+    ...apiItem,
+    skillLevel: getSkillLevelInKorean(apiItem.skillLevel),
+    teamType: getTeamTypeInKorean(apiItem.teamType),
+  };
+};
+
+export const transformTeamListPageResponse = (
+  apiResponse: ApiTeamListPageResponse
+): TeamListPageResponse => {
+  return {
+    ...apiResponse,
+    content: apiResponse.content.map(transformTeamListItem),
+  };
+};
+
+export const transformTeamDetailResponse = (
   apiResponse: ApiTeamDetailResponse
-): TeamDetailResponse {
+): TeamDetailResponse => {
   return {
     id: apiResponse.id,
     name: apiResponse.name,
     description: apiResponse.description,
     university: apiResponse.university,
-    skillLevel: apiResponse.skillLevel as SkillLevel,
-    teamType: apiResponse.teamType as TeamType,
+    skillLevel: getSkillLevelInKorean(apiResponse.skillLevel),
+    teamType: getTeamTypeInKorean(apiResponse.teamType),
     memberCount: apiResponse.memberCount,
     createdAt: apiResponse.createdAt,
   };
-}
+};
 
-export function transformTeamListPageResponse(
-  apiResponse: ApiTeamListPageResponse
-): TeamListPageResponse {
+export const transformTeamMemberItem = (apiItem: ApiTeamMember): TeamMember => {
   return {
-    content: apiResponse.content.map(transformTeamDetailResponse).map(team => ({
-      ...team,
-      captainName: 'Unknown',
-      captainId: 0,
-    })),
-    totalElements: apiResponse.totalElements,
-    totalPages: apiResponse.totalPages,
-    size: apiResponse.size,
-    number: apiResponse.number,
-    first: apiResponse.first,
-    last: apiResponse.last,
-    numberOfElements: apiResponse.numberOfElements,
-    empty: apiResponse.empty,
-    pageable: apiResponse.pageable,
-    sort: apiResponse.sort,
+    id: apiItem.id,
+    userId: apiItem.userId,
+    name: apiItem.name,
+    email: apiItem.email,
+    position: apiItem.position,
+    role: apiItem.role,
+    joinedAt: apiItem.joinedAt,
   };
-}
+};
 
-export function transformTeamMemberPageResponse(
+export const transformTeamMemberPageResponse = (
   apiResponse: ApiTeamMemberPageResponse
-): TeamMemberPageResponse {
+): TeamMemberPageResponse => {
   return {
+    ...apiResponse,
     content: apiResponse.content.map(transformTeamMemberItem),
-    totalElements: apiResponse.totalElements,
-    totalPages: apiResponse.totalPages,
-    size: apiResponse.size,
-    number: apiResponse.number,
-    first: apiResponse.first,
-    last: apiResponse.last,
-    numberOfElements: apiResponse.numberOfElements,
-    empty: apiResponse.empty,
-    pageable: {
-      sort: { sorted: false, unsorted: true, empty: true },
-      pageNumber: apiResponse.number,
-      pageSize: apiResponse.size,
-      offset: apiResponse.number * apiResponse.size,
-      paged: true,
-      unpaged: false,
-    },
-    sort: { sorted: false, unsorted: true, empty: true },
   };
-}
+};
 
-export function transformTeamMemberItem(
-  apiResponse: ApiTeamMember
-): TeamMember {
+const ROLE_MAPPING: Record<TeamMemberRole, string> = {
+  LEADER: '회장',
+  VICE_LEADER: '부회장',
+  MEMBER: '일반멤버',
+  MERCENARY: '용병',
+};
+
+export const getRoleDisplayName = (role: TeamMemberRole): string => {
+  return ROLE_MAPPING[role] || '일반멤버';
+};
+
+export const getRoleInKorean = (role: TeamMemberRole): string => {
+  return ROLE_MAPPING[role] || '일반멤버';
+};
+
+export const getJoinRequestStatusInEnglish = (
+  koreanStatus: string
+): TeamJoinRequest['status'] => {
+  return KOREAN_TO_ENGLISH_STATUS_MAPPING[koreanStatus] || 'PENDING';
+};
+
+export const transformTeamJoinRequestItem = (
+  apiItem: ApiTeamJoinRequest
+): TeamJoinRequest => {
   return {
-    id: apiResponse.id,
-    userId: apiResponse.userId,
-    name: apiResponse.name,
-    email: apiResponse.email,
-    position: apiResponse.position,
-    role: apiResponse.role,
-    joinedAt: apiResponse.joinedAt,
+    id: apiItem.id,
+    applicantName: apiItem.applicantName,
+    teamId: apiItem.teamId,
+    teamName: apiItem.teamName,
+    applicantId: apiItem.applicantId,
+    message: apiItem.message,
+    status: getJoinRequestStatusInEnglish(apiItem.status),
+    decisionReason: apiItem.decisionReason,
+    decidedBy: apiItem.decidedBy,
+    decidedAt: apiItem.decidedAt,
+    isMercenary: apiItem.isMercenary,
   };
-}
+};
 
-export function transformTeamJoinRequestPageResponse(
+export const transformTeamJoinRequestPageResponse = (
   apiResponse: ApiTeamJoinRequestPageResponse
-): TeamJoinRequestPageResponse {
+): TeamJoinRequestPageResponse => {
   return {
-    content: apiResponse.content.map(request => ({
-      ...request,
-      status: request.status as
-        | 'PENDING'
-        | 'APPROVED'
-        | 'REJECTED'
-        | 'CANCELED',
-    })),
-    totalElements: apiResponse.totalElements,
-    totalPages: apiResponse.totalPages,
-    size: apiResponse.size,
-    number: apiResponse.number,
-    first: apiResponse.first,
-    last: apiResponse.last,
-    numberOfElements: apiResponse.numberOfElements,
-    empty: apiResponse.empty,
-    pageable: apiResponse.pageable,
-    sort: apiResponse.sort,
+    ...apiResponse,
+    content: apiResponse.content.map(transformTeamJoinRequestItem),
   };
-}
+};
 
-export function transformUserJoinWaitingPageResponse(
+export const getJoinRequestStatusDisplayName = (
+  status: TeamJoinRequest['status'] | 'ACCEPTED'
+): string => {
+  return (
+    EXTENDED_STATUS_LABELS[status as keyof typeof EXTENDED_STATUS_LABELS] ||
+    '대기중'
+  );
+};
+
+export const getUserJoinWaitingStatusInEnglish = (
+  koreanStatus: string
+): UserJoinWaitingItem['status'] => {
+  return KOREAN_TO_ENGLISH_STATUS_MAPPING[koreanStatus] || 'PENDING';
+};
+
+export const transformUserJoinWaitingItem = (
+  apiItem: ApiUserJoinWaitingItem
+): UserJoinWaitingItem => {
+  return {
+    id: apiItem.id,
+    applicantName: apiItem.applicantName,
+    teamId: apiItem.teamId,
+    teamName: apiItem.teamName,
+    applicantId: apiItem.applicantId,
+    status: getUserJoinWaitingStatusInEnglish(apiItem.status),
+    decisionReason: apiItem.decisionReason,
+    decidedBy: apiItem.decidedBy,
+    decidedAt: apiItem.decidedAt,
+    isMercenary: apiItem.isMercenary,
+  };
+};
+
+export const transformUserJoinWaitingPageResponse = (
   apiResponse: ApiUserJoinWaitingPageResponse
-): UserJoinWaitingPageResponse {
+): UserJoinWaitingPageResponse => {
   return {
-    content: apiResponse.content.map(item => ({
-      ...item,
-      status: item.status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELED',
-    })),
-    totalElements: apiResponse.totalElements,
-    totalPages: apiResponse.totalPages,
-    size: apiResponse.size,
-    number: apiResponse.number,
-    first: apiResponse.first,
-    last: apiResponse.last,
-    numberOfElements: apiResponse.numberOfElements,
-    empty: apiResponse.empty,
-    pageable: apiResponse.pageable,
-    sort: apiResponse.sort,
+    ...apiResponse,
+    content: apiResponse.content.map(transformUserJoinWaitingItem),
   };
-}
+};
 
-export function getTeamTypeInEnglish(teamType: TeamType): string {
-  const typeMap: Record<TeamType, string> = {
-    중앙동아리: 'CENTRAL_CLUB',
-    과동아리: 'DEPARTMENT_CLUB',
-    기타: 'OTHER',
-  };
-  return typeMap[teamType] || 'OTHER';
-}
-
-export function getSkillLevelInEnglish(skillLevel: SkillLevel): string {
-  const levelMap: Record<SkillLevel, string> = {
-    아마추어: 'AMATEUR',
-    세미프로: 'SEMI_PRO',
-    프로: 'PRO',
-  };
-  return levelMap[skillLevel] || 'AMATEUR';
-}
-
-export function getRoleInKorean(role: TeamMemberRole): string {
-  const roleMap: Record<TeamMemberRole, string> = {
-    LEADER: '리더',
-    VICE_LEADER: '부리더',
-    MEMBER: '멤버',
-  };
-  return roleMap[role] || '멤버';
-}
-
-export function getRoleDisplayName(role: TeamMemberRole): string {
-  return getRoleInKorean(role);
-}
-
-export function getJoinRequestStatusDisplayName(status: string): string {
-  const statusMap: Record<string, string> = {
-    PENDING: '대기중',
-    APPROVED: '승인됨',
-    REJECTED: '거절됨',
-    CANCELED: '취소됨',
-  };
-  return statusMap[status] || '알 수 없음';
-}
+export const getUserJoinWaitingStatusDisplayName = (
+  status: UserJoinWaitingItem['status']
+): string => {
+  return BASIC_STATUS_LABELS[status] || '대기중';
+};

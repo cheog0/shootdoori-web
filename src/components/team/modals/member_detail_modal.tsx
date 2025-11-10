@@ -1,223 +1,16 @@
-import React from 'react';
-import styled from 'styled-components';
-import { X, Loader2, User, Calendar, Star, MapPin } from 'lucide-react';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 
-import { useTeamMember } from '@/hooks/queries';
-import { colors } from '@/theme';
-import { formatDate } from '@/utils/date';
-import { getRoleDisplayName } from '@/utils/team';
-
-// Styled Components
-const Overlay = styled.div<{ visible: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: ${props => (props.visible ? 'flex' : 'none')};
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const ModalContainer = styled.div`
-  background-color: white;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 400px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Header = styled.div`
-  padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Title = styled.h2`
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f3f4f6;
-  }
-`;
-
-const Content = styled.div`
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-`;
-
-const LoadingText = styled.span`
-  font-size: 16px;
-  color: #6b7280;
-  margin-top: 16px;
-`;
-
-const ErrorContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-`;
-
-const ErrorText = styled.span`
-  font-size: 16px;
-  color: #ef4444;
-  text-align: center;
-`;
-
-const MemberInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-const MemberHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-`;
-
-const Avatar = styled.div`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const MemberDetails = styled.div`
-  flex: 1;
-`;
-
-const MemberName = styled.h3`
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 4px 0;
-`;
-
-const MemberRole = styled.span`
-  font-size: 14px;
-  color: #6b7280;
-`;
-
-const InfoSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const InfoItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-const InfoIcon = styled.div`
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const InfoLabel = styled.span`
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-  min-width: 80px;
-`;
-
-const InfoValue = styled.span`
-  font-size: 14px;
-  color: #6b7280;
-`;
-
-const SkillLevelContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const SkillLevelBadge = styled.div<{ level: string }>`
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  background-color: ${props => {
-    switch (props.level) {
-      case 'AMATEUR':
-        return colors.green[100];
-      case 'SEMI_PRO':
-        return colors.yellow[100];
-      case 'PRO':
-        return colors.red[100];
-      default:
-        return colors.gray[100];
-    }
-  }};
-  color: ${props => {
-    switch (props.level) {
-      case 'AMATEUR':
-        return colors.green[700];
-      case 'SEMI_PRO':
-        return colors.yellow[700];
-      case 'PRO':
-        return colors.red[700];
-      default:
-        return colors.gray[700];
-    }
-  }};
-`;
-
-const BioSection = styled.div`
-  margin-top: 20px;
-`;
-
-const BioLabel = styled.h4`
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 8px 0;
-`;
-
-const BioText = styled.p`
-  font-size: 14px;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0;
-`;
+import { useTeamMember } from '@/src/hooks/queries';
+import { colors, spacing, typography } from '@/src/theme';
+import { getRoleDisplayName } from '@/src/utils/team';
 
 interface MemberDetailModalProps {
   visible: boolean;
@@ -234,93 +27,223 @@ export default function MemberDetailModal({
 }: MemberDetailModalProps) {
   const { data: member, isLoading, error } = useTeamMember(teamId, userId);
 
-  const getSkillLevelText = (level: string) => {
-    switch (level) {
-      case 'AMATEUR':
-        return '아마추어';
-      case 'SEMI_PRO':
-        return '세미프로';
-      case 'PRO':
-        return '프로';
-      default:
-        return level;
-    }
-  };
-
   return (
-    <Overlay visible={visible}>
-      <ModalContainer>
-        <Header>
-          <Title>팀원 정보</Title>
-          <CloseButton onClick={onClose}>
-            <X size={24} color={colors.gray[600]} />
-          </CloseButton>
-        </Header>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.modalContainer}>
+          <View style={styles.header}>
+            <Text style={styles.title}>팀원 정보</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color={colors.gray[600]} />
+            </TouchableOpacity>
+          </View>
 
-        <Content>
-          {isLoading ? (
-            <LoadingContainer>
-              <Loader2 size={32} color={colors.grass[500]} />
-              <LoadingText>팀원 정보를 불러오는 중...</LoadingText>
-            </LoadingContainer>
-          ) : error ? (
-            <ErrorContainer>
-              <ErrorText>팀원 정보를 불러올 수 없습니다</ErrorText>
-            </ErrorContainer>
-          ) : member ? (
-            <MemberInfo>
-              <MemberHeader>
-                <Avatar>
-                  <User size={24} color={colors.gray[600]} />
-                </Avatar>
-                <MemberDetails>
-                  <MemberName>{member.name}</MemberName>
-                  <MemberRole>{getRoleDisplayName(member.role)}</MemberRole>
-                </MemberDetails>
-              </MemberHeader>
+          <View style={styles.content}>
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.grass[500]} />
+                <Text style={styles.loadingText}>
+                  팀원 정보를 불러오는 중...
+                </Text>
+              </View>
+            ) : error ? (
+              <View style={styles.errorContainer}>
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={48}
+                  color={colors.red[500]}
+                />
+                <Text style={styles.errorText}>
+                  팀원 정보를 불러올 수 없습니다.
+                </Text>
+                <TouchableOpacity onPress={onClose} style={styles.retryButton}>
+                  <Text style={styles.retryButtonText}>확인</Text>
+                </TouchableOpacity>
+              </View>
+            ) : member ? (
+              <View style={styles.memberInfo}>
+                <View style={styles.avatarContainer}>
+                  <View style={styles.avatar}>
+                    <Ionicons
+                      name="person"
+                      size={40}
+                      color={colors.gray[400]}
+                    />
+                  </View>
+                  <View style={styles.roleBadge}>
+                    <Text style={styles.roleText}>
+                      {getRoleDisplayName(member.role)}
+                    </Text>
+                  </View>
+                </View>
 
-              <InfoSection>
-                <InfoItem>
-                  <InfoIcon>
-                    <Calendar size={16} color={colors.gray[600]} />
-                  </InfoIcon>
-                  <InfoLabel>가입일</InfoLabel>
-                  <InfoValue>{formatDate(member.joinedAt)}</InfoValue>
-                </InfoItem>
+                <View style={styles.infoSection}>
+                  <View style={styles.infoItem}>
+                    <Ionicons
+                      name="person-outline"
+                      size={20}
+                      color={colors.gray[500]}
+                    />
+                    <View style={styles.infoContent}>
+                      <Text style={styles.infoLabel}>이름</Text>
+                      <Text style={styles.infoValue}>{member.name}</Text>
+                    </View>
+                  </View>
 
-                <InfoItem>
-                  <InfoIcon>
-                    <Star size={16} color={colors.gray[600]} />
-                  </InfoIcon>
-                  <InfoLabel>실력</InfoLabel>
-                  <SkillLevelContainer>
-                    <SkillLevelBadge level={member.skillLevel}>
-                      {getSkillLevelText(member.skillLevel)}
-                    </SkillLevelBadge>
-                  </SkillLevelContainer>
-                </InfoItem>
+                  <View style={styles.infoItem}>
+                    <Ionicons
+                      name="mail-outline"
+                      size={20}
+                      color={colors.gray[500]}
+                    />
+                    <View style={styles.infoContent}>
+                      <Text style={styles.infoLabel}>이메일</Text>
+                      <Text style={styles.infoValue}>{member.email}</Text>
+                    </View>
+                  </View>
 
-                {member.position && (
-                  <InfoItem>
-                    <InfoIcon>
-                      <MapPin size={16} color={colors.gray[600]} />
-                    </InfoIcon>
-                    <InfoLabel>포지션</InfoLabel>
-                    <InfoValue>{member.position}</InfoValue>
-                  </InfoItem>
-                )}
-              </InfoSection>
-
-              {member.bio && (
-                <BioSection>
-                  <BioLabel>자기소개</BioLabel>
-                  <BioText>{member.bio}</BioText>
-                </BioSection>
-              )}
-            </MemberInfo>
-          ) : null}
-        </Content>
-      </ModalContainer>
-    </Overlay>
+                  <View style={styles.infoItem}>
+                    <Ionicons
+                      name="football-outline"
+                      size={20}
+                      color={colors.gray[500]}
+                    />
+                    <View style={styles.infoContent}>
+                      <Text style={styles.infoLabel}>포지션</Text>
+                      <Text style={styles.infoValue}>{member.position}</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    backgroundColor: colors.white,
+    borderRadius: spacing.spacing4,
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.spacing5,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[200],
+  },
+  title: {
+    fontSize: typography.fontSize.font5,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.gray[900],
+  },
+  closeButton: {
+    padding: spacing.spacing1,
+  },
+  content: {
+    padding: spacing.spacing5,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.spacing10,
+  },
+  loadingText: {
+    marginTop: spacing.spacing3,
+    fontSize: typography.fontSize.font4,
+    color: colors.gray[600],
+  },
+  errorContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.spacing10,
+  },
+  errorText: {
+    marginTop: spacing.spacing3,
+    fontSize: typography.fontSize.font4,
+    color: colors.red[500],
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: spacing.spacing4,
+    backgroundColor: colors.grass[500],
+    paddingHorizontal: spacing.spacing5,
+    paddingVertical: spacing.spacing3,
+    borderRadius: spacing.spacing3,
+  },
+  retryButtonText: {
+    color: colors.white,
+    fontSize: typography.fontSize.font4,
+    fontWeight: typography.fontWeight.medium,
+  },
+  memberInfo: {
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    alignItems: 'center',
+    marginBottom: spacing.spacing6,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.gray[100],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.spacing3,
+  },
+  roleBadge: {
+    backgroundColor: colors.grass[100],
+    paddingHorizontal: spacing.spacing3,
+    paddingVertical: spacing.spacing1,
+    borderRadius: spacing.spacing2,
+  },
+  roleText: {
+    fontSize: typography.fontSize.font3,
+    color: colors.grass[700],
+    fontWeight: typography.fontWeight.medium,
+  },
+  infoSection: {
+    width: '100%',
+    gap: spacing.spacing4,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.spacing3,
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: typography.fontSize.font3,
+    color: colors.gray[500],
+    marginBottom: spacing.spacing1,
+  },
+  infoValue: {
+    fontSize: typography.fontSize.font4,
+    color: colors.gray[900],
+    fontWeight: typography.fontWeight.medium,
+  },
+});

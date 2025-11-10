@@ -28,7 +28,6 @@ export const colors = {
   success: '#4CAF50',
   warning: '#f97316',
   error: '#ef4444',
-  errorDark: '#dc2626',
   info: '#3b82f6',
 
   text: {
@@ -38,8 +37,6 @@ export const colors = {
     disabled: '#b8a890',
     white: '#ffffff',
   },
-  textMain: '#2d2d2d',
-  textSub: '#6b6b6b',
 
   background: {
     main: '#ffffff',
@@ -47,7 +44,6 @@ export const colors = {
     card: '#f8f8f8',
     input: '#f0f0f0',
   },
-  backgroundMain: '#ffffff',
 
   border: {
     light: '#d1d5db',
@@ -55,12 +51,10 @@ export const colors = {
     dark: '#6b7280',
     input: '#e0e0e0',
   },
-  borderMain: '#d1d5db',
 
   brand: {
     main: '#6C8E68',
     accent: '#108142',
-    dark: '#4a5c47',
   },
 
   overlay: {
@@ -128,7 +122,6 @@ export const colors = {
     800: '#1e40af',
     900: '#1e3a8a',
   },
-  blue50: '#eff6ff',
 
   green: {
     50: '#f0fdf4',

@@ -1,19 +1,62 @@
-import axios from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+  isAxiosError,
+} from 'axios';
 
-import config from '../config/environment';
+import config from '@/src/config/environment';
 
-interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  data?: unknown;
-  headers?: Record<string, string>;
-  params?: Record<string, string | number>;
-}
+import { TeamMemberError } from './errors';
 
-// axios의 isAxiosError 함수를 직접 구현
-function isAxiosError(error: unknown): error is {
-  response?: { status: number; data?: unknown; statusText: string };
-} {
-  return typeof error === 'object' && error !== null && 'response' in error;
+function extractErrorMessage(response: unknown): string {
+  const isAxiosResponse = (
+    obj: unknown
+  ): obj is { data?: unknown; statusText?: string } => {
+    return typeof obj === 'object' && obj !== null;
+  };
+
+  if (!isAxiosResponse(response)) {
+    return 'Unknown error';
+  }
+
+  const data = response.data ?? response;
+
+  if (
+    data &&
+    typeof data === 'object' &&
+    'data' in data &&
+    typeof data.data === 'object' &&
+    data.data !== null &&
+    'message' in data.data
+  ) {
+    return String(data.data.message);
+  }
+
+  if (
+    data &&
+    typeof data === 'object' &&
+    'message' in data &&
+    typeof data.message === 'string'
+  ) {
+    return data.message;
+  }
+
+  if (
+    data &&
+    typeof data === 'object' &&
+    'error' in data &&
+    typeof data.error === 'string'
+  ) {
+    return data.error;
+  }
+
+  if (typeof response.statusText === 'string') {
+    return response.statusText;
+  }
+
+  return 'Unknown error';
 }
 
 export class ApiError extends Error {
@@ -28,100 +71,138 @@ export class ApiError extends Error {
 }
 
 class ApiClient {
-  private baseURL: string;
+  private axios: AxiosInstance;
   private token: string | null = null;
-  private onTokenExpired?: () => void;
+  private refreshPromise: Promise<void> | null = null;
+  private onTokenExpired?: () => Promise<void>;
 
   constructor(baseURL: string) {
-    this.baseURL = baseURL;
+    this.axios = axios.create({
+      baseURL,
+      // 웹에서 CORS 요청을 위한 기본 설정
+      withCredentials: false,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+
+    this.axios.interceptors.request.use(config => {
+      if (config.authRequired === false) {
+        return config;
+      }
+
+      if (this.token) {
+        config.headers = config.headers || {};
+        config.headers['Authorization'] = `Bearer ${this.token}`;
+      }
+      return config;
+    });
+
+    this.axios.interceptors.response.use(
+      response => response,
+      async (error: AxiosError) => {
+        const original = error.config as AxiosRequestConfig & {
+          _retry?: boolean;
+        };
+
+        if (error.response?.status === 401 && !original?._retry) {
+          original._retry = true;
+
+          if (!this.refreshPromise) {
+            if (!this.onTokenExpired) {
+              return Promise.reject(error);
+            }
+            this.refreshPromise = this.onTokenExpired().finally(() => {
+              this.refreshPromise = null;
+            });
+          }
+
+          try {
+            await this.refreshPromise;
+            original.headers = original.headers || {};
+            if (this.token) {
+              original.headers['Authorization'] = `Bearer ${this.token}`;
+            }
+            return this.axios(original);
+          } catch (refreshError) {
+            console.warn('[API Client] 토큰 갱신 실패:', refreshError);
+            return Promise.reject(error);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
   }
 
   setToken(token: string | null) {
     this.token = token;
   }
 
-  setOnTokenExpired(callback: () => void) {
+  setOnTokenExpired(callback: () => Promise<void>) {
     this.onTokenExpired = callback;
   }
 
   private async request<T>(
     endpoint: string,
-    options: RequestOptions = {}
+    options: AxiosRequestConfig = {}
   ): Promise<T> {
-    if (!this.token && this.isAuthRequiredEndpoint(endpoint)) {
-      this.onTokenExpired?.();
-      throw new ApiError('Authentication required', 401);
-    }
+    const { authRequired, ...axiosOptions } = options;
 
     try {
-      const response = await axios({
-        ...options,
+      const response: AxiosResponse<T> = await this.axios({
+        ...axiosOptions,
         url: endpoint,
-        baseURL: this.baseURL,
         headers: {
           'Content-Type': 'application/json',
-          ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
-          ...options.headers,
+          ...axiosOptions.headers,
         },
+        authRequired,
       });
 
       return response.data;
     } catch (error: unknown) {
       if (isAxiosError(error) && error.response) {
-        if (error.response.status === 401 && this.onTokenExpired) {
-          const isTeamDeleteRequest =
-            endpoint.includes('/api/teams/') && options.method === 'DELETE';
-          if (!isTeamDeleteRequest) {
-            this.onTokenExpired();
-          } else {
-            console.log(
-              '[API Client] 팀 삭제 요청이므로 토큰 만료 처리 건너뜀'
-            );
+        const errorMessage = extractErrorMessage(error.response);
+        const errorData = error.response.data || {};
+
+        let detailedMessage = errorMessage;
+        if (errorData && typeof errorData === 'object') {
+          if ('message' in errorData && typeof errorData.message === 'string') {
+            detailedMessage = errorData.message;
+          } else if ('errors' in errorData && Array.isArray(errorData.errors)) {
+            detailedMessage = errorData.errors.join(', ');
           }
         }
 
-        const errorData =
-          (error as { response?: { data?: unknown } }).response?.data || {};
-
-        const errorMessage =
-          errorData.data &&
-          typeof errorData.data === 'object' &&
-          'message' in errorData.data
-            ? String(errorData.data.message)
-            : typeof errorData.message === 'string'
-              ? errorData.message
-              : (error as { response?: { statusText?: string } }).response
-                  ?.statusText || 'Unknown error';
-
-        throw new ApiError(
-          errorMessage,
-          (error as { response?: { status?: number } }).response?.status || 500,
+        const apiError = new ApiError(
+          detailedMessage || errorMessage,
+          error.response.status,
           errorData
         );
+
+        if (
+          apiError.message.includes('팀') &&
+          apiError.message.includes('멤버')
+        ) {
+          throw new TeamMemberError(apiError.message);
+        }
+
+        throw apiError;
       }
       throw error;
     }
   }
 
-  private isAuthRequiredEndpoint(endpoint: string): boolean {
-    const authRequiredEndpoints = [
-      '/api/profiles',
-      '/api/teams',
-      '/api/matches',
-      '/recommendedMatch',
-    ];
-
-    return authRequiredEndpoints.some(path => endpoint.includes(path));
-  }
-
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint);
+  async get<T>(endpoint: string, options?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>(endpoint, options);
   }
 
   async post<T>(
     endpoint: string,
     body: unknown,
-    options?: Partial<RequestOptions>
+    options?: AxiosRequestConfig
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
@@ -130,16 +211,28 @@ class ApiClient {
     });
   }
 
-  async put<T>(endpoint: string, body: unknown): Promise<T> {
-    return this.request<T>(endpoint, { method: 'PUT', data: body });
+  async put<T>(
+    endpoint: string,
+    body: unknown,
+    options?: AxiosRequestConfig
+  ): Promise<T> {
+    return this.request<T>(endpoint, { method: 'PUT', data: body, ...options });
   }
 
-  async patch<T>(endpoint: string, body?: unknown): Promise<T> {
-    return this.request<T>(endpoint, { method: 'PATCH', data: body });
+  async patch<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: AxiosRequestConfig
+  ): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      data: body,
+      ...options,
+    });
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  async delete<T>(endpoint: string, options?: AxiosRequestConfig): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE', ...options });
   }
 }
 

@@ -7,14 +7,6 @@ export const typography = {
   },
 
   fontSize: {
-    xs: 12,
-    sm: 14,
-    base: 16,
-    lg: 18,
-    xl: 20,
-    '2xl': 24,
-    '3xl': 30,
-    '4xl': 36,
     font1: 10,
     font2: 12,
     font3: 14,
@@ -43,7 +35,6 @@ export const typography = {
     line12: 44,
     line13: 56,
   },
-  lineHeightMain: 24,
 
   fontWeight: {
     light: '300',
@@ -54,10 +45,8 @@ export const typography = {
     extrabold: '800',
     black: '900',
   },
-  fontWeightMain: '400',
 
   text: {
-    main: '#2d2d2d',
     h1: {
       fontSize: 32,
       lineHeight: 40,

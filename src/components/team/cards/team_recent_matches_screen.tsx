@@ -1,172 +1,22 @@
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { memo } from 'react';
-import styled from 'styled-components';
-import { Loader2 } from 'lucide-react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 
-import { CustomHeader } from './components/ui/custom_header';
-import GlobalErrorFallback from './components/ui/global_error_fallback';
-import { useTeamRecentMatches, useTeam } from '@/hooks/queries';
-import { colors, theme } from '@/theme';
-import type { RecentMatchResponse } from '@/types/match';
-import { formatDate, formatTime } from '@/utils/date';
-
-// Styled Components
-const Container = styled.div`
-  flex: 1;
-  background-color: ${theme.colors.default};
-  display: flex;
-  flex-direction: column;
-`;
-
-const LoadingContainer = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-`;
-
-const LoadingText = styled.span`
-  font-size: 16px;
-  color: ${colors.gray[600]};
-  text-align: center;
-`;
-
-const ErrorContainer = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-`;
-
-const ErrorText = styled.span`
-  font-size: 16px;
-  color: ${colors.red[500]};
-  text-align: center;
-`;
-
-const ScrollContainer = styled.div`
-  flex: 1;
-  overflow-y: auto;
-`;
-
-const ContentContainer = styled.div`
-  padding: 16px;
-`;
-
-const MatchCard = styled.div`
-  background-color: white;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const MatchHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-
-const MatchDate = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${colors.gray[700]};
-`;
-
-const MatchStatus = styled.span<{ status: string }>`
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  background-color: ${props => {
-    switch (props.status) {
-      case 'WIN':
-        return colors.green[100];
-      case 'LOSE':
-        return colors.red[100];
-      case 'DRAW':
-        return colors.yellow[100];
-      default:
-        return colors.gray[100];
-    }
-  }};
-  color: ${props => {
-    switch (props.status) {
-      case 'WIN':
-        return colors.green[700];
-      case 'LOSE':
-        return colors.red[700];
-      case 'DRAW':
-        return colors.yellow[700];
-      default:
-        return colors.gray[700];
-    }
-  }};
-`;
-
-const MatchTeams = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-`;
-
-const TeamName = styled.span<{ isHome: boolean }>`
-  font-size: 16px;
-  font-weight: ${props => (props.isHome ? '600' : '500')};
-  color: ${props => (props.isHome ? colors.gray[900] : colors.gray[600])};
-`;
-
-const Score = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  color: ${colors.gray[900]};
-`;
-
-const MatchDetails = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  color: ${colors.gray[500]};
-`;
-
-const MatchTime = styled.span`
-  font-size: 12px;
-  color: ${colors.gray[500]};
-`;
-
-const MatchVenue = styled.span`
-  font-size: 12px;
-  color: ${colors.gray[500]};
-`;
-
-const EmptyContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-`;
-
-const EmptyText = styled.span`
-  font-size: 16px;
-  color: ${colors.gray[600]};
-  text-align: center;
-`;
-
-const EmptySubtext = styled.span`
-  font-size: 14px;
-  color: ${colors.gray[500]};
-  text-align: center;
-  margin-top: 8px;
-`;
+import { CustomHeader } from '@/src/components/ui/custom_header';
+import GlobalErrorFallback from '@/src/components/ui/global_error_fallback';
+import { ROUTES } from '@/src/constants/routes';
+import { useTeamRecentMatches, useTeam } from '@/src/hooks/queries';
+import { colors, spacing, typography, theme } from '@/src/theme';
+import type { RecentMatchResponse } from '@/src/types/match';
+import { formatDate, formatTime } from '@/src/utils/date';
 
 interface TeamRecentMatchesScreenProps {
   teamId: string;
@@ -181,16 +31,18 @@ export default memo(function TeamRecentMatchesScreen({
     error,
     refetch,
   } = useTeamRecentMatches('FINISHED');
-  useTeam(teamId);
+  const { data: team } = useTeam(teamId);
 
   if (!teamId || teamId === null || teamId === undefined) {
     return (
-      <Container>
+      <View style={styles.container}>
         <CustomHeader title="최근 경기" />
-        <ErrorContainer>
-          <ErrorText>유효하지 않은 팀 ID입니다.</ErrorText>
-        </ErrorContainer>
-      </Container>
+        <View style={styles.loadingContainer}>
+          <Text style={{ textAlign: 'center', color: colors.red[500] }}>
+            유효하지 않은 팀 ID입니다.
+          </Text>
+        </View>
+      </View>
     );
   }
 
@@ -202,113 +54,333 @@ export default memo(function TeamRecentMatchesScreen({
     numericTeamId <= 0
   ) {
     return (
-      <Container>
+      <View style={styles.container}>
         <CustomHeader title="최근 경기" />
-        <ErrorContainer>
-          <ErrorText>유효하지 않은 팀 ID입니다.</ErrorText>
-        </ErrorContainer>
-      </Container>
+        <View style={styles.loadingContainer}>
+          <Text style={{ textAlign: 'center', color: colors.red[500] }}>
+            유효하지 않은 팀 ID입니다.
+          </Text>
+        </View>
+      </View>
     );
   }
 
+  const getOpponentTeamId = (
+    match: RecentMatchResponse,
+    currentTeamId: number
+  ) => {
+    return match.createTeamId === currentTeamId
+      ? match.requestTeamId
+      : match.createTeamId;
+  };
+
+  const getOpponentTeamName = (
+    match: RecentMatchResponse,
+    currentTeamName: string
+  ) => {
+    return match.createTeamName === currentTeamName
+      ? match.requestTeamName
+      : match.createTeamName;
+  };
+
+  const getResultIcon = (match: RecentMatchResponse) => {
+    switch (match.status) {
+      case 'FINISHED':
+        return {
+          icon: 'checkmark-circle-outline' as const,
+          color: colors.green[600],
+          text: '경기 완료',
+        };
+      case 'MATCHED':
+        return {
+          icon: 'football-outline' as const,
+          color: colors.blue[600],
+          text: '매치 확정',
+        };
+      default:
+        return {
+          icon: 'football-outline' as const,
+          color: colors.gray[500],
+          text: '경기 완료',
+        };
+    }
+  };
+
   if (isLoading) {
     return (
-      <Container>
-        <CustomHeader title="최근 경기" />
-        <LoadingContainer>
-          <Loader2 size={24} color={colors.gray[600]} />
-          <LoadingText>경기 기록을 불러오는 중...</LoadingText>
-        </LoadingContainer>
-      </Container>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.grass[500]} />
+      </View>
     );
   }
 
   if (error) {
+    return <GlobalErrorFallback error={error} resetError={() => refetch()} />;
+  }
+
+  const currentTeamMatches = (matches || []) as RecentMatchResponse[];
+
+  if (!matches) {
     return (
-      <Container>
-        <CustomHeader title="최근 경기" />
-        <GlobalErrorFallback error={error as Error} resetError={refetch} />
-      </Container>
+      <View style={styles.container}>
+        <Text>매치 정보를 불러오는 중...</Text>
+      </View>
     );
   }
 
-  if (!matches || matches.length === 0) {
-    return (
-      <Container>
-        <CustomHeader title="최근 경기" />
-        <EmptyContainer>
-          <EmptyText>최근 경기 기록이 없습니다</EmptyText>
-          <EmptySubtext>팀이 경기에 참여하면 기록이 표시됩니다</EmptySubtext>
-        </EmptyContainer>
-      </Container>
+  const handleReviewRedirect = (match: RecentMatchResponse) => {
+    if (!team?.id) return;
+    const reviewedTeamId = getOpponentTeamId(match, team.id);
+    router.push(
+      `${ROUTES.TEAM_REVIEW}?matchId=${match.matchId}&reviewedTeamId=${reviewedTeamId}`
     );
-  }
-
-  const getMatchStatus = (match: RecentMatchResponse) => {
-    if (match.homeTeamScore > match.awayTeamScore) {
-      return match.homeTeamId === numericTeamId ? 'WIN' : 'LOSE';
-    } else if (match.homeTeamScore < match.awayTeamScore) {
-      return match.homeTeamId === numericTeamId ? 'LOSE' : 'WIN';
-    } else {
-      return 'DRAW';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'WIN':
-        return '승리';
-      case 'LOSE':
-        return '패배';
-      case 'DRAW':
-        return '무승부';
-      default:
-        return '알 수 없음';
-    }
   };
 
   return (
-    <Container>
+    <View style={styles.container}>
       <CustomHeader title="최근 경기" />
 
-      <ScrollContainer>
-        <ContentContainer>
-          {matches.map(match => {
-            const isHomeTeam = match.homeTeamId === numericTeamId;
-            const status = getMatchStatus(match);
+      <View style={styles.teamInfoSection}>
+        <View style={styles.teamInfoCard}>
+          <Ionicons
+            name="football-outline"
+            size={24}
+            color={colors.green[600]}
+          />
+          <Text style={styles.teamName}>{team?.name || '팀 정보 없음'}</Text>
+        </View>
+      </View>
 
-            return (
-              <MatchCard key={match.id}>
-                <MatchHeader>
-                  <MatchDate>{formatDate(match.matchDate)}</MatchDate>
-                  <MatchStatus status={status}>
-                    {getStatusText(status)}
-                  </MatchStatus>
-                </MatchHeader>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {!currentTeamMatches || currentTeamMatches.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons
+              name="football-outline"
+              size={64}
+              color={colors.gray[300]}
+            />
+            <Text style={styles.emptyStateTitle}>
+              아직 경기 기록이 없습니다
+            </Text>
+            <Text style={styles.emptyStateText}>
+              다른 팀과 경기를 하면 기록이 표시됩니다.
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.matchesList}>
+            {currentTeamMatches.map((match: RecentMatchResponse) => {
+              const opponentName = getOpponentTeamName(match, team?.name || '');
+              const result = getResultIcon(match);
 
-                <MatchTeams>
-                  <TeamName isHome={isHomeTeam}>
-                    {isHomeTeam ? match.homeTeamName : match.awayTeamName}
-                  </TeamName>
-                  <Score>
-                    {isHomeTeam ? match.homeTeamScore : match.awayTeamScore}
-                    <span>:</span>
-                    {isHomeTeam ? match.awayTeamScore : match.homeTeamScore}
-                  </Score>
-                  <TeamName isHome={!isHomeTeam}>
-                    {isHomeTeam ? match.awayTeamName : match.homeTeamName}
-                  </TeamName>
-                </MatchTeams>
+              return (
+                <View key={match.matchId} style={styles.matchCard}>
+                  <View style={styles.matchHeader}>
+                    <View style={styles.opponentInfo}>
+                      <Text style={styles.opponentTeamName}>
+                        {opponentName}
+                      </Text>
+                      <Text style={styles.opponentUniversity}>상대팀</Text>
+                    </View>
+                    <View style={styles.resultContainer}>
+                      <Ionicons
+                        name={result.icon}
+                        size={20}
+                        color={result.color}
+                      />
+                      <Text
+                        style={[styles.resultText, { color: result.color }]}
+                      >
+                        {result.text}
+                      </Text>
+                    </View>
+                  </View>
 
-                <MatchDetails>
-                  <MatchTime>{formatTime(match.matchDate)}</MatchTime>
-                  <MatchVenue>{match.venueName}</MatchVenue>
-                </MatchDetails>
-              </MatchCard>
-            );
-          })}
-        </ContentContainer>
-      </ScrollContainer>
-    </Container>
+                  <View style={styles.matchDetails}>
+                    <View style={styles.matchInfo}>
+                      <View style={styles.matchInfoItem}>
+                        <Ionicons
+                          name="calendar-outline"
+                          size={16}
+                          color={colors.gray[500]}
+                        />
+                        <Text style={styles.matchInfoText}>
+                          {formatDate(match.matchDate)}
+                        </Text>
+                      </View>
+                      <View style={styles.matchInfoItem}>
+                        <Ionicons
+                          name="time-outline"
+                          size={16}
+                          color={colors.gray[500]}
+                        />
+                        <Text style={styles.matchInfoText}>
+                          {formatTime(match.matchTime)}
+                        </Text>
+                      </View>
+                      <View style={styles.matchInfoItem}>
+                        <Ionicons
+                          name="location-outline"
+                          size={16}
+                          color={colors.gray[500]}
+                        />
+                        <Text style={styles.matchInfoText}>
+                          {match.venueName}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.reviewButton}
+                    onPress={() => handleReviewRedirect(match)}
+                  >
+                    <Text style={styles.reviewButtonText}>리뷰 남기기</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
+});
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.gray[50],
+  },
+  teamInfoSection: {
+    padding: spacing.spacing5,
+  },
+  teamInfoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    padding: spacing.spacing4,
+    borderRadius: spacing.spacing3,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    gap: spacing.spacing3,
+  },
+  teamName: {
+    fontSize: typography.fontSize.font5,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.gray[900],
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: spacing.spacing5,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.spacing15,
+  },
+  emptyStateTitle: {
+    fontSize: typography.fontSize.font5,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.gray[700],
+    marginTop: spacing.spacing4,
+    marginBottom: spacing.spacing2,
+  },
+  emptyStateText: {
+    fontSize: typography.fontSize.font3,
+    color: colors.gray[500],
+    textAlign: 'center',
+    lineHeight: typography.lineHeight.line5,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: spacing.spacing15,
+  },
+  matchesList: {
+    gap: spacing.spacing4,
+    paddingBottom: spacing.spacing5,
+  },
+  matchCard: {
+    backgroundColor: colors.white,
+    borderRadius: spacing.spacing4,
+    padding: spacing.spacing5,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.green[500],
+  },
+  matchHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.spacing4,
+  },
+  opponentInfo: {
+    flex: 1,
+  },
+  opponentTeamName: {
+    fontSize: typography.fontSize.font5,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.gray[900],
+    marginBottom: spacing.spacing1,
+  },
+  opponentUniversity: {
+    fontSize: typography.fontSize.font3,
+    color: colors.gray[500],
+    backgroundColor: colors.gray[100],
+    paddingHorizontal: spacing.spacing2,
+    paddingVertical: spacing.spacing1,
+    borderRadius: spacing.spacing2,
+    alignSelf: 'flex-start',
+  },
+  resultContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.spacing1,
+    backgroundColor: colors.gray[50],
+    paddingHorizontal: spacing.spacing3,
+    paddingVertical: spacing.spacing2,
+    borderRadius: spacing.spacing3,
+  },
+  resultText: {
+    fontSize: typography.fontSize.font4,
+    fontWeight: typography.fontWeight.bold,
+  },
+  matchDetails: {
+    borderTopWidth: 1,
+    borderTopColor: colors.gray[200],
+    paddingTop: spacing.spacing4,
+  },
+  matchInfo: {
+    gap: spacing.spacing3,
+  },
+  matchInfoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.spacing2,
+  },
+  matchInfoText: {
+    fontSize: typography.fontSize.font3,
+    color: colors.gray[600],
+    flex: 1,
+  },
+  reviewButton: {
+    backgroundColor: colors.blue[500],
+    paddingVertical: 12,
+    borderRadius: 20,
+    marginTop: spacing.spacing4,
+    alignItems: 'center',
+  },
+  reviewButtonText: {
+    color: 'white',
+    fontSize: typography.fontSize.font4,
+    fontWeight: typography.fontWeight.bold,
+  },
 });

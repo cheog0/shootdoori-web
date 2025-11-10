@@ -1,12 +1,17 @@
+import Constants from 'expo-constants';
+
+import type { AppExtra } from '@/src/types';
+
 const getEnvVars = () => {
-  // 웹 환경에서는 import.meta.env를 사용
-  // 개발환경(Vite 프록시)과 프로덕션환경(Vercel 프록시) 모두 상대 경로 사용
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-  const environment = import.meta.env.VITE_ENVIRONMENT || 'development';
+  const extra = Constants.expoConfig?.extra as AppExtra;
+
+  if (!extra) {
+    throw new Error('환경 설정을 찾을 수 없습니다.');
+  }
 
   return {
-    API_BASE_URL: apiBaseUrl,
-    ENVIRONMENT: environment,
+    API_BASE_URL: extra.apiBaseUrl,
+    ENVIRONMENT: extra.environment,
   };
 };
 

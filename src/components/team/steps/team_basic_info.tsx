@@ -1,204 +1,18 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+} from 'react-native';
 
-import { UNIVERSITIES } from '@/constants/universities';
-import { TeamType, TEAM_TYPES } from '@/types/team';
-
-// Styled Components
-const Container = styled.div`
-  flex: 1;
-  background-color: #f8f9fa;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Content = styled.div`
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-const FormSection = styled.div`
-  background-color: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 20px 0;
-`;
-
-const InputGroup = styled.div`
-  margin-bottom: 20px;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 8px;
-`;
-
-const Input = styled.input<{ error?: boolean }>`
-  width: 100%;
-  padding: 12px;
-  border: 1px solid ${props => (props.error ? '#ef4444' : '#d1d5db')};
-  border-radius: 8px;
-  font-size: 16px;
-  color: #374151;
-  background-color: white;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  &:disabled {
-    background-color: #f9fafb;
-    color: #9ca3af;
-  }
-`;
-
-const ErrorText = styled.span`
-  font-size: 14px;
-  color: #ef4444;
-  margin-top: 4px;
-`;
-
-const DropdownContainer = styled.div`
-  position: relative;
-`;
-
-const DropdownButton = styled.button<{ error?: boolean }>`
-  width: 100%;
-  padding: 12px;
-  border: 1px solid ${props => (props.error ? '#ef4444' : '#d1d5db')};
-  border-radius: 8px;
-  font-size: 16px;
-  color: #374151;
-  background-color: white;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-`;
-
-const DropdownList = styled.div<{ visible: boolean }>`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: white;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  max-height: 200px;
-  overflow-y: auto;
-  display: ${props => (props.visible ? 'block' : 'none')};
-`;
-
-const DropdownItem = styled.button`
-  width: 100%;
-  padding: 12px;
-  border: none;
-  background-color: white;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f3f4f6;
-  }
-
-  &:first-child {
-    border-radius: 8px 8px 0 0;
-  }
-
-  &:last-child {
-    border-radius: 0 0 8px 8px;
-  }
-`;
-
-const TeamTypeContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const TeamTypeOption = styled.button<{ selected: boolean }>`
-  padding: 12px 16px;
-  border: 1px solid ${props => (props.selected ? '#3b82f6' : '#d1d5db')};
-  border-radius: 8px;
-  background-color: ${props => (props.selected ? '#3b82f6' : 'white')};
-  color: ${props => (props.selected ? 'white' : '#374151')};
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: #3b82f6;
-    background-color: ${props => (props.selected ? '#2563eb' : '#f8fafc')};
-  }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  gap: 12px;
-  padding: 20px;
-  background-color: white;
-  border-top: 1px solid #e5e7eb;
-`;
-
-const Button = styled.button<{ variant: 'primary' | 'secondary' }>`
-  flex: 1;
-  padding: 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  ${props =>
-    props.variant === 'primary'
-      ? `
-    background-color: #3b82f6;
-    color: white;
-
-    &:hover {
-      background-color: #2563eb;
-    }
-
-    &:disabled {
-      background-color: #9ca3af;
-      cursor: not-allowed;
-    }
-  `
-      : `
-    background-color: #f3f4f6;
-    color: #374151;
-
-    &:hover {
-      background-color: #e5e7eb;
-    }
-  `}
-`;
+import { styles } from '@/src/components/team/steps/team_basic_info_styles';
+import { UNIVERSITIES } from '@/src/constants/universities';
+import { colors } from '@/src/theme';
+import { TeamType, TEAM_TYPES } from '@/src/types/team';
 
 interface TeamBasicInfoProps {
   teamName: string;
@@ -242,71 +56,143 @@ export default function TeamBasicInfo({
   };
 
   return (
-    <Container>
-      <Content>
-        <FormSection>
-          <SectionTitle>팀 기본 정보</SectionTitle>
+    <View style={styles.stepContainer}>
+      <View style={styles.stepHeader}>
+        <Text style={styles.stepTitle}>팀 기본 정보를 입력해주세요</Text>
+        <Text style={styles.stepSubtitle}>
+          팀의 이름과 소속 대학교를 알려주세요
+        </Text>
+      </View>
 
-          <InputGroup>
-            <Label>팀 이름</Label>
-            <Input
-              placeholder="팀 이름을 입력하세요"
-              value={teamName}
-              onChange={e => onTeamNameChange(e.target.value)}
-              error={!!errors.name}
-            />
-            {errors.name && <ErrorText>{errors.name}</ErrorText>}
-          </InputGroup>
+      <View style={styles.stepContent}>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>팀 이름 *</Text>
+          <TextInput
+            style={[styles.stepTextInput, errors.name && styles.textInputError]}
+            value={teamName}
+            onChangeText={onTeamNameChange}
+            placeholder="예: 강원대 3팀"
+            maxLength={100}
+          />
+          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+        </View>
 
-          <InputGroup>
-            <Label>대학교</Label>
-            <DropdownContainer>
-              <DropdownButton
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                error={!!errors.university}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>대학교 *</Text>
+          <TouchableOpacity
+            style={[
+              styles.dropdownButton,
+              errors.university && styles.textInputError,
+            ]}
+            onPress={() => setIsDropdownOpen(true)}
+          >
+            <Text
+              style={[
+                styles.dropdownButtonText,
+                !university && styles.placeholderText,
+              ]}
+            >
+              {university || '대학교를 선택해주세요'}
+            </Text>
+            <Ionicons name="chevron-down" size={20} color={colors.gray[600]} />
+          </TouchableOpacity>
+          {errors.university && (
+            <Text style={styles.errorText}>{errors.university}</Text>
+          )}
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>팀 유형 *</Text>
+          <View style={styles.selectorContainer}>
+            {TEAM_TYPES.map(type => (
+              <TouchableOpacity
+                key={type}
+                style={[
+                  styles.stepSelectorButton,
+                  teamType === type && styles.stepSelectorButtonActive,
+                ]}
+                onPress={() => onTeamTypeChange(type)}
               >
-                {university || '대학교를 선택하세요'}
-              </DropdownButton>
-              <DropdownList visible={isDropdownOpen}>
-                {UNIVERSITIES.map(uni => (
-                  <DropdownItem
-                    key={uni.name}
-                    onClick={() => handleUniversitySelect(uni.name)}
-                  >
-                    {uni.name}
-                  </DropdownItem>
-                ))}
-              </DropdownList>
-            </DropdownContainer>
-            {errors.university && <ErrorText>{errors.university}</ErrorText>}
-          </InputGroup>
-
-          <InputGroup>
-            <Label>팀 유형</Label>
-            <TeamTypeContainer>
-              {TEAM_TYPES.map(type => (
-                <TeamTypeOption
-                  key={type.value}
-                  selected={teamType === type.value}
-                  onClick={() => onTeamTypeChange(type.value)}
+                <Text
+                  style={[
+                    styles.stepSelectorButtonText,
+                    teamType === type && styles.stepSelectorButtonTextActive,
+                  ]}
                 >
-                  {type.label}
-                </TeamTypeOption>
-              ))}
-            </TeamTypeContainer>
-            {errors.teamType && <ErrorText>{errors.teamType}</ErrorText>}
-          </InputGroup>
-        </FormSection>
-      </Content>
+                  {type}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {errors.teamType && (
+            <Text style={styles.errorText}>{errors.teamType}</Text>
+          )}
+        </View>
+      </View>
 
-      <ButtonContainer>
-        <Button variant="secondary" onClick={onBack}>
-          이전
-        </Button>
-        <Button variant="primary" onClick={onNext} disabled={!isValid}>
-          다음
-        </Button>
-      </ButtonContainer>
-    </Container>
+      <View style={[styles.stepFooter, { justifyContent: 'flex-end' }]}>
+        <TouchableOpacity
+          style={[styles.nextButton, !isValid && styles.nextButtonDisabled]}
+          onPress={onNext}
+          disabled={!isValid}
+        >
+          <Text style={styles.nextButtonText}>다음</Text>
+          <Ionicons name="arrow-forward" size={20} color={colors.white} />
+        </TouchableOpacity>
+      </View>
+
+      <Modal
+        visible={isDropdownOpen}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsDropdownOpen(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsDropdownOpen(false)}
+        >
+          <View style={styles.dropdownModal}>
+            <View style={styles.dropdownHeader}>
+              <Text style={styles.dropdownTitle}>대학교 선택</Text>
+              <TouchableOpacity onPress={() => setIsDropdownOpen(false)}>
+                <Ionicons name="close" size={24} color={colors.gray[600]} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={UNIVERSITIES}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.dropdownItem,
+                    university === item.name && styles.dropdownItemSelected,
+                  ]}
+                  onPress={() => handleUniversitySelect(item.name)}
+                >
+                  <Text
+                    style={[
+                      styles.dropdownItemText,
+                      university === item.name &&
+                        styles.dropdownItemTextSelected,
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                  {university === item.name && (
+                    <Ionicons
+                      name="checkmark"
+                      size={20}
+                      color={colors.blue[500]}
+                    />
+                  )}
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
   );
 }

@@ -1,135 +1,131 @@
-// TODO: React Native 컴포넌트들을 웹용으로 변환 필요
-// import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-//
-import { useNavigate } from 'react-router-dom';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 
-import { ROUTES } from '@/constants/routes';
-// import { useAuth } from './contexts/AuthContext';
-// import { useUserProfile } from '@/hooks/queries';
+import { ROUTES } from '@/src/constants/routes';
+import { useAuth } from '@/src/contexts/auth_context';
+import { useUserProfile } from '@/src/hooks/queries';
 
 interface TeamGuardProps {
   children: React.ReactNode;
   fallbackMessage?: string;
 }
 
-export function TeamGuard({ children, fallbackMessage }: TeamGuardProps) {
-  const navigate = useNavigate();
-  // TODO: 실제 인증 로직 구현
-  // const { isAuthenticated } = useAuth();
-  // const { data: userProfile, isLoading } = useUserProfile();
-
-  const isAuthenticated = true; // 임시
-  const isLoading = false; // 임시
-  const userProfile = { teamId: 'temp' }; // 임시
+export default function TeamGuard({
+  children,
+  fallbackMessage,
+}: TeamGuardProps) {
+  const router = useRouter();
+  const { token } = useAuth();
+  const isAuthenticated = !!token;
+  const { data: userProfile, isLoading } = useUserProfile();
 
   useEffect(() => {
-    // 인증되지 않은 사용자는 TeamGuard를 실행하지 않음
     if (!isAuthenticated) {
       return;
     }
 
     if (!isLoading && (!userProfile?.teamId || userProfile.teamId === null)) {
-      // TODO: 웹용 알림 구현
-      console.log(
-        '팀 참여 필요:',
-        fallbackMessage || '이 기능을 사용하려면 먼저 팀에 가입해야 합니다.'
+      Alert.alert(
+        '팀 참여 필요',
+        fallbackMessage || '이 기능을 사용하려면 먼저 팀에 가입해야 합니다.',
+        [
+          {
+            text: '팀 만들기',
+            onPress: () => router.push(ROUTES.TEAM_CREATION),
+          },
+          {
+            text: '팀 참여하기',
+            onPress: () => router.push(ROUTES.TEAM_GUIDE),
+          },
+          {
+            text: '취소',
+            style: 'cancel',
+            onPress: () => router.replace(ROUTES.TABS),
+          },
+        ]
       );
     }
   }, [
     userProfile?.teamId,
     isLoading,
-    navigate,
+    router,
     fallbackMessage,
     isAuthenticated,
   ]);
 
-  // 인증되지 않은 사용자는 TeamGuard를 실행하지 않음
   if (!isAuthenticated) {
     return <>{children}</>;
   }
 
   if (isLoading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <div>로딩 중...</div>
-      </div>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>로딩 중...</Text>
+      </View>
     );
   }
 
   if (!userProfile?.teamId || userProfile.teamId === null) {
     return (
-      <div
+      <View
         style={{
-          display: 'flex',
-          flexDirection: 'column',
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '20px',
-          height: '100vh',
+          padding: 20,
         }}
       >
-        <div
-          style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}
-        >
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
           팀 참여가 필요합니다
-        </div>
-        <div
-          style={{ textAlign: 'center', marginBottom: '30px', color: '#666' }}
-        >
+        </Text>
+        <Text style={{ textAlign: 'center', marginBottom: 30, color: '#666' }}>
           매치에 참여하려면 먼저 팀에 가입해야 합니다.
-        </div>
+        </Text>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <button
+        <View style={{ gap: 12 }}>
+          <TouchableOpacity
             style={{
               backgroundColor: '#4CAF50',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
+              paddingHorizontal: 24,
+              paddingVertical: 12,
+              borderRadius: 8,
             }}
-            onClick={() => navigate(ROUTES.TEAM_CREATION)}
+            onPress={() => router.push(ROUTES.TEAM_CREATION)}
           >
-            팀 만들기
-          </button>
+            <Text style={{ color: 'white', textAlign: 'center' }}>
+              팀 만들기
+            </Text>
+          </TouchableOpacity>
 
-          <button
+          <TouchableOpacity
             style={{
               backgroundColor: '#374151',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
+              paddingHorizontal: 24,
+              paddingVertical: 12,
+              borderRadius: 8,
             }}
-            onClick={() => navigate(ROUTES.TEAM_GUIDE)}
+            onPress={() => router.push(ROUTES.TEAM_GUIDE)}
           >
-            팀 참여하기
-          </button>
+            <Text style={{ color: 'white', textAlign: 'center' }}>
+              팀 참여하기
+            </Text>
+          </TouchableOpacity>
 
-          <button
-            onClick={() => navigate('/')}
+          <TouchableOpacity
+            onPress={() => router.replace(ROUTES.TABS)}
             style={{
-              padding: '12px 24px',
-              borderRadius: '8px',
-              border: '1px solid #ddd',
-              backgroundColor: 'white',
-              cursor: 'pointer',
+              paddingHorizontal: 24,
+              paddingVertical: 12,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: '#ddd',
             }}
           >
-            홈으로 이동
-          </button>
-        </div>
-      </div>
+            <Text style={{ textAlign: 'center' }}>홈으로 이동</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   }
 

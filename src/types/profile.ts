@@ -34,13 +34,6 @@ export interface UpdateProfileRequest {
   bio?: string;
 }
 
-export interface UpdateProfileRequest {
-  name?: string;
-  skillLevel?: string;
-  position?: string;
-  bio?: string;
-}
-
 export interface UpdateProfileResponse {
   success: boolean;
   user: UserProfile;

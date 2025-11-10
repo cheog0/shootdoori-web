@@ -1,8 +1,7 @@
-import * as axios from 'axios';
+import axios from 'axios';
 
-import { VENUE_API } from '@/constants/endpoints';
-import type { Venue } from '@/types/venue';
-import environment from '@/config/environment';
+import { VENUE_API } from '@/src/constants/endpoints';
+import type { Venue } from '@/src/types/venue';
 
 interface VenuePage {
   content: Venue[];
@@ -17,7 +16,7 @@ interface VenuePage {
 
 export const getVenues = async (): Promise<Venue[]> => {
   const { data } = await axios.get<VenuePage>(VENUE_API.GET_VENUES, {
-    baseURL: environment.API_BASE_URL,
+    baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
   });
   return data.content;
 };

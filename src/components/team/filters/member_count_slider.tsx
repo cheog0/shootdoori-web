@@ -1,51 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
+import { View, Text, TouchableOpacity } from 'react-native';
 
-import { theme } from '@/styles/theme';
-
-// Styled Components
-const Container = styled.div`
-  padding: ${theme.spacing.spacing4};
-`;
-
-const Title = styled.h3`
-  font-size: ${theme.typography.fontSize.lg};
-  font-weight: ${theme.fontWeight.semibold};
-  color: ${theme.colors.textMain};
-  margin: 0 0 ${theme.spacing.spacing4} 0;
-`;
-
-const OptionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.spacing2};
-`;
-
-const OptionButton = styled.button<{ isSelected: boolean }>`
-  background-color: ${props =>
-    props.isSelected ? theme.colors.brand.main : theme.colors.white};
-  border: 1px solid
-    ${props =>
-      props.isSelected ? theme.colors.brand.main : theme.colors.borderInput};
-  border-radius: 8px;
-  padding: ${theme.spacing.spacing3};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-
-  &:hover {
-    background-color: ${props =>
-      props.isSelected ? theme.colors.brand.dark : theme.colors.gray100};
-  }
-`;
-
-const OptionText = styled.span<{ isSelected: boolean }>`
-  font-size: ${theme.typography.fontSize.base};
-  color: ${props =>
-    props.isSelected ? theme.colors.white : theme.colors.textMain};
-  font-weight: ${props =>
-    props.isSelected ? theme.fontWeight.semibold : theme.fontWeight.medium};
-`;
+import { styles } from '@/src/components/team/filters/member_count_slider_styles';
 
 interface MemberCountSliderProps {
   value: number;
@@ -65,22 +20,51 @@ export default function MemberCountSlider({
   value,
   onValueChange,
 }: MemberCountSliderProps) {
+  const getSliderValue = (currentValue: number) => {
+    const option = MEMBER_COUNT_OPTIONS.find(
+      opt => currentValue <= opt.maxCount
+    );
+    return option ? option.sliderValue : 6;
+  };
+
+  const currentSliderValue = getSliderValue(value);
+  const sliderWidth = (currentSliderValue / 6) * 100;
+
   return (
-    <Container>
-      <Title>팀원 수</Title>
-      <OptionsContainer>
-        {MEMBER_COUNT_OPTIONS.map(option => (
-          <OptionButton
-            key={option.sliderValue}
-            isSelected={value === option.sliderValue}
-            onClick={() => onValueChange(option.sliderValue)}
+    <View style={styles.memberCountSlider}>
+      <View style={styles.sliderTrack}>
+        <View style={styles.sliderTrackBackground} />
+        <View
+          style={[
+            styles.sliderActiveTrack,
+            {
+              left: '0%',
+              width: `${sliderWidth}%`,
+            },
+          ]}
+        />
+      </View>
+      <View style={styles.sliderLabels}>
+        {MEMBER_COUNT_OPTIONS.map((option, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.sliderLabel,
+              value >= option.maxCount && styles.sliderLabelActive,
+            ]}
+            onPress={() => onValueChange(option.maxCount)}
           >
-            <OptionText isSelected={value === option.sliderValue}>
+            <Text
+              style={[
+                styles.sliderLabelText,
+                value >= option.maxCount && styles.sliderLabelTextActive,
+              ]}
+            >
               {option.label}
-            </OptionText>
-          </OptionButton>
+            </Text>
+          </TouchableOpacity>
         ))}
-      </OptionsContainer>
-    </Container>
+      </View>
+    </View>
   );
 }
